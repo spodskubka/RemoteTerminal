@@ -1,0 +1,32 @@
+﻿<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:RemoteTerminal">
+
+    <ResourceDictionary.MergedDictionaries>
+        <!-- 
+            Styles that define common aspects of the platform look and feel
+            Required by Visual Studio project and item templates
+        -->
+        <ResourceDictionary Source="Common/StandardStyles.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+
+    <x:String x:Key="AppColor">#001E4E</x:String>
+
+    <Style TargetType="AppBar">
+        <Setter Property="Background" Value="{StaticResource AppColor}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource AppColor}"/>
+    </Style>
+
+    <Style x:Key="AppBarSpacerBorderStyle" TargetType="Border">
+        <Setter Property="Width" Value="30"/>
+    </Style>
+    <Style x:Key="PrivateKeysAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource PermissionsAppBarButtonStyle}">
+        <Setter Property="AutomationProperties.AutomationId" Value="PrivateKeysAppBarButton"/>
+        <Setter Property="AutomationProperties.Name" Value="Private Keys"/>
+    </Style>
+    <Style x:Key="QuickConnectAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource GoAppBarButtonStyle}">
+        <Setter Property="AutomationProperties.AutomationId" Value="QuickConnectAppBarButton"/>
+        <Setter Property="AutomationProperties.Name" Value="Quick Connect"/>
+    </Style>
+</ResourceDictionary>

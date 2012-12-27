@@ -1,0 +1,290 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{41D333C7-6288-4335-B0C0-20CF028413B1}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SshNet</RootNamespace>
+    <AssemblyName>SshNet</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\ARM\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>ARM</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
+    <OutputPath>bin\ARM\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>ARM</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE;NETFX_CORE</DefineConstants>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE;NETFX_CORE</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>;2008</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+    <ErrorReport>prompt</ErrorReport>
+    <Prefer32Bit>true</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AuthenticationMethod.cs" />
+    <Compile Include="AuthenticationResult.cs" />
+    <Compile Include="BaseClient.cs" />
+    <Compile Include="ChannelAsyncResult.cs" />
+    <Compile Include="Channels\Channel.cs" />
+    <Compile Include="Channels\ChannelSession.cs" />
+    <Compile Include="Channels\ChannelTypes.cs" />
+    <Compile Include="CipherInfo.cs" />
+    <Compile Include="Common\ASCIIEncoding.cs" />
+    <Compile Include="Common\AuthenticationBannerEventArgs.cs" />
+    <Compile Include="Common\AuthenticationEventArgs.cs" />
+    <Compile Include="Common\AuthenticationPasswordChangeEventArgs.cs" />
+    <Compile Include="Common\AuthenticationPrompt.cs" />
+    <Compile Include="Common\AuthenticationPromptEventArgs.cs" />
+    <Compile Include="Common\BigInteger.cs" />
+    <Compile Include="Common\ChannelDataEventArgs.cs" />
+    <Compile Include="Common\ChannelEventArgs.cs" />
+    <Compile Include="Common\ChannelOpenFailedEventArgs.cs" />
+    <Compile Include="Common\ChannelRequestEventArgs.cs" />
+    <Compile Include="Common\DerData.cs" />
+    <Compile Include="Common\ExceptionEventArgs.cs" />
+    <Compile Include="Common\Extensions.cs" />
+    <Compile Include="Common\Extensions.NET40.cs" />
+    <Compile Include="Common\Extensions.WinRT.cs" />
+    <Compile Include="Common\HostKeyEventArgs.cs" />
+    <Compile Include="Common\ObjectIdentifier.cs" />
+    <Compile Include="Common\PipeStream.cs" />
+    <Compile Include="Common\SemaphoreLight.cs" />
+    <Compile Include="Common\ShellDataEventArgs.cs" />
+    <Compile Include="Common\SshAuthenticationException.cs" />
+    <Compile Include="Common\SshConnectionException.cs" />
+    <Compile Include="Common\SshData.cs" />
+    <Compile Include="Common\SshException.cs" />
+    <Compile Include="Common\SshOperationTimeoutException.cs" />
+    <Compile Include="Common\SshPassPhraseNullOrEmptyException.cs" />
+    <Compile Include="Common\TerminalModes.cs" />
+    <Compile Include="Compression\CompressionMode.cs" />
+    <Compile Include="Compression\Compressor.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Compression\ZlibStream.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ConnectionInfo.cs" />
+    <Compile Include="ExpectAction.cs" />
+    <Compile Include="KeyboardInteractiveAuthenticationMethod.cs" />
+    <Compile Include="KeyboardInteractiveAuthenticationMethod.NET40.cs" />
+    <Compile Include="KeyboardInteractiveConnectionInfo.cs" />
+    <Compile Include="MessageEventArgs.cs" />
+    <Compile Include="Messages\Authentication\BannerMessage.cs" />
+    <Compile Include="Messages\Authentication\FailureMessage.cs" />
+    <Compile Include="Messages\Authentication\InformationRequestMessage.cs" />
+    <Compile Include="Messages\Authentication\InformationResponseMessage.cs" />
+    <Compile Include="Messages\Authentication\PasswordChangeRequiredMessage.cs" />
+    <Compile Include="Messages\Authentication\PublicKeyMessage.cs" />
+    <Compile Include="Messages\Authentication\RequestMessage.cs" />
+    <Compile Include="Messages\Authentication\RequestMessageKeyboardInteractive.cs" />
+    <Compile Include="Messages\Authentication\RequestMessageNone.cs" />
+    <Compile Include="Messages\Authentication\RequestMessagePassword.cs" />
+    <Compile Include="Messages\Authentication\RequestMessagePublicKey.cs" />
+    <Compile Include="Messages\Authentication\SuccessMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelCloseMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelDataMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelEofMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelExtendedDataMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelFailureMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelOpenConfirmationMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelOpenFailureMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelOpen\ChannelOpenInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelOpen\ChannelOpenMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelOpen\DirectTcpipChannelInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelOpen\ForwardedTcpipChannelInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelOpen\SessionChannelOpenInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelOpen\X11ChannelOpenInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\BreakRequestInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ChannelRequestMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\EndOfWriteRequestInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\EnvironmentVariableRequestInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ExecRequestInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ExitSignalRequestInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ExitStatusRequestInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\KeepAliveRequestInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\PseudoTerminalInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\RequestInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\ShellRequestInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\SignalRequestInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\SubsystemRequestInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\WindowChangeRequestInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\X11ForwardingRequestInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\XonXoffRequestInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelSuccessMessage.cs" />
+    <Compile Include="Messages\Connection\ChannelWindowAdjustMessage.cs" />
+    <Compile Include="Messages\Connection\GlobalRequestMessage.cs" />
+    <Compile Include="Messages\Connection\GlobalRequestName.cs" />
+    <Compile Include="Messages\Connection\RequestFailureMessage.cs" />
+    <Compile Include="Messages\Connection\RequestSuccessMessage.cs" />
+    <Compile Include="Messages\Message.cs" />
+    <Compile Include="Messages\MessageAttribute.cs" />
+    <Compile Include="Messages\ServiceName.cs" />
+    <Compile Include="Messages\Transport\DebugMessage.cs" />
+    <Compile Include="Messages\Transport\DisconnectMessage.cs" />
+    <Compile Include="Messages\Transport\DisconnectReason.cs" />
+    <Compile Include="Messages\Transport\IgnoreMessage.cs" />
+    <Compile Include="Messages\Transport\IKeyExchangedAllowed.cs" />
+    <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeGroup.cs" />
+    <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeInit.cs" />
+    <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeReply.cs" />
+    <Compile Include="Messages\Transport\KeyExchangeDhGroupExchangeRequest.cs" />
+    <Compile Include="Messages\Transport\KeyExchangeDhInitMessage.cs" />
+    <Compile Include="Messages\Transport\KeyExchangeDhReplyMessage.cs" />
+    <Compile Include="Messages\Transport\KeyExchangeInitMessage.cs" />
+    <Compile Include="Messages\Transport\NewKeysMessage.cs" />
+    <Compile Include="Messages\Transport\ServiceAcceptMessage.cs" />
+    <Compile Include="Messages\Transport\ServiceRequestMessage.cs" />
+    <Compile Include="Messages\Transport\UnimplementedMessage.cs" />
+    <Compile Include="NoneAuthenticationMethod.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="PasswordAuthenticationMethod.cs" />
+    <Compile Include="PasswordAuthenticationMethod.NET40.cs" />
+    <Compile Include="PasswordConnectionInfo.cs" />
+    <Compile Include="PrivateKeyAuthenticationMethod.cs" />
+    <Compile Include="PrivateKeyConnectionInfo.cs" />
+    <Compile Include="PrivateKeyFile.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Security\Algorithm.cs" />
+    <Compile Include="Security\Cryptography\AsymmetricCipher.cs" />
+    <Compile Include="Security\Cryptography\BlockCipher.cs" />
+    <Compile Include="Security\Cryptography\Cipher.cs" />
+    <Compile Include="Security\Cryptography\CipherDigitalSignature.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\AesCipher.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\BlowfishCipher.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\CastCipher.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\CipherMode.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\CipherPadding.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\DesCipher.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Modes\CbcCipherMode.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Modes\CfbCipherMode.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Modes\CtrCipherMode.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Modes\OfbCipherMode.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Paddings\PKCS5Padding.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\Paddings\PKCS7Padding.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\RsaCipher.cs" />
+    <Compile Include="Security\Cryptography\Ciphers\TripleDesCipher.cs" />
+    <Compile Include="Security\Cryptography\DigitalSignature.cs" />
+    <Compile Include="Security\Cryptography\DsaDigitalSignature.cs" />
+    <Compile Include="Security\Cryptography\DsaKey.cs" />
+    <Compile Include="Security\Cryptography\Key.cs" />
+    <Compile Include="Security\Cryptography\RsaDigitalSignature.cs" />
+    <Compile Include="Security\Cryptography\RsaKey.cs" />
+    <Compile Include="Security\Cryptography\SymmetricCipher.cs" />
+    <Compile Include="Security\HostAlgorithm.cs" />
+    <Compile Include="Security\KeyExchange.cs" />
+    <Compile Include="Security\KeyExchangeDiffieHellman.cs" />
+    <Compile Include="Security\KeyExchangeDiffieHellmanGroup14Sha1.cs" />
+    <Compile Include="Security\KeyExchangeDiffieHellmanGroup1Sha1.cs" />
+    <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeSha1.cs" />
+    <Compile Include="Security\KeyExchangeDiffieHellmanGroupExchangeSha256.cs" />
+    <Compile Include="Security\KeyHostAlgorithm.cs" />
+    <Compile Include="Session.cs" />
+    <Compile Include="Session.NET.cs" />
+    <Compile Include="Session.NET40.cs" />
+    <Compile Include="Shell.cs" />
+    <Compile Include="Shell.NET40.cs" />
+    <Compile Include="ShellStream.cs" />
+    <Compile Include="SshClient.cs" />
+    <Compile Include="SshCommand.cs" />
+    <Compile Include="SshCommand.NET40.cs" />
+  </ItemGroup>
+  <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '11.0' ">
+    <VisualStudioVersion>11.0</VisualStudioVersion>
+  </PropertyGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Microsoft\WindowsXaml\v$(VisualStudioVersion)\Microsoft.Windows.UI.Xaml.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
