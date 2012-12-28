@@ -57,6 +57,7 @@ namespace RemoteTerminal.Terminals
         private int? scrollBottom = null;
         private SavedCursor savedCursor = null;
         private bool applicationCursorKeys = false;
+        private bool insertMode = false;
 
         private bool autoWrapMode = true;
 
@@ -579,6 +580,17 @@ namespace RemoteTerminal.Terminals
                     default:
                         lock (this.Display.ChangeLock)
                         {
+                            if (this.insertMode)
+                            {
+                                var line = this.Display[this.Display.CursorRow];
+                                if (line.Cells.Count == this.Columns)
+                                {
+                                    line.Cells.RemoveAt(this.Columns - 1);
+                                }
+
+                                line.Cells.Insert(this.Display.CursorColumn, new DrawingTerminalCell(this.Display));
+                            }
+
                             this.CursorCell.Character = ch;
                             this.CursorCell.ApplyFormat(this.currentFormat);
                             this.Display.Changed = true;
@@ -824,6 +836,19 @@ namespace RemoteTerminal.Terminals
                     this.Erase(this.Display.CursorRow, this.Display.CursorColumn, endRow, endColumn);
                     break;
 
+                case "[l":
+                case "[h":
+                    var enableMode = chars == "[h";
+                    switch (arg0)
+                    {
+                        case 4:
+                            this.insertMode = enableMode;
+                            break;
+                        default:
+                            break;
+                    }
+                    break;
+
                 case "[?l":
                 case "[?h":
                     var h = chars == "[?h";
@@ -961,9 +986,6 @@ namespace RemoteTerminal.Terminals
                 case "(B":
                     // TODO: nano ??
                     break;
-                case "[l":
-                    // TODO: nano (Reset Mode)
-                    break;
                 case "=":
                     // TODO: nano (Application Keypad)
                     break;
@@ -975,9 +997,6 @@ namespace RemoteTerminal.Terminals
                     break;
                 case "[?r":
                     // TODO: mc (Restore DEC Private Mode Values)
-                    break;
-                case "[h":
-                    // TODO: default shell auf shellmix.com (Set Mode)
                     break;
 
                 // TODO: Character set selection, several esoteric ?h/?l modes
