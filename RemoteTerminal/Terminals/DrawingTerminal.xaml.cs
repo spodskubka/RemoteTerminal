@@ -69,6 +69,11 @@ namespace RemoteTerminal.Terminals
         public static double TerminalCellWidth { get { return 9d; } }
         public static double TerminalCellHeight { get { return 20d; } }
 
+        /// <summary>
+        /// The default tab stop width.
+        /// </summary>
+        private const int DefaultTabStopWidth = 8;
+
         private string localReadPrompt = string.Empty;
         private AutoResetEvent localReadSync = null;
         private string localReadLine = string.Empty;
@@ -560,6 +565,9 @@ namespace RemoteTerminal.Terminals
                         this.NextLineWithScroll();
                         break;
                     case '\a':
+                        break;
+                    case '\t':
+                        this.JumpToNextHorizontalTabStop();
                         break;
                     case '\b':
                         if (--this.Display.CursorColumn < 0)
@@ -1122,6 +1130,15 @@ namespace RemoteTerminal.Terminals
 
                 this.Display.Changed = true;
             }
+        }
+
+        private void JumpToNextHorizontalTabStop()
+        {
+            var previousTabStop = ((this.Display.CursorColumn / DefaultTabStopWidth) * DefaultTabStopWidth);
+            var nextTabStop = previousTabStop + DefaultTabStopWidth;
+            this.Display.CursorColumn = Math.Min(nextTabStop, this.Columns - 1);
+
+            this.UpdateCursor();
         }
 
         public async Task WriteLineAsync(string text)
