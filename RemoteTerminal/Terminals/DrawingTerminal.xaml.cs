@@ -60,6 +60,7 @@ namespace RemoteTerminal.Terminals
         private bool insertMode = false;
 
         private bool autoWrapMode = true;
+        private bool wrapNextChar = false;
 
         private DrawingTerminalCellFormat currentFormat = new DrawingTerminalCellFormat();
 
@@ -561,9 +562,11 @@ namespace RemoteTerminal.Terminals
                         break;
                     case '\r':
                         this.Display.CursorColumn = 0;
+                        this.wrapNextChar = false;
                         break;
                     case '\n':
                         this.NextLineWithScroll();
+                        this.wrapNextChar = false;
                         break;
                     case '\a':
                         break;
@@ -576,10 +579,19 @@ namespace RemoteTerminal.Terminals
                             this.Display.CursorColumn = 0;
                         }
 
+                        this.wrapNextChar = false;
+
                         break;
                     default:
                         lock (this.Display.ChangeLock)
                         {
+                            if (this.autoWrapMode && this.wrapNextChar)
+                            {
+                                this.Display.CursorColumn = 0;
+                                this.wrapNextChar = false;
+                                this.NextLineWithScroll();
+                            }
+
                             if (this.insertMode)
                             {
                                 var line = this.Display[this.Display.CursorRow];
@@ -598,15 +610,8 @@ namespace RemoteTerminal.Terminals
 
                         if (++this.Display.CursorColumn >= this.Columns)
                         {
-                            if (this.autoWrapMode)
-                            {
-                                this.Display.CursorColumn = 0;
-                                this.NextLineWithScroll();
-                            }
-                            else
-                            {
-                                --this.Display.CursorColumn;
-                            }
+                            --this.Display.CursorColumn;
+                            this.wrapNextChar = true;
                         }
 
                         break;
