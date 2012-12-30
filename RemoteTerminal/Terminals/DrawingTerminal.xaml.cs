@@ -499,6 +499,15 @@ namespace RemoteTerminal.Terminals
                         foreach (char contentChar in content)
                         {
                             this.ProcessInput(contentChar);
+#if CHARFORCHARDISPLAY
+                            lock (this.Display.ChangeLock)
+                            {
+                                if (this.Display.Changed)
+                                {
+                                    Monitor.Wait(this.Display.ChangeLock);
+                                }
+                            }
+#endif
                         }
                     }
                     while (true);

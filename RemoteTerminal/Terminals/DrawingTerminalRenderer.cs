@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CommonDX;
 using SharpDX;
@@ -138,6 +139,13 @@ namespace RemoteTerminal.Terminals
 
             context2D.EndDraw();
             //}
+
+#if CHARFORCHARDISPLAY
+            lock (this.display.ChangeLock)
+            {
+                Monitor.Pulse(this.display.ChangeLock);
+            }
+#endif
         }
 
         private void DrawCell(TargetBase target, RectangleF rect, DrawingTerminalCell cell, bool isCursor, bool hasFocus)
