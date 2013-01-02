@@ -1,14 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RemoteTerminal.Model;
 using RemoteTerminal.Terminals;
 using Windows.Networking;
 using Windows.Networking.Sockets;
-using Windows.Storage.Streams;
 
 namespace RemoteTerminal.Connections
 {
@@ -22,6 +19,14 @@ namespace RemoteTerminal.Connections
 
         private bool isDisposed = false;
 
+        public bool IsConnected
+        {
+            get
+            {
+                return this.socket != null && this.reader != null && this.writer != null;
+            }
+        }
+
         public void Initialize(ConnectionData connectionData)
         {
             this.CheckDisposed();
@@ -33,6 +38,29 @@ namespace RemoteTerminal.Connections
             }
 
             this.connectionData = connectionData;
+        }
+
+        public async Task<bool> ConnectAsync(IConnectionInitializingTerminal terminal)
+        {
+            this.CheckDisposed();
+            this.MustBeConnected(false);
+
+            string exception = null;
+            try
+            {
+                this.socket = new StreamSocket();
+                await this.socket.ConnectAsync(new HostName(this.connectionData.Host), this.connectionData.Port.ToString());
+                this.reader = new StreamReader(socket.InputStream.AsStreamForRead(0), Encoding.GetEncoding("ASCII"));
+                this.writer = new StreamWriter(socket.OutputStream.AsStreamForWrite(0), Encoding.GetEncoding("ASCII"));
+                return true;
+            }
+            catch (Exception ex)
+            {
+                exception = ex.ToString();
+            }
+
+            terminal.WriteLine(exception);
+            return false;
         }
 
         public async Task<string> ReadAsync()
@@ -73,30 +101,9 @@ namespace RemoteTerminal.Connections
             command += str;
         }
 
-        public async Task<bool> ConnectAsync(ITerminal terminal)
+        public void ResizeTerminal(int rows, int columns)
         {
-            this.CheckDisposed();
-            this.MustBeConnected(false);
-
-            string exception = null;
-            try
-            {
-                this.socket = new StreamSocket();
-                await this.socket.ConnectAsync(new HostName(this.connectionData.Host), this.connectionData.Port.ToString());
-                this.reader = new StreamReader(socket.InputStream.AsStreamForRead(0), Encoding.GetEncoding("ASCII"));
-                this.writer = new StreamWriter(socket.OutputStream.AsStreamForWrite(0), Encoding.GetEncoding("ASCII"));
-                return true;
-            }
-            catch (Exception ex)
-            {
-                exception = ex.ToString();
-            }
-
-            //if (exception != null)
-            {
-                await terminal.WriteLineAsync(exception);
-                return false;
-            }
+            // A telnet connection is unaffected by a terminal resize.
         }
 
         public void Disconnect()
@@ -111,12 +118,23 @@ namespace RemoteTerminal.Connections
                 return;
             }
 
-            this.reader.Dispose();
-            this.reader = null;
-            this.writer.Dispose();
-            this.writer = null;
-            this.socket.Dispose();
-            this.socket = null;
+            if (this.reader != null)
+            {
+                this.reader.Dispose();
+                this.reader = null;
+            }
+
+            if (this.writer != null)
+            {
+                this.writer.Dispose();
+                this.writer = null;
+            }
+
+            if (this.socket != null)
+            {
+                this.socket.Dispose();
+                this.socket = null;
+            }
 
             this.isDisposed = true;
 
@@ -133,16 +151,10 @@ namespace RemoteTerminal.Connections
 
         private void MustBeConnected(bool connected)
         {
-            if (connected == (this.socket == null /*|| this.reader == null*/ || this.writer == null))
+            if (connected != this.IsConnected)
             {
                 throw new InvalidOperationException(connected ? "Not yet connected." : "Already connected.");
             }
-        }
-
-
-        public void ResizeTerminal(int columns, int rows)
-        {
-            // A telnet connection is unaffected by a terminal resize.
         }
     }
 }

@@ -1,24 +1,4 @@
-﻿
-// Copyright (c) 2010-2012 SharpDX - Alexandre Mutel
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-// 
-// The above copyright notice and this permission notice shall be included in
-// all copies or substantial portions of the Software.
-// 
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-// THE SOFTWARE.
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -26,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CommonDX;
+using RemoteTerminal.Screens;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
@@ -36,11 +17,13 @@ namespace RemoteTerminal.Terminals
     /// <summary>
     /// Display an overlay text with FPS and ms/frame counters.
     /// </summary>
-    public class DrawingTerminalRenderer : IDisposable
+    class ScreenDisplayRenderer : IDisposable
     {
         private readonly Dictionary<Color, Brush> brushes = new Dictionary<Color, Brush>();
 
-        DrawingTerminalDisplay display;
+        ScreenDisplay screenDisplay;
+        IRenderableScreen screen;
+
         private static readonly Color TerminalBackgroundColor = Color.Black;
         private const string TerminalFontFamily = "Consolas";
 
@@ -56,10 +39,11 @@ namespace RemoteTerminal.Terminals
         /// <summary>
         /// Initializes a new instance of <see cref="FpsRenderer"/> class.
         /// </summary>
-        public DrawingTerminalRenderer(DrawingTerminalDisplay display)
+        public ScreenDisplayRenderer(ScreenDisplay screenDisplay, IRenderableScreen screen)
         {
             Show = true;
-            this.display = display;
+            this.screenDisplay = screenDisplay;
+            this.screen = screen;
         }
 
         public bool Show { get; set; }
@@ -77,41 +61,7 @@ namespace RemoteTerminal.Terminals
             if (!Show)
                 return;
 
-            DrawingTerminalCell[][] displayClone;
-            int cursorRowClone;
-            int cursorColumnClone;
-            bool cursorHiddenClone;
-            bool hasFocusClone;
-
-            lock (this.display.ChangeLock)
-            {
-                if (!this.display.Changed)
-                {
-                    return;
-                }
-
-                displayClone = this.display.Lines.Select(l => l.Cells.Select(c => c.Clone()).ToArray()).ToArray();
-                cursorRowClone = this.display.CursorRow;
-                cursorColumnClone = this.display.CursorColumn;
-                cursorHiddenClone = this.display.CursorHidden;
-                hasFocusClone = this.display.HasFocus;
-
-                this.display.Changed = false;
-            }
-
-            //lock (this.display.ChangeLock)
-            //{
-            //    var display = this.display;
-            //    var cursorRow = this.display.CursorRow;
-            //    var cursorColumn = this.display.CursorColumn;
-            //    var cursorHidden = this.display.CursorHidden;
-            //    var hasFocus = this.display.HasFocus;
-
-            var display = displayClone;
-            var cursorRow = cursorRowClone;
-            var cursorColumn = cursorColumnClone;
-            var cursorHidden = cursorHiddenClone;
-            var hasFocus = hasFocusClone;
+            IRenderableScreenCopy screenCopy = this.screen.GetScreenCopy();
 
             var context2D = target.DeviceManager.ContextDirect2D;
 
@@ -120,7 +70,7 @@ namespace RemoteTerminal.Terminals
             context2D.Clear(TerminalBackgroundColor);
 
             RectangleF rect = new RectangleF();
-            var lines = display;
+            var lines = screenCopy.Cells;
             for (int y = 0; y < lines.Count(); y++)
             {
                 var cols = lines[y];
@@ -132,23 +82,15 @@ namespace RemoteTerminal.Terminals
                     rect.Left = x * CellWidth;
                     rect.Right = rect.Left + CellWidth;
 
-                    bool isCursor = !cursorHidden && y == cursorRow && x == cursorColumn;
-                    this.DrawCell(target, rect, cell, isCursor, hasFocus);
+                    bool isCursor = !screenCopy.CursorHidden && y == screenCopy.CursorRow && x == screenCopy.CursorColumn;
+                    this.DrawCell(target, rect, cell, isCursor, screenCopy.HasFocus);
                 }
             }
 
             context2D.EndDraw();
-            //}
-
-#if CHARFORCHARDISPLAY
-            lock (this.display.ChangeLock)
-            {
-                Monitor.Pulse(this.display.ChangeLock);
-            }
-#endif
         }
 
-        private void DrawCell(TargetBase target, RectangleF rect, DrawingTerminalCell cell, bool isCursor, bool hasFocus)
+        private void DrawCell(TargetBase target, RectangleF rect, IRenderableScreenCell cell, bool isCursor, bool hasFocus)
         {
             var context2D = target.DeviceManager.ContextDirect2D;
 
@@ -157,7 +99,7 @@ namespace RemoteTerminal.Terminals
                 Color backgroundColor;
                 if (isCursor && hasFocus)
                 {
-                    var color = DrawingTerminalDisplay.CursorFormat.BackgroundColor;
+                    var color = this.screenDisplay.CursorBackgroundColor;
                     backgroundColor = new Color(color.R, color.G, color.B, color.A);
                 }
                 else
@@ -177,7 +119,7 @@ namespace RemoteTerminal.Terminals
             {
                 if (isCursor && !hasFocus)
                 {
-                    var color = DrawingTerminalDisplay.CursorFormat.BackgroundColor;
+                    var color = this.screenDisplay.CursorBackgroundColor;
                     Color borderColor = new Color(color.R, color.G, color.B, color.A);
                     Brush borderBrush = GetBrush(context2D, borderColor);
                     context2D.DrawRectangle(rect, borderBrush);
@@ -198,15 +140,19 @@ namespace RemoteTerminal.Terminals
                 }
 
                 var foregroundBrush = GetBrush(context2D, foregroundColor);
-                TextFormat textFormat = this.textFormatNormal;
-                if (cell.Modifications.HasFlag(DrawingTerminalCellModifications.Bold))
+
+                if (cell.Character != ' ')
                 {
-                    textFormat = this.textFormatBold;
+                    TextFormat textFormat = this.textFormatNormal;
+                    if (cell.Modifications.HasFlag(ScreenCellModifications.Bold))
+                    {
+                        textFormat = this.textFormatBold;
+                    }
+
+                    context2D.DrawText(cell.Character.ToString(), textFormat, rect, foregroundBrush, DrawTextOptions.Clip);
                 }
 
-                context2D.DrawText(cell.Character.ToString(), textFormat, rect, foregroundBrush, DrawTextOptions.Clip);
-
-                if (cell.Modifications.HasFlag(DrawingTerminalCellModifications.Underline))
+                if (cell.Modifications.HasFlag(ScreenCellModifications.Underline))
                 {
                     var point1 = new DrawingPointF(rect.Left, rect.Bottom - 1.0f);
                     var point2 = new DrawingPointF(rect.Right, rect.Bottom - 1.0f);

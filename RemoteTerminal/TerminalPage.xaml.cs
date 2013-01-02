@@ -25,8 +25,7 @@ namespace RemoteTerminal
     /// </summary>
     public sealed partial class TerminalPage : RemoteTerminal.Common.LayoutAwarePage
     {
-        DrawingTerminal terminal;
-        IConnection connection;
+        Guid? terminalGuid = null;
 
         public TerminalPage()
         {
@@ -42,7 +41,7 @@ namespace RemoteTerminal
         /// </param>
         /// <param name="pageState">A dictionary of state preserved by this page during an earlier
         /// session.  This will be null the first time a page is visited.</param>
-        protected async override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
+        protected override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
         {
             if (navigationParameter == null)
             {
@@ -71,38 +70,8 @@ namespace RemoteTerminal
 
             this.DefaultViewModel["connection"] = connectionData;
 
-            //this.pseudoTerminal.InitializeTerminal(favoriteData.Host, favoriteData.Port, favoriteData.Username);
-
-            this.terminal = new DrawingTerminal();
-            this.terminalContainer.Child = this.terminal;
-
-            switch (connectionData.Type)
-            {
-                case ConnectionType.Telnet:
-                    this.connection = new TelnetConnection();
-                    terminal.LocalEcho = true;
-                    terminal.WrittenNewLine = "\r\n";
-                    break;
-                case ConnectionType.Ssh:
-                    this.connection = new SshConnection();
-                    terminal.LocalEcho = false;
-                    terminal.WrittenNewLine = "\r";
-                    break;
-                default:
-                    throw new Exception("Unknown connection type.");
-            }
-
-            await terminal.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => { Task.Delay(100); terminal.Focus(FocusState.Pointer); });
-
-            this.connection.Initialize(connectionData);
-            if (await this.connection.ConnectAsync(terminal))
-            {
-                this.terminal.Connect(connection);
-            }
-            else if (this.terminal != null)
-            {
-                this.terminal.Disconnect();
-            }
+            this.terminalGuid = TerminalManager.Create(connectionData);
+            this.screenDisplay.AssignTerminal(this.terminalGuid.Value);
         }
 
         /// <summary>
@@ -117,18 +86,16 @@ namespace RemoteTerminal
 
         protected override void GoBack(object sender, RoutedEventArgs e)
         {
-            if (this.terminal != null)
+            if (this.screenDisplay != null)
             {
-                this.terminal.Disconnect();
-                this.terminal.Dispose();
-                this.terminal = null;
+                this.screenDisplay.Dispose();
+                this.screenDisplay = null;
             }
 
-            if (this.connection != null)
+            if (this.terminalGuid != null)
             {
-                this.connection.Disconnect();
-                this.connection.Dispose();
-                this.connection = null;
+                TerminalManager.Remove(this.terminalGuid.Value);
+                this.terminalGuid = null;
             }
 
             base.GoBack(sender, e);
@@ -136,18 +103,16 @@ namespace RemoteTerminal
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
-            if (this.terminal != null)
+            if (this.screenDisplay != null)
             {
-                this.terminal.Disconnect();
-                this.terminal.Dispose();
-                this.terminal = null;
+                this.screenDisplay.Dispose();
+                this.screenDisplay = null;
             }
 
-            if (this.connection != null)
+            if (this.terminalGuid != null)
             {
-                this.connection.Disconnect();
-                this.connection.Dispose();
-                this.connection = null;
+                TerminalManager.Remove(this.terminalGuid.Value);
+                this.terminalGuid = null;
             }
 
             base.OnNavigatedFrom(e);

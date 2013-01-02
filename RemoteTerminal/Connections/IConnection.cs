@@ -11,11 +11,12 @@ namespace RemoteTerminal.Connections
 {
     public interface IConnection : IDisposable
     {
+        bool IsConnected { get; }
         void Initialize(ConnectionData connectionData);
-        Task<bool> ConnectAsync(ITerminal terminal);
-        void Disconnect();
+        Task<bool> ConnectAsync(IConnectionInitializingTerminal terminal);
         Task<string> ReadAsync();
         void Write(string str);
-        void ResizeTerminal(int columns, int rows);
+        void ResizeTerminal(int rows, int columns);
+        void Disconnect();
     }
 }

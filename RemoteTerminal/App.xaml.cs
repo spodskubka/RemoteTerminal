@@ -92,7 +92,7 @@ namespace RemoteTerminal
                 {
                     if (privateKeysDataSource.PrivateKeys.Count == 0)
                     {
-                        privateKeysDataSource.GetPrivateKeys();
+                        await privateKeysDataSource.GetPrivateKeys();
                     }
                 }
 

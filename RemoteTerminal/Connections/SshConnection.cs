@@ -25,6 +25,14 @@ namespace RemoteTerminal.Connections
 
         private bool isDisposed = false;
 
+        public bool IsConnected
+        {
+            get
+            {
+                return this.stream != null && this.reader != null && this.writer != null;
+            }
+        }
+
         public void Initialize(ConnectionData connectionData)
         {
             this.CheckDisposed();
@@ -38,27 +46,7 @@ namespace RemoteTerminal.Connections
             this.connectionData = connectionData;
         }
 
-        public async Task<string> ReadAsync()
-        {
-            this.CheckDisposed();
-            this.MustBeConnected(true);
-
-            char[] buffer = new char[4096]; // buffer = new char[1]; // FIXME: remove this, please...
-            int read = await this.reader.ReadAsync(buffer, 0, buffer.Length);
-            string input = new string(buffer, 0, read);
-            return input;
-        }
-
-        public void Write(string str)
-        {
-            this.CheckDisposed();
-            this.MustBeConnected(true);
-
-            this.writer.Write(str);
-            this.writer.Flush();
-        }
-
-        public async Task<bool> ConnectAsync(ITerminal terminal)
+        public async Task<bool> ConnectAsync(IConnectionInitializingTerminal terminal)
         {
             this.CheckDisposed();
             this.MustBeConnected(false);
@@ -70,7 +58,7 @@ namespace RemoteTerminal.Connections
             }
             else
             {
-                await terminal.WriteLineAsync("Username: " + username);
+                terminal.WriteLine("Username: " + username);
             }
 
             string exception;
@@ -89,7 +77,7 @@ namespace RemoteTerminal.Connections
                             var passwordConnectionInfo = new PasswordConnectionInfo(this.connectionData.Host, this.connectionData.Port, username, password);
                             passwordConnectionInfo.PasswordExpired += (sender, e) =>
                             {
-                                terminal.WriteLineAsync("Password expired for user " + e.Username).Wait();
+                                terminal.WriteLine("Password expired for user " + e.Username);
                                 do
                                 {
                                     var readNewPassword1Task = terminal.ReadLineAsync("New password: ", echo: false);
@@ -115,12 +103,12 @@ namespace RemoteTerminal.Connections
                             {
                                 if (e.Prompts.Count() > 0)
                                 {
-                                    terminal.WriteLineAsync("Performing keyboard-interactive authentication.").Wait();
+                                    terminal.WriteLine("Performing keyboard-interactive authentication.");
                                 }
 
                                 if (!string.IsNullOrEmpty(e.Instruction))
                                 {
-                                    terminal.WriteLineAsync(e.Instruction).Wait();
+                                    terminal.WriteLine(e.Instruction);
                                 }
 
                                 foreach (var prompt in e.Prompts)
@@ -177,7 +165,7 @@ namespace RemoteTerminal.Connections
 
                     connectionInfo.AuthenticationBanner += (sender, e) =>
                     {
-                        terminal.WriteLineAsync(e.BannerMessage.Replace("\n", "\r\n")).Wait();
+                        terminal.WriteLine(e.BannerMessage.Replace("\n", "\r\n"));
                     };
 
                     this.client = new SshClient(connectionInfo);
@@ -189,7 +177,6 @@ namespace RemoteTerminal.Connections
                     this.writer = new StreamWriter(this.stream);
                     this.writer.AutoFlush = true;
                     return true;
-                    //break;
                 }
                 catch (SshConnectionException ex)
                 {
@@ -209,7 +196,7 @@ namespace RemoteTerminal.Connections
 
                 if (exception != null)
                 {
-                    await terminal.WriteLineAsync(exception);
+                    terminal.WriteLine(exception);
                     if (!retry || numRetries++ > 5)
                     {
                         return false;
@@ -217,6 +204,33 @@ namespace RemoteTerminal.Connections
                 }
             }
             while (true);
+        }
+
+        public async Task<string> ReadAsync()
+        {
+            this.CheckDisposed();
+            this.MustBeConnected(true);
+
+            char[] buffer = new char[4096];
+            int read = await this.reader.ReadAsync(buffer, 0, buffer.Length);
+            string input = new string(buffer, 0, read);
+            return input;
+        }
+
+        public void Write(string str)
+        {
+            this.CheckDisposed();
+            this.MustBeConnected(true);
+
+            this.writer.Write(str);
+            this.writer.Flush();
+        }
+
+        public void ResizeTerminal(int rows, int columns)
+        {
+            this.MustBeConnected(true);
+
+            this.stream.ResizeTerminal((uint)columns, (uint)rows, 0, 0);
         }
 
         public void Disconnect()
@@ -278,17 +292,10 @@ namespace RemoteTerminal.Connections
 
         private void MustBeConnected(bool connected)
         {
-            if (connected == (this.stream == null || this.reader == null || this.writer == null))
+            if (connected != this.IsConnected)
             {
                 throw new InvalidOperationException(connected ? "Not yet connected." : "Already connected.");
             }
-        }
-
-        public void ResizeTerminal(int columns, int rows)
-        {
-            this.MustBeConnected(true);
-
-            this.stream.ResizeTerminal((uint)columns, (uint)rows, 0, 0);
         }
     }
 }

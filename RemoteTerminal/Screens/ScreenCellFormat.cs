@@ -5,14 +5,14 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
 
-namespace RemoteTerminal.Terminals
+namespace RemoteTerminal.Screens
 {
-    public class DrawingTerminalCellFormat
+    public class ScreenCellFormat
     {
         public static readonly Color DefaultForegroundColor = Colors.White;
         public static readonly Color DefaultBackgroundColor = Colors.Black;
 
-        public DrawingTerminalCellFormat()
+        public ScreenCellFormat()
         {
             this.Reset();
         }
@@ -32,9 +32,9 @@ namespace RemoteTerminal.Terminals
             this.ReverseMode = false;
         }
 
-        public DrawingTerminalCellFormat Clone()
+        public ScreenCellFormat Clone()
         {
-            return new DrawingTerminalCellFormat()
+            return new ScreenCellFormat()
             {
                 ForegroundColor = this.ForegroundColor,
                 BackgroundColor = this.BackgroundColor,

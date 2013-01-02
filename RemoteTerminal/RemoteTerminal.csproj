@@ -118,8 +118,10 @@
     <Compile Include="Common\LayoutAwarePage.cs" />
     <Compile Include="Common\RichTextColumns.cs" />
     <Compile Include="Common\SuspensionManager.cs" />
-    <Compile Include="Connections\IConnection.cs" />
     <Compile Include="Connections\SshConnection.cs" />
+    <Compile Include="TerminalManager.cs" />
+    <Compile Include="Connections\IConnection.cs" />
+    <Compile Include="Terminals\KeyModifiers.cs" />
     <Compile Include="Connections\TelnetConnection.cs" />
     <Compile Include="Model\PrivateKeyData.cs" />
     <Compile Include="Model\PrivateKeysDataSource.cs" />
@@ -131,16 +133,21 @@
     </Compile>
     <Compile Include="Model\ConnectionType.cs" />
     <Compile Include="Model\AuthenticationType.cs" />
-    <Compile Include="Terminals\DrawingTerminalCellFormat.cs" />
-    <Compile Include="Terminals\DrawingTerminalLine.cs" />
-    <Compile Include="Terminals\DrawingTerminalCell.cs" />
-    <Compile Include="Terminals\DrawingTerminalCellModifications.cs" />
-    <Compile Include="Terminals\DrawingTerminalDisplay.cs" />
-    <Compile Include="Terminals\DrawingTerminal.xaml.cs">
-      <DependentUpon>DrawingTerminal.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Terminals\DrawingTerminalRenderer.cs" />
+    <Compile Include="Screens\IScreenModifier.cs" />
+    <Compile Include="Screens\IWritableScreen.cs" />
+    <Compile Include="Screens\IRenderableScreenCopy.cs" />
+    <Compile Include="Screens\IRenderableScreenCell.cs" />
+    <Compile Include="Screens\IRenderableScreen.cs" />
+    <Compile Include="Terminals\AbstractTerminal.cs" />
     <Compile Include="Terminals\ITerminal.cs" />
+    <Compile Include="Terminals\IConnectionInitializingTerminal.cs" />
+    <Compile Include="Terminals\ScreenDisplay.cs" />
+    <Compile Include="Screens\ScreenCellFormat.cs" />
+    <Compile Include="Screens\ScreenLine.cs" />
+    <Compile Include="Screens\ScreenCell.cs" />
+    <Compile Include="Screens\ScreenCellModifications.cs" />
+    <Compile Include="Screens\Screen.cs" />
+    <Compile Include="Terminals\ScreenDisplayRenderer.cs" />
     <Compile Include="Model\FavoritesDataSource.cs" />
     <Compile Include="ConnectionDataForm.xaml.cs">
       <DependentUpon>ConnectionDataForm.xaml</DependentUpon>
@@ -150,6 +157,8 @@
     <Compile Include="TerminalPage.xaml.cs">
       <DependentUpon>TerminalPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Terminals\SshTerminal.cs" />
+    <Compile Include="Terminals\TelnetTerminal.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">
@@ -165,10 +174,6 @@
     <Content Include="Assets\SplashScreen.png" />
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Common\ReadMe.txt" />
-    <Page Include="Terminals\DrawingTerminal.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <None Include="Package.StoreAssociation.xml" />
     <Page Include="PrivateKeysPage.xaml">
       <Generator>MSBuild:Compile</Generator>

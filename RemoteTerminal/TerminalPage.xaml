@@ -1,4 +1,4 @@
-﻿<common:LayoutAwarePage
+﻿<common:LayoutAwarePage xmlns:Terminals="using:RemoteTerminal.Terminals" 
     x:Name="pageRoot"
     x:Class="RemoteTerminal.TerminalPage"
     DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
@@ -52,7 +52,9 @@
         </Grid>
 
         <Grid x:Name="grid" Grid.Row="1" Margin="50,50,50,50">
-            <Border x:Name="terminalContainer" Grid.Row="0" Margin="10"/>
+            <Border x:Name="terminalContainer" Grid.Row="0" Margin="10">
+                <Terminals:ScreenDisplay x:Name="screenDisplay" TabIndex="0" />
+            </Border>
         </Grid>
 
         <VisualStateManager.VisualStateGroups>

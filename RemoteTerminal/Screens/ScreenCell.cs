@@ -6,26 +6,22 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
 
-namespace RemoteTerminal.Terminals
+namespace RemoteTerminal.Screens
 {
-    public sealed partial class DrawingTerminalCell
+    public class ScreenCell : IRenderableScreenCell
     {
         private static readonly Color DefaultForegroundColor = Colors.White;
         private static readonly Color DefaultBackgroundColor = Colors.Black;
 
-        private readonly DrawingTerminalDisplay display;
-
-        public DrawingTerminalCell(DrawingTerminalDisplay display)
+        public ScreenCell()
         {
-            this.display = display;
-
             this.Reset();
         }
 
         public void Reset()
         {
             this.Character = ' ';
-            this.Modifications = DrawingTerminalCellModifications.None;
+            this.Modifications = ScreenCellModifications.None;
             this.ForegroundColor = DefaultForegroundColor;
             this.BackgroundColor = DefaultBackgroundColor;
         }
@@ -35,17 +31,22 @@ namespace RemoteTerminal.Terminals
             return this.Character.ToString();
         }
 
-        public void ApplyFormat(DrawingTerminalCellFormat format)
+        public void ApplyFormat(ScreenCellFormat format)
         {
-            this.Modifications = DrawingTerminalCellModifications.None;
+            if (format == null)
+            {
+                return;
+            }
+
+            this.Modifications = ScreenCellModifications.None;
             if (format.BoldMode)
             {
-                this.Modifications |= DrawingTerminalCellModifications.Bold;
+                this.Modifications |= ScreenCellModifications.Bold;
             }
 
             if (format.UnderlineMode)
             {
-                this.Modifications |= DrawingTerminalCellModifications.Underline;
+                this.Modifications |= ScreenCellModifications.Underline;
             }
 
             if (format.ReverseMode)
@@ -60,9 +61,9 @@ namespace RemoteTerminal.Terminals
             }
         }
 
-        public DrawingTerminalCell Clone()
+        public ScreenCell Clone()
         {
-            return new DrawingTerminalCell(this.display)
+            return new ScreenCell()
             {
                 Character = this.Character,
                 Modifications = this.Modifications,
@@ -72,7 +73,7 @@ namespace RemoteTerminal.Terminals
         }
 
         public char Character { get; set; }
-        public DrawingTerminalCellModifications Modifications { get; set; }
+        public ScreenCellModifications Modifications { get; set; }
         public Color ForegroundColor { get; set; }
         public Color BackgroundColor { get; set; }
     }
