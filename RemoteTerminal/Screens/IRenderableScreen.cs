@@ -10,5 +10,7 @@ namespace RemoteTerminal.Screens
     {
         bool Changed { get; }
         IRenderableScreenCopy GetScreenCopy();
+        int RowCount { get; }
+        int ColumnCount { get; }
     }
 }

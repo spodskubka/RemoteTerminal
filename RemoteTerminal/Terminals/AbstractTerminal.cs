@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,11 +10,15 @@ using RemoteTerminal.Connections;
 using RemoteTerminal.Model;
 using RemoteTerminal.Screens;
 using Windows.System;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
 
 namespace RemoteTerminal.Terminals
 {
     public abstract class AbstractTerminal : IConnectionInitializingTerminal, IDisposable
     {
+        private SynchronizationContext synchronizationContext;
+
         private readonly IConnection connection = null;
         private readonly bool localEcho;
         private readonly string writtenNewLine;
@@ -45,10 +51,64 @@ namespace RemoteTerminal.Terminals
             this.localEcho = localEcho;
             this.writtenNewLine = writtenNewLine;
 
+            this.Name = connectionData.Name;
+            this.Title = string.Empty;
+            this.synchronizationContext = SynchronizationContext.Current;
+
             this.IsConnected = true;
         }
 
         public abstract string TerminalName { get; }
+
+        private string name;
+        public string Name
+        {
+            get
+            {
+                return this.name;
+            }
+
+            protected set
+            {
+                if (value != this.name)
+                {
+                    this.name = value;
+                    this.NotifyPropertyChanged();
+                }
+            }
+        }
+
+        private string title;
+        public string Title
+        {
+            get
+            {
+                return this.title;
+            }
+
+            protected set
+            {
+                if (value != this.title)
+                {
+                    this.title = value;
+                    this.NotifyPropertyChanged();
+                }
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        // This method is called by the Set accessor of each property. 
+        // The CallerMemberName attribute that is applied to the optional propertyName 
+        // parameter causes the property name of the caller to be substituted as an argument. 
+        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "")
+        {
+            var propertyChanged = this.PropertyChanged;
+            if (propertyChanged != null)
+            {
+                this.synchronizationContext.Post(state => propertyChanged(this, new PropertyChangedEventArgs(propertyName)), null);
+            }
+        }
 
         public void WriteLine(string text)
         {

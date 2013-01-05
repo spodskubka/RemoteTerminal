@@ -25,7 +25,19 @@ namespace RemoteTerminal
     /// </summary>
     public sealed partial class TerminalPage : RemoteTerminal.Common.LayoutAwarePage
     {
-        Guid? terminalGuid = null;
+        public static readonly DependencyProperty TerminalProperty = DependencyProperty.Register("Terminal", typeof(ITerminal), typeof(TerminalPage), null);
+        public ITerminal Terminal
+        {
+            get { return (ITerminal)this.GetValue(TerminalProperty); }
+            set
+            {
+                this.SetValue(TerminalProperty, value);
+                if (this.screenDisplay != null)
+                {
+                    this.screenDisplay.AssignTerminal(value);
+                }
+            }
+        }
 
         public TerminalPage()
         {
@@ -57,10 +69,17 @@ namespace RemoteTerminal
                     this.Frame.GoBack();
                     return;
                 }
+
+                this.Terminal = TerminalManager.Create(connectionData);
             }
             else if (navigationParameter is ConnectionData)
             {
                 connectionData = navigationParameter as ConnectionData;
+                this.Terminal = TerminalManager.Create(connectionData);
+            }
+            else if (navigationParameter is ITerminal)
+            {
+                this.Terminal = navigationParameter as ITerminal;
             }
             else
             {
@@ -68,10 +87,7 @@ namespace RemoteTerminal
                 return;
             }
 
-            this.DefaultViewModel["connection"] = connectionData;
-
-            this.terminalGuid = TerminalManager.Create(connectionData);
-            this.screenDisplay.AssignTerminal(this.terminalGuid.Value);
+            this.previewGrid.ItemsSource = TerminalManager.Terminals;
         }
 
         /// <summary>
@@ -92,10 +108,14 @@ namespace RemoteTerminal
                 this.screenDisplay = null;
             }
 
-            if (this.terminalGuid != null)
+            if (this.Terminal != null)
             {
-                TerminalManager.Remove(this.terminalGuid.Value);
-                this.terminalGuid = null;
+                if (!this.Terminal.IsConnected)
+                {
+                    TerminalManager.Remove(this.Terminal);
+                }
+
+                this.Terminal = null;
             }
 
             base.GoBack(sender, e);
@@ -109,13 +129,47 @@ namespace RemoteTerminal
                 this.screenDisplay = null;
             }
 
-            if (this.terminalGuid != null)
+            if (this.Terminal != null)
             {
-                TerminalManager.Remove(this.terminalGuid.Value);
-                this.terminalGuid = null;
+                if (!this.Terminal.IsConnected)
+                {
+                    TerminalManager.Remove(this.Terminal);
+                }
             }
 
             base.OnNavigatedFrom(e);
+        }
+
+        private void PreviewGrid_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            ITerminal terminal = e.ClickedItem as ITerminal;
+            if (terminal == null)
+            {
+                return;
+            }
+
+            this.Terminal = terminal;
+
+            this.TopAppBar.IsOpen = false;
+        }
+
+        private void PreviewGrid_ItemCloseButtonClick(object sender, RoutedEventArgs e)
+        {
+            ITerminal terminal = ((Button)sender).Tag as ITerminal;
+            if (this.Terminal == terminal)
+            {
+                var switchToTerminal = TerminalManager.Terminals.Where(t => t != terminal).FirstOrDefault();
+                if (switchToTerminal == null)
+                {
+                    GoBack(sender, e);
+                }
+                else
+                {
+                    this.Terminal = switchToTerminal;
+                }
+            }
+
+            TerminalManager.Remove(terminal);
         }
     }
 }

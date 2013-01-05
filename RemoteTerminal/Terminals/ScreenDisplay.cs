@@ -65,17 +65,22 @@ namespace RemoteTerminal.Terminals
         public Color CursorForegroundColor { get { return Colors.Black; } }
         public Color CursorBackgroundColor { get { return Colors.Green; } }
 
-        public void AssignTerminal(Guid terminalGuid)
+        public void AssignTerminal(ITerminal terminal)
         {
             if (this.terminal != null)
             {
                 this.DetachRenderer();
-                this.terminal.Dispose();
+                this.terminal.Disconnected -= terminal_Disconnected;
                 this.terminal = null;
             }
 
-            ITerminal terminal = TerminalManager.GetActive(terminalGuid);
             this.terminal = terminal;
+
+            if (this.terminal == null)
+            {
+                return;
+            }
+
             this.terminal.Disconnected += terminal_Disconnected;
 
             this.border.BorderBrush = new SolidColorBrush(this.terminal.IsConnected ? Colors.Gray : Colors.Red);
@@ -96,9 +101,6 @@ namespace RemoteTerminal.Terminals
 
         protected override Size ArrangeOverride(Size finalSize)
         {
-            int rows = (int)((finalSize.Height - 4) / ScreenDisplay.TerminalCellHeight);
-            int columns = (int)((finalSize.Width - 4) / ScreenDisplay.TerminalCellWidth);
-
             if (this.terminal == null)
             {
                 return base.ArrangeOverride(finalSize);
@@ -106,11 +108,15 @@ namespace RemoteTerminal.Terminals
 
             double terminalRectangleWidth = finalSize.Width - this.border.BorderThickness.Left - this.border.BorderThickness.Right;
             double terminalRectangleHeight = finalSize.Height - this.border.BorderThickness.Top - this.border.BorderThickness.Bottom;
-            int pixelWidth = (int)(terminalRectangleWidth * DisplayProperties.LogicalDpi / 96.0);
-            int pixelHeight = (int)(terminalRectangleHeight * DisplayProperties.LogicalDpi / 96.0);
 
             this.DetachRenderer();
+
+            int rows = (int)(terminalRectangleHeight / ScreenDisplay.TerminalCellHeight);
+            int columns = (int)(terminalRectangleWidth / ScreenDisplay.TerminalCellWidth);
             this.terminal.ResizeScreen(rows, columns);
+
+            int pixelWidth = (int)(terminalRectangleWidth * DisplayProperties.LogicalDpi / 96.0);
+            int pixelHeight = (int)(terminalRectangleHeight * DisplayProperties.LogicalDpi / 96.0);
             this.AttachRenderer(pixelWidth, pixelHeight);
 
             return base.ArrangeOverride(finalSize);
@@ -255,8 +261,6 @@ namespace RemoteTerminal.Terminals
             if (this.terminal != null)
             {
                 this.terminal.Disconnected -= terminal_Disconnected;
-                this.terminal.PowerOff();
-                this.terminal.Dispose();
             }
 
             this.deviceManager.Dispose();

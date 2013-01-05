@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -14,7 +15,7 @@ namespace RemoteTerminal.Terminals
     /// <summary>
     /// Represents a terminal.
     /// </summary>
-    public interface ITerminal : IDisposable
+    public interface ITerminal : IDisposable, INotifyPropertyChanged
     {
         IRenderableScreen RenderableScreen { get; }
 
@@ -28,5 +29,8 @@ namespace RemoteTerminal.Terminals
 
         bool IsConnected { get; }
         event EventHandler Disconnected;
+
+        string Name { get; }
+        string Title { get; }
     }
 }

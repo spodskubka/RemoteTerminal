@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,9 +12,9 @@ namespace RemoteTerminal
 {
     public static class TerminalManager
     {
-        private static Dictionary<Guid, ITerminal> activeTerminals = new Dictionary<Guid, ITerminal>();
+        private static ObservableCollection<ITerminal> terminals = new ObservableCollection<ITerminal>();
 
-        public static Guid Create(ConnectionData connectionData)
+        public static ITerminal Create(ConnectionData connectionData)
         {
             ITerminal terminal;
 
@@ -30,34 +31,29 @@ namespace RemoteTerminal
             }
 
             terminal.PowerOn();
-            Guid guid = Guid.NewGuid();
-            activeTerminals[guid] = terminal;
-            return guid;
-        }
-
-        public static ITerminal GetActive(Guid guid)
-        {
-            if (!activeTerminals.ContainsKey(guid))
-            {
-                return null;
-            }
-
-            ITerminal terminal = activeTerminals[guid];
+            terminals.Add(terminal);
             return terminal;
         }
 
-        public static bool Remove(Guid guid)
+        public static bool Remove(ITerminal terminal)
         {
-            if (!activeTerminals.ContainsKey(guid))
+            if (!terminals.Contains(terminal))
             {
                 return false;
             }
 
-            ITerminal terminal = activeTerminals[guid];
-            activeTerminals.Remove(guid);
+            terminals.Remove(terminal);
             terminal.PowerOff();
             terminal.Dispose();
             return true;
+        }
+
+        public static ObservableCollection<ITerminal> Terminals
+        {
+            get
+            {
+                return terminals;
+            }
         }
     }
 }

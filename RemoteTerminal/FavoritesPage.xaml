@@ -1,4 +1,4 @@
-﻿<common:LayoutAwarePage
+﻿<common:LayoutAwarePage xmlns:Terminals="using:RemoteTerminal.Terminals" 
     x:Name="pageRoot"
     x:Class="RemoteTerminal.FavoritesPage"
     DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
@@ -11,7 +11,6 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-
         <!-- Collection of items displayed by this page -->
         <CollectionViewSource
             x:Name="itemsViewSource"
@@ -32,7 +31,29 @@
                 </StackPanel>
             </Grid>
         </DataTemplate>
+        <DataTemplate x:Key="TerminalPreviewItemTemplate">
+            <Grid Width="180" Height="70" Background="Black">
+                <TextBlock Text="{Binding Title}" Margin="10,5,0,10" Width="130" Height="20" TextTrimming="WordEllipsis" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <TextBlock Text="{Binding Name}" Margin="10,3,0,5" Width="160" Height="20" TextTrimming="WordEllipsis" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+                <!--<Terminals:ScreenPreview TerminalGuid="{Binding}"/>-->
+                <!--<Terminals:ScreenPreview HorizontalAlignment="Center" VerticalAlignment="Center"/>-->
+                <Button Style="{StaticResource CloseTerminalButtonStyle}" Tag="{Binding}" Click="PreviewGrid_ItemCloseButtonClick"/>
+                <Border BorderBrush="Gray" BorderThickness="2"/>
+            </Grid>
+        </DataTemplate>
     </Page.Resources>
+    <common:LayoutAwarePage.TopAppBar>
+        <AppBar>
+            <GridView x:Name="previewGrid" ItemTemplate="{StaticResource TerminalPreviewItemTemplate}" Margin="30,15,15,15" ItemClick="PreviewGrid_ItemClick" SelectionMode="None" IsItemClickEnabled="True">
+                <GridView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapGrid Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </GridView.ItemsPanel>
+            </GridView>
+        </AppBar>
+    </common:LayoutAwarePage.TopAppBar>
+
     <common:LayoutAwarePage.BottomAppBar>
         <AppBar x:Name="bottomAppBar" IsSticky="True">
             <StackPanel x:Name="appBarStackPanel" Orientation="Horizontal" HorizontalAlignment="Right">

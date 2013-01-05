@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using RemoteTerminal.Model;
+using RemoteTerminal.Terminals;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage;
@@ -53,6 +54,8 @@ namespace RemoteTerminal
                 this.emptyHint.Visibility = this.itemGridView.Items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
                 this.SetupAppBar();
             }
+
+            this.previewGrid.ItemsSource = TerminalManager.Terminals;
         }
 
         private void addButton_Click(object sender, RoutedEventArgs e)
@@ -142,6 +145,23 @@ namespace RemoteTerminal
             this.bottomAppBar.IsOpen = this.itemGridView.SelectedItems.Count > 0 || this.itemGridView.Items.Count == 0;
             this.removeButton.IsEnabled = this.itemGridView.SelectedItems.Count > 0;
             this.editButton.IsEnabled = this.itemGridView.SelectedItems.Count == 1;
+        }
+
+        private void PreviewGrid_ItemClick(object sender, ItemClickEventArgs e)
+        {
+            ITerminal terminal = e.ClickedItem as ITerminal;
+            if (terminal == null)
+            {
+                return;
+            }
+
+            this.Frame.Navigate(typeof(TerminalPage), terminal);
+        }
+
+        private void PreviewGrid_ItemCloseButtonClick(object sender, RoutedEventArgs e)
+        {
+            ITerminal terminal = ((Button)sender).Tag as ITerminal;
+            TerminalManager.Remove(terminal);
         }
     }
 }

@@ -241,62 +241,6 @@ namespace RemoteTerminal.Terminals
             return true;
         }
 
-
-
-
-        //public void SetBufferSize(int rows, int columns)
-        //{
-        //    if (this.Rows != rows || this.Columns != columns)
-        //    {
-        //        if (localReadSync != null)
-        //        {
-        //            this.Erase(localReadStartRow, localReadStartColumn, this.Display.CursorRow, this.Display.CursorColumn);
-        //            this.Display.CursorColumn = this.localReadStartColumn;
-        //            this.Display.CursorRow = this.localReadStartRow;
-        //            this.UpdateCursor();
-        //        }
-
-        //        this.UpdateDisplay(rows, columns);
-
-        //        if (this.IsConnected)
-        //        {
-        //            this.connection.ResizeTerminal(columns, rows);
-        //        }
-
-        //        if (this.localReadSync != null)
-        //        {
-        //            this.ProcessInput(this.localReadPrompt);
-        //            this.ProcessInput(this.LocalEcho ? this.localReadLine : new string('●', this.localReadLine.Length));
-        //        }
-        //    }
-        //}
-
-        //private void UpdateDisplay(int rows, int columns)
-        //{
-        //    lock (this.Display.ChangeLock)
-        //    {
-        //        while (this.Display.Lines.Count > rows)
-        //        {
-        //            this.Display.Lines.RemoveAt(0);
-        //        }
-
-        //        foreach (TerminalScreenLine line in this.Display.Lines)
-        //        {
-        //            while (line.Cells.Count > columns)
-        //            {
-        //                line.Cells.RemoveAt(line.Cells.Count - 1);
-        //            }
-        //        }
-        //    }
-
-        //    this.Rows = rows;
-        //    this.Columns = columns;
-
-        //    this.Display.CursorRow = Math.Min(this.Rows - 1, this.Display.CursorRow);
-        //    this.Display.CursorColumn = Math.Min(this.Columns - 1, this.Display.CursorColumn);
-        //}
-
-
         private static string GetFunctionKeyModifier(KeyModifiers keyModifiers)
         {
             return string.Empty;
@@ -703,7 +647,7 @@ namespace RemoteTerminal.Terminals
                         break;
                     case "]\a":
                     case "]\u001b\\":
-                        // TODO: set window title
+                        this.Title = args[1];
                         break;
                     //case "#3":
                     //case "#4":
