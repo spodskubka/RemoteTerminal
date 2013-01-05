@@ -182,13 +182,19 @@ namespace RemoteTerminal.Terminals
                 bool connected = await this.connection.ConnectAsync(this);
                 if (connected)
                 {
-                    string str;
-                    do
+                    try
                     {
-                        str = await this.connection.ReadAsync();
-                        this.ProcessConnectionInput(str);
+                        string str;
+                        do
+                        {
+                            str = await this.connection.ReadAsync();
+                            this.ProcessConnectionInput(str);
+                        }
+                        while (str.Length > 0);
                     }
-                    while (str.Length > 0);
+                    catch(Exception ex)
+                    {
+                    }
                 }
 
                 this.IsConnected = false;
