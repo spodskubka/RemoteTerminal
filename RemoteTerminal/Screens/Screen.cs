@@ -133,7 +133,7 @@ namespace RemoteTerminal.Screens
 
             public void CursorRowIncreaseWithScroll(int? scrollTop, int? scrollBottom)
             {
-                if (this.CursorRow + 1 >= (scrollBottom ?? (this.screen.Count - 1)))
+                if (this.CursorRow + 1 > (scrollBottom ?? (this.screen.Count - 1)))
                 {
                     this.ScrollUp(1, scrollTop, scrollBottom);
                 }
@@ -169,7 +169,7 @@ namespace RemoteTerminal.Screens
                 for (int i = 0; i < lines; i++)
                 {
                     this.screen.RemoveAt(scrollTop ?? 0);
-                    this.screen.Insert(scrollBottom ?? (this.screen.Count - 1), new ScreenLine(this.screen.ColumnCount));
+                    this.screen.Insert(scrollBottom ?? this.screen.Count, new ScreenLine(this.screen.ColumnCount));
                 }
             }
 

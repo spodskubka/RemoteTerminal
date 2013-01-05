@@ -305,15 +305,27 @@ namespace RemoteTerminal.Terminals
 
         private void DrawLocalModeChar(char ch, IScreenModifier modifier, bool echo)
         {
-            modifier.CursorCharacter = echo ? ch : '●';
-            if (modifier.CursorColumn + 1 >= this.Screen.ColumnCount)
+            switch (ch)
             {
-                modifier.CursorColumn = 0;
-                modifier.CursorRowIncreaseWithScroll(scrollTop: null, scrollBottom: null);
-            }
-            else
-            {
-                modifier.CursorColumn++;
+                case '\r':
+                    modifier.CursorColumn = 0;
+                    break;
+                case '\n':
+                    modifier.CursorRowIncreaseWithScroll(null, null);
+                    break;
+                default:
+                    modifier.CursorCharacter = echo ? ch : '●';
+                    if (modifier.CursorColumn + 1 >= this.Screen.ColumnCount)
+                    {
+                        modifier.CursorColumn = 0;
+                        modifier.CursorRowIncreaseWithScroll(scrollTop: null, scrollBottom: null);
+                    }
+                    else
+                    {
+                        modifier.CursorColumn++;
+                    }
+
+                    break;
             }
         }
 
