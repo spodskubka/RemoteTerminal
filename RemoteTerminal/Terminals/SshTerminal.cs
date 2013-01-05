@@ -81,6 +81,8 @@ namespace RemoteTerminal.Terminals
                 {
                     switch (ch)
                     {
+                        case '\0':
+                            break;
                         case '\x0f': // shift in ??
                         case '\x0e': // shift out ??
                             break;
