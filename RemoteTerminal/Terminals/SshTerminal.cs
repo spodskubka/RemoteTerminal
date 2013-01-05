@@ -50,9 +50,6 @@ namespace RemoteTerminal.Terminals
 
         private ScreenCellFormat currentFormat = new ScreenCellFormat();
 
-        public bool LocalEcho { get; set; }
-        public string WrittenNewLine { get; set; }
-
         //public static double TerminalCellFontSize { get { return 17d; } }
         //public static double TerminalCellWidth { get { return 9d; } }
         //public static double TerminalCellHeight { get { return 20d; } }
@@ -62,8 +59,8 @@ namespace RemoteTerminal.Terminals
         /// </summary>
         private const int DefaultTabStopWidth = 8;
 
-        public SshTerminal(ConnectionData connectionData)
-            : base(connectionData, localEcho: false, writtenNewLine: "\r")
+        public SshTerminal(ConnectionData connectionData, bool localEcho)
+            : base(connectionData, localEcho, writtenNewLine: "\r")
         {
         }
 
@@ -90,6 +87,9 @@ namespace RemoteTerminal.Terminals
                         case '\u001b':
                             this.escapeChars = string.Empty;
                             this.escapeArgs = string.Empty;
+                            // As soon as an ANSI escape sequence is received we turn off the local echo 
+                            // that may be enabled because of a telnet connection.
+                            this.LocalEcho = false;
                             break;
                         case '\r':
                             modifier.CursorColumn = 0;

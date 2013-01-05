@@ -20,7 +20,6 @@ namespace RemoteTerminal.Terminals
         private SynchronizationContext synchronizationContext;
 
         private readonly IConnection connection = null;
-        private readonly bool localEcho;
         private readonly string writtenNewLine;
 
         private IWritableScreen screen = null;
@@ -48,7 +47,7 @@ namespace RemoteTerminal.Terminals
             }
 
             this.connection.Initialize(connectionData);
-            this.localEcho = localEcho;
+            this.LocalEcho = localEcho;
             this.writtenNewLine = writtenNewLine;
 
             this.Name = connectionData.Name;
@@ -59,6 +58,8 @@ namespace RemoteTerminal.Terminals
         }
 
         public abstract string TerminalName { get; }
+
+        protected bool LocalEcho { get; set; }
 
         private string name;
         public string Name
@@ -369,7 +370,7 @@ namespace RemoteTerminal.Terminals
                 return;
             }
 
-            if (this.localEcho)
+            if (this.LocalEcho)
             {
                 this.ProcessConnectionInput(str == Environment.NewLine ? "\r\n" : str);
             }

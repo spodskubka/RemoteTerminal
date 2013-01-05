@@ -21,10 +21,10 @@ namespace RemoteTerminal
             switch (connectionData.Type)
             {
                 case ConnectionType.Telnet:
-                    terminal = new TelnetTerminal(connectionData);
+                    terminal = new SshTerminal(connectionData, localEcho: true);
                     break;
                 case ConnectionType.Ssh:
-                    terminal = new SshTerminal(connectionData);
+                    terminal = new SshTerminal(connectionData, localEcho: false);
                     break;
                 default:
                     throw new Exception("Unknown connection type.");
