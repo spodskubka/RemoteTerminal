@@ -56,13 +56,16 @@ namespace RemoteTerminal
                 this.SetupAppBar();
             }
 
-            this.previewGrid.ItemsSource = TerminalManager.Terminals;
-
             if (TerminalManager.Terminals.Count > 0)
             {
+                this.previewGrid.ItemsSource = TerminalManager.Terminals;
                 this.TopAppBar.IsOpen = true;
-                await Task.Delay(2000);
+                await Task.Delay(1000);
                 this.TopAppBar.IsOpen = false;
+            }
+            else
+            {
+                this.TopAppBar = null;
             }
         }
 
@@ -83,7 +86,7 @@ namespace RemoteTerminal
                     ((ObservableCollection<ConnectionData>)this.DefaultViewModel["Items"]).Remove(selectedItem);
                 }
 
-                this.emptyHint.Visibility = this.itemGridView.Items.Count == 0 ? Visibility.Visible:Visibility.Collapsed;
+                this.emptyHint.Visibility = this.itemGridView.Items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
             }
         }
 

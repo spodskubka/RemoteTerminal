@@ -164,7 +164,10 @@ namespace RemoteTerminal.Terminals
         protected override void OnGotFocus(RoutedEventArgs e)
         {
             CoreWindow.GetForCurrentThread().CharacterReceived += Terminal_CharacterReceived;
-            this.terminal.ScreenHasFocus = true;
+            if (this.terminal != null)
+            {
+                this.terminal.ScreenHasFocus = true;
+            }
         }
 
         /// <summary>
@@ -176,7 +179,10 @@ namespace RemoteTerminal.Terminals
         protected override void OnLostFocus(RoutedEventArgs e)
         {
             CoreWindow.GetForCurrentThread().CharacterReceived -= Terminal_CharacterReceived;
-            this.terminal.ScreenHasFocus = false;
+            if (this.terminal != null)
+            {
+                this.terminal.ScreenHasFocus = false;
+            }
         }
 
         /// <summary>

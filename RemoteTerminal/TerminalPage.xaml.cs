@@ -61,9 +61,6 @@ namespace RemoteTerminal
                 this.Frame.GoBack();
             }
 
-            this.previewGrid.ItemsSource = TerminalManager.Terminals;
-            this.TopAppBar.IsOpen = true;
-
             await this.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
                 ConnectionData connectionData;
@@ -94,7 +91,9 @@ namespace RemoteTerminal
                 }
             });
 
-            await Task.Delay(2000);
+            this.previewGrid.ItemsSource = TerminalManager.Terminals;
+            this.TopAppBar.IsOpen = true;
+            await Task.Delay(1000);
             this.TopAppBar.IsOpen = false;
         }
 
