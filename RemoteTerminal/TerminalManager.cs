@@ -21,7 +21,7 @@ namespace RemoteTerminal
             switch (connectionData.Type)
             {
                 case ConnectionType.Telnet:
-                    terminal = new SshTerminal(connectionData, localEcho: true);
+                    terminal = new SshTerminal(connectionData, localEcho: false);
                     break;
                 case ConnectionType.Ssh:
                     terminal = new SshTerminal(connectionData, localEcho: false);
