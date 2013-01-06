@@ -8,6 +8,7 @@ using RemoteTerminal.Model;
 using RemoteTerminal.Terminals;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -53,41 +54,48 @@ namespace RemoteTerminal
         /// </param>
         /// <param name="pageState">A dictionary of state preserved by this page during an earlier
         /// session.  This will be null the first time a page is visited.</param>
-        protected override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
+        protected async override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
         {
             if (navigationParameter == null)
             {
                 this.Frame.GoBack();
             }
 
-            ConnectionData connectionData;
-            if (navigationParameter is string)
+            this.previewGrid.ItemsSource = TerminalManager.Terminals;
+            this.TopAppBar.IsOpen = true;
+
+            await this.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
-                connectionData = FavoritesDataSource.GetFavorite((string)navigationParameter);
-                if (connectionData == null)
+                ConnectionData connectionData;
+                if (navigationParameter is string)
+                {
+                    connectionData = FavoritesDataSource.GetFavorite((string)navigationParameter);
+                    if (connectionData == null)
+                    {
+                        this.Frame.GoBack();
+                        return;
+                    }
+
+                    this.Terminal = TerminalManager.Create(connectionData);
+                }
+                else if (navigationParameter is ConnectionData)
+                {
+                    connectionData = navigationParameter as ConnectionData;
+                    this.Terminal = TerminalManager.Create(connectionData);
+                }
+                else if (navigationParameter is ITerminal)
+                {
+                    this.Terminal = navigationParameter as ITerminal;
+                }
+                else
                 {
                     this.Frame.GoBack();
                     return;
                 }
+            });
 
-                this.Terminal = TerminalManager.Create(connectionData);
-            }
-            else if (navigationParameter is ConnectionData)
-            {
-                connectionData = navigationParameter as ConnectionData;
-                this.Terminal = TerminalManager.Create(connectionData);
-            }
-            else if (navigationParameter is ITerminal)
-            {
-                this.Terminal = navigationParameter as ITerminal;
-            }
-            else
-            {
-                this.Frame.GoBack();
-                return;
-            }
-
-            this.previewGrid.ItemsSource = TerminalManager.Terminals;
+            await Task.Delay(2000);
+            this.TopAppBar.IsOpen = false;
         }
 
         /// <summary>

@@ -167,9 +167,12 @@ namespace RemoteTerminal.Terminals
         {
             set
             {
-                using (var modifier = this.screen.GetModifier())
+                if (this.screen != null)
                 {
-                    modifier.HasFocus = value;
+                    using (var modifier = this.screen.GetModifier())
+                    {
+                        modifier.HasFocus = value;
+                    }
                 }
             }
         }

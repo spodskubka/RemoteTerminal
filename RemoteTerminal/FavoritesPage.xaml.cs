@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using RemoteTerminal.Model;
 using RemoteTerminal.Terminals;
 using Windows.Foundation;
@@ -43,7 +44,7 @@ namespace RemoteTerminal
         /// </param>
         /// <param name="pageState">A dictionary of state preserved by this page during an earlier
         /// session.  This will be null the first time a page is visited.</param>
-        protected override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
+        protected async override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
         {
             FavoritesDataSource favoritesDataSource = (FavoritesDataSource)App.Current.Resources["favoritesDataSource"];
             if (favoritesDataSource != null)
@@ -56,6 +57,13 @@ namespace RemoteTerminal
             }
 
             this.previewGrid.ItemsSource = TerminalManager.Terminals;
+
+            if (TerminalManager.Terminals.Count > 0)
+            {
+                this.TopAppBar.IsOpen = true;
+                await Task.Delay(2000);
+                this.TopAppBar.IsOpen = false;
+            }
         }
 
         private void addButton_Click(object sender, RoutedEventArgs e)
