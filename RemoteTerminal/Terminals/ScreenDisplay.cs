@@ -117,7 +117,7 @@ namespace RemoteTerminal.Terminals
             int rows = (int)(pixelHeight / (ScreenDisplay.TerminalCellHeight * DisplayProperties.LogicalDpi / 96.0));
             int columns = (int)(pixelWidth / (ScreenDisplay.TerminalCellWidth * DisplayProperties.LogicalDpi / 96.0));
             this.terminal.ResizeScreen(rows, columns);
-            
+
             this.AttachRenderer(pixelWidth, pixelHeight);
 
             // The following two lines are a workaround for the fact that the ImageBrush is not displayed

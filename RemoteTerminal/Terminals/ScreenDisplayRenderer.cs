@@ -192,6 +192,16 @@ namespace RemoteTerminal.Terminals
             {
                 brush.Dispose();
             }
+
+            if (this.textFormatNormal != null)
+            {
+                this.textFormatNormal.Dispose();
+            }
+
+            if (this.textFormatBold != null)
+            {
+                this.textFormatBold.Dispose();
+            }
         }
     }
 }

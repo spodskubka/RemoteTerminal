@@ -109,22 +109,6 @@ namespace RemoteTerminal
 
         protected override void GoBack(object sender, RoutedEventArgs e)
         {
-            if (this.screenDisplay != null)
-            {
-                this.screenDisplay.Dispose();
-                this.screenDisplay = null;
-            }
-
-            if (this.Terminal != null)
-            {
-                if (!this.Terminal.IsConnected)
-                {
-                    TerminalManager.Remove(this.Terminal);
-                }
-
-                this.Terminal = null;
-            }
-
             base.GoBack(sender, e);
         }
 
