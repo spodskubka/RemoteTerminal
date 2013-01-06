@@ -10,6 +10,7 @@ using RemoteTerminal.Screens;
 using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
+using Windows.Graphics.Display;
 using Matrix = SharpDX.Matrix;
 
 namespace RemoteTerminal.Terminals
@@ -30,9 +31,13 @@ namespace RemoteTerminal.Terminals
         TextFormat textFormatNormal;
         TextFormat textFormatBold;
 
-        private const float CellFontSize = 17.0f;
-        private const float CellWidth = 9.0f;
-        private const float CellHeight = 20.0f;
+        private const float LogicalCellFontSize = 17.0f;
+        private const float LogicalCellWidth = 9.0f;
+        private const float LogicalCellHeight = 20.0f;
+
+        private float CellFontSize;
+        private float CellWidth;
+        private float CellHeight;
 
         //TextFormat textFormat;
 
@@ -50,6 +55,10 @@ namespace RemoteTerminal.Terminals
 
         public virtual void Initialize(DeviceManager deviceManager)
         {
+            this.CellFontSize = LogicalCellFontSize * DisplayProperties.LogicalDpi / 96.0f;
+            this.CellWidth = LogicalCellWidth * DisplayProperties.LogicalDpi / 96.0f;
+            this.CellHeight = LogicalCellHeight * DisplayProperties.LogicalDpi / 96.0f;
+
             //deviceManager.ContextDirect2D.TextAntialiasMode = TextAntialiasMode.Grayscale;
             deviceManager.ContextDirect2D.AntialiasMode = AntialiasMode.Aliased;
             this.textFormatNormal = new TextFormat(deviceManager.FactoryDirectWrite, TerminalFontFamily, FontWeight.Normal, FontStyle.Normal, CellFontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center };

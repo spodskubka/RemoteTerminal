@@ -235,6 +235,9 @@ namespace RemoteTerminal.Screens
                         line.Add(new ScreenCell());
                     }
                 }
+
+                this.CursorRow = Math.Min(this.CursorRow, rows - 1);
+                this.CursorColumn = Math.Min(this.CursorColumn, columns - 1);
             }
 
             public void Dispose()

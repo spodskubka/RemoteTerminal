@@ -111,12 +111,18 @@ namespace RemoteTerminal.Terminals
 
             this.DetachRenderer();
 
-            int rows = (int)(terminalRectangleHeight / ScreenDisplay.TerminalCellHeight);
-            int columns = (int)(terminalRectangleWidth / ScreenDisplay.TerminalCellWidth);
-            this.terminal.ResizeScreen(rows, columns);
-
             int pixelWidth = (int)(terminalRectangleWidth * DisplayProperties.LogicalDpi / 96.0);
             int pixelHeight = (int)(terminalRectangleHeight * DisplayProperties.LogicalDpi / 96.0);
+
+            int rows = (int)(pixelHeight / (ScreenDisplay.TerminalCellHeight * DisplayProperties.LogicalDpi / 96.0));
+            int columns = (int)(pixelWidth / (ScreenDisplay.TerminalCellWidth * DisplayProperties.LogicalDpi / 96.0));
+            this.terminal.ResizeScreen(rows, columns);
+            
+            this.AttachRenderer(pixelWidth, pixelHeight);
+
+            // The following two lines are a workaround for the fact that the ImageBrush is not displayed
+            // correctly after opening the page when using non-standard DPI
+            this.DetachRenderer();
             this.AttachRenderer(pixelWidth, pixelHeight);
 
             return base.ArrangeOverride(finalSize);
