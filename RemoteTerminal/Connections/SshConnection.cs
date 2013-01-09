@@ -17,6 +17,7 @@ namespace RemoteTerminal.Connections
     internal class SshConnection : IConnection
     {
         private ConnectionData connectionData;
+        private PrivateKeyData privateKeyData;
 
         private SshClient client;
         private ShellStream stream;
@@ -44,6 +45,16 @@ namespace RemoteTerminal.Connections
             }
 
             this.connectionData = connectionData;
+
+            // This is already done here instead of in the ConnectAsync method because here the PrivateKeysDataSource.GetPrivateKey method is able to access the Resources.
+            if (connectionData.Authentication == AuthenticationType.PrivateKey)
+            {
+                this.privateKeyData = PrivateKeysDataSource.GetPrivateKey(connectionData.PrivateKeyName);
+                if (this.privateKeyData == null)
+                {
+                    throw new Exception("Private Key '" + connectionData.PrivateKeyName + "' not found. Please correct the authentication details of the connection.");
+                }
+            }
         }
 
         public async Task<bool> ConnectAsync(IConnectionInitializingTerminal terminal)
@@ -121,13 +132,13 @@ namespace RemoteTerminal.Connections
                             connectionInfo = keyboardInteractiveConnectionInfo;
                             break;
                         case Model.AuthenticationType.PrivateKey:
-                            PrivateKeyData privateKeyData = PrivateKeysDataSource.GetPrivateKey(connectionData.PrivateKeyName);
-                            if (privateKeyData == null)
+                            PrivateKeyFile privateKey;
+
+                            if (this.privateKeyData == null)
                             {
                                 throw new Exception("Private Key '" + connectionData.PrivateKeyName + "' not found. Please correct the authentication details of the connection.");
                             }
 
-                            PrivateKeyFile privateKey;
                             try
                             {
                                 using (var privateKeyStream = new MemoryStream(privateKeyData.Data))
