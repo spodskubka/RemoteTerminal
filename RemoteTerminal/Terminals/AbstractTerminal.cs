@@ -200,6 +200,7 @@ namespace RemoteTerminal.Terminals
                     }
                 }
 
+                this.connection.Disconnect();
                 this.IsConnected = false;
                 var disconnected = this.Disconnected;
                 if (disconnected != null)
