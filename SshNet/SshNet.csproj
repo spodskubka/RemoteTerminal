@@ -151,6 +151,7 @@
     </Compile>
     <Compile Include="ConnectionInfo.cs" />
     <Compile Include="ExpectAction.cs" />
+    <Compile Include="PrivateKeyAgent.cs" />
     <Compile Include="KeyboardInteractiveAuthenticationMethod.cs" />
     <Compile Include="KeyboardInteractiveAuthenticationMethod.NET40.cs" />
     <Compile Include="KeyboardInteractiveConnectionInfo.cs" />

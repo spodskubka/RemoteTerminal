@@ -167,7 +167,9 @@ namespace RemoteTerminal.Connections
                                 }
                             }
 
-                            var privateKeyConnectionInfo = new PrivateKeyConnectionInfo(this.connectionData.Host, this.connectionData.Port, username, privateKey);
+                            var privateKeyAgent = new PrivateKeyAgent();
+                            privateKeyAgent.Add(privateKey.HostKey);
+                            var privateKeyConnectionInfo = new PrivateKeyConnectionInfo(this.connectionData.Host, this.connectionData.Port, username, privateKeyAgent);
                             connectionInfo = privateKeyConnectionInfo;
                             break;
                         default:

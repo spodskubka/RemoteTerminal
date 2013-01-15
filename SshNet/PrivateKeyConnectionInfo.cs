@@ -12,18 +12,13 @@ namespace Renci.SshNet
     public class PrivateKeyConnectionInfo : ConnectionInfo, IDisposable
     {
         /// <summary>
-        /// Gets the key files used for authentication.
-        /// </summary>
-        public ICollection<PrivateKeyFile> KeyFiles { get; private set; }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyConnectionInfo"/> class.
         /// </summary>
         /// <param name="host">Connection host.</param>
         /// <param name="username">Connection username.</param>
         /// <param name="keyFiles">Connection key files.</param>
-        public PrivateKeyConnectionInfo(string host, string username, params PrivateKeyFile[] keyFiles)
-            : this(host, 22, username, keyFiles)
+        public PrivateKeyConnectionInfo(string host, string username, PrivateKeyAgent privateKeyAgent)
+            : this(host, 22, username, privateKeyAgent)
         {
 
         }
@@ -35,10 +30,9 @@ namespace Renci.SshNet
         /// <param name="port">Connection port.</param>
         /// <param name="username">Connection username.</param>
         /// <param name="keyFiles">Connection key files.</param>
-        public PrivateKeyConnectionInfo(string host, int port, string username, params PrivateKeyFile[] keyFiles)
-            : base(host, port, username, new PrivateKeyAuthenticationMethod(username, keyFiles))
+        public PrivateKeyConnectionInfo(string host, int port, string username, PrivateKeyAgent privateKeyAgent)
+            : base(host, port, username, new PrivateKeyAuthenticationMethod(username, privateKeyAgent))
         {
-            this.KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
         }
 
         #region IDisposable Members

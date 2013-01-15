@@ -30,9 +30,9 @@ namespace Renci.SshNet
         }
 
         /// <summary>
-        /// Gets the key files used for authentication.
+        /// Gets the private key agent used for authentication.
         /// </summary>
-        public ICollection<PrivateKeyFile> KeyFiles { get; private set; }
+        public PrivateKeyAgent PrivateKeyAgent { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyAuthenticationMethod"/> class.
@@ -40,11 +40,10 @@ namespace Renci.SshNet
         /// <param name="username">The username.</param>
         /// <param name="keyFiles">The key files.</param>
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
-        public PrivateKeyAuthenticationMethod(string username, params PrivateKeyFile[] keyFiles)
+        public PrivateKeyAuthenticationMethod(string username, PrivateKeyAgent privateKeyAgent)
             : base(username)
         {
-            //  TODO:   Should throw on keyFiles == null here?
-            this.KeyFiles = new Collection<PrivateKeyFile>(keyFiles);
+            this.PrivateKeyAgent = privateKeyAgent;
         }
 
         /// <summary>
@@ -54,7 +53,7 @@ namespace Renci.SshNet
         /// <returns></returns>
         public override AuthenticationResult Authenticate(Session session)
         {
-            if (this.KeyFiles == null)
+            if (this.PrivateKeyAgent == null)
                 return AuthenticationResult.Failure;
 
             session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;
@@ -63,20 +62,12 @@ namespace Renci.SshNet
 
             session.RegisterMessage("SSH_MSG_USERAUTH_PK_OK");
 
-            foreach (var keyFile in this.KeyFiles)
+            foreach (var key in this.PrivateKeyAgent.List())
             {
                 this._authenticationCompleted.Reset();
                 this._isSignatureRequired = false;
 
-                var message = new RequestMessagePublicKey(ServiceName.Connection, this.Username, keyFile.HostKey.Name, keyFile.HostKey.Data);
-
-                if (this.KeyFiles.Count < 2)
-                {
-                    //  If only one key file provided then send signature for very first request
-                    var signatureData = new SignatureData(message, session.SessionId).GetBytes();
-
-                    message.Signature = keyFile.HostKey.Sign(signatureData);
-                }
+                var message = new RequestMessagePublicKey(ServiceName.Connection, this.Username, key.Name, key.Data);
 
                 //  Send public key authentication request
                 session.SendMessage(message);
@@ -87,14 +78,24 @@ namespace Renci.SshNet
                 {
                     this._authenticationCompleted.Reset();
 
-                    var signatureMessage = new RequestMessagePublicKey(ServiceName.Connection, this.Username, keyFile.HostKey.Name, keyFile.HostKey.Data);
+                    var signatureMessage = new RequestMessagePublicKey(ServiceName.Connection, this.Username, key.Name, key.Data);
 
                     var signatureData = new SignatureData(message, session.SessionId).GetBytes();
 
-                    signatureMessage.Signature = keyFile.HostKey.Sign(signatureData);
+                    var signature = this.PrivateKeyAgent.Sign(key.Data, signatureData);
 
-                    //  Send public key authentication request with signature
-                    session.SendMessage(signatureMessage);
+                    if (signature != null)
+                    {
+                        signatureMessage.Signature = signature;
+
+                        //  Send public key authentication request with signature
+                        session.SendMessage(signatureMessage);
+                    }
+                    else
+                    {
+                        this._authenticationResult = AuthenticationResult.Failure;
+                        this._authenticationCompleted.Set();
+                    }
                 }
 
                 session.WaitHandle(this._authenticationCompleted);
@@ -104,7 +105,7 @@ namespace Renci.SshNet
                     break;
                 }
             }
-            
+
             session.UserAuthenticationSuccessReceived -= Session_UserAuthenticationSuccessReceived;
             session.UserAuthenticationFailureReceived -= Session_UserAuthenticationFailureReceived;
             session.MessageReceived -= Session_MessageReceived;
