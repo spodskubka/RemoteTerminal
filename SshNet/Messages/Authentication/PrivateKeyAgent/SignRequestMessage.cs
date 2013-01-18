@@ -24,7 +24,14 @@ namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
         public uint Flags { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="RequestMessagePublicKey"/> class.
+        /// Initializes a new instance of the <see cref="SignRequestMessage"/> class.
+        /// </summary>
+        public SignRequestMessage()
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SignRequestMessage"/> class.
         /// </summary>
         /// <param name="serviceName">Name of the service.</param>
         /// <param name="username">Authentication username.</param>

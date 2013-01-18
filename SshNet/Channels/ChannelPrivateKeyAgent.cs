@@ -177,6 +177,12 @@ namespace Renci.SshNet.Channels
             this.SendPrivateKeyAgentMessage(identitiesAnswerMessage);
         }
 
+        private void HandlePrivateKeyAgentMessage(SignRequestMessage message)
+        {
+            var signResponseMessage = new SignResponseMessage(this.PrivateKeyAgent.Sign(message.PublicKeyData, message.Data));
+            this.SendPrivateKeyAgentMessage(signResponseMessage);
+        }
+
         private void HandlePrivateKeyAgentMessage(PrivateKeyAgentMessage message)
         {
             this.SendPrivateKeyAgentMessage(new FailureMessage());
