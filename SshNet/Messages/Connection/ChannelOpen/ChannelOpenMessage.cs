@@ -94,6 +94,10 @@ namespace Renci.SshNet.Messages.Connection
             {
                 this.Info = new ForwardedTcpipChannelInfo();
             }
+            else if (channelName == ForwardedPrivateKeyAgentChannelInfo.NAME)
+            {
+                this.Info = new ForwardedPrivateKeyAgentChannelInfo();
+            }
             else
             {
                 throw new NotSupportedException(string.Format(CultureInfo.CurrentCulture, "Channel type '{0}' is not supported.", channelName));

@@ -18,6 +18,7 @@ namespace RemoteTerminal.Model
         public string Username { get; set; }
         public AuthenticationType Authentication { get; set; }
         public string PrivateKeyName { get; set; }
+        public bool PrivateKeyAgentForwarding { get; set; }
         public char ImageChar
         {
             get

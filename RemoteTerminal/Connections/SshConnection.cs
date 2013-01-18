@@ -81,6 +81,7 @@ namespace RemoteTerminal.Connections
                 try
                 {
                     ConnectionInfo connectionInfo;
+                    PrivateKeyAgent forwardedPrivateKeyAgent = null;
                     switch (this.connectionData.Authentication)
                     {
                         case RemoteTerminal.Model.AuthenticationType.Password:
@@ -171,6 +172,11 @@ namespace RemoteTerminal.Connections
                             privateKeyAgent.Add(privateKey.HostKey);
                             var privateKeyConnectionInfo = new PrivateKeyConnectionInfo(this.connectionData.Host, this.connectionData.Port, username, privateKeyAgent);
                             connectionInfo = privateKeyConnectionInfo;
+                            if (connectionData.PrivateKeyAgentForwarding == true)
+                            {
+                                forwardedPrivateKeyAgent = privateKeyAgent;
+                            }
+
                             break;
                         default:
                             throw new NotImplementedException("Authentication method '" + this.connectionData.Authentication + "' not implemented.");
@@ -184,7 +190,7 @@ namespace RemoteTerminal.Connections
                     this.client = new SshClient(connectionInfo);
                     await Task.Run(() => { this.client.Connect(); });
 
-                    this.stream = this.client.CreateShellStream(terminal.TerminalName, (uint)terminal.Columns, (uint)terminal.Rows, 0, 0, 1024);
+                    this.stream = this.client.CreateShellStream(terminal.TerminalName, (uint)terminal.Columns, (uint)terminal.Rows, 0, 0, 1024, forwardedPrivateKeyAgent);
 
                     this.reader = new StreamReader(this.stream);
                     this.writer = new StreamWriter(this.stream);

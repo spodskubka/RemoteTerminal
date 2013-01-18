@@ -146,6 +146,21 @@ namespace Renci.SshNet.Channels
         }
 
         /// <summary>
+        /// Sends the agent forwarding request.
+        /// </summary>
+        /// <returns>true if request was successful; otherwise false.</returns>
+        public bool SendPrivateKeyAgentForwardingRequest()
+        {
+            this._channelRequestResponse.Reset();
+
+            this.SendMessage(new ChannelRequestMessage(this.RemoteChannelNumber, new PrivateKeyAgentForwardingRequestInfo()));
+
+            this.WaitHandle(this._channelRequestResponse);
+
+            return this._channelRequestSucces;
+        }
+
+        /// <summary>
         /// Sends the environment variable request.
         /// </summary>
         /// <param name="variableName">Name of the variable.</param>

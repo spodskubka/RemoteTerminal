@@ -13,6 +13,11 @@ namespace Renci.SshNet
     /// </summary>
     public class SshClient : BaseClient
     {
+        ///// <summary>
+        ///// Holds the authentication agent.
+        ///// </summary>
+        //private AuthAgent authAgent;
+
         /// <summary>
         /// If true, causes the connectionInfo object to be disposed.
         /// </summary>
@@ -66,6 +71,31 @@ namespace Renci.SshNet
         protected override void OnDisconnecting()
         {
             base.OnDisconnecting();
+
+        //    if (this.authAgent != null)
+        //    {
+        //        this.authAgent.Stop();
+        //    }
+        //}
+
+        //public void SetAuthAgent(AuthAgent authAgent)
+        //{
+        //    if (authAgent == null)
+        //    {
+        //        throw new ArgumentNullException("authAgent");
+        //    }
+
+        //    // Ensure that connection is established.
+        //    this.EnsureConnection();
+
+        //    if (authAgent.Session != null && authAgent.Session != this.Session)
+        //    {
+        //        throw new InvalidOperationException("Authentication agent is already assigned to a different client.");
+        //    }
+
+        //    authAgent.Session = this.Session;
+
+        //    this.authAgent = authAgent;
         }
 
         /// <summary>
@@ -238,12 +268,12 @@ namespace Renci.SshNet
         /// <param name="bufferSize">Size of the buffer.</param>
         /// <param name="terminalModeValues">The terminal mode values.</param>
         /// <returns></returns>
-        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
+        public ShellStream CreateShellStream(string terminalName, uint columns, uint rows, uint width, uint height, int bufferSize, PrivateKeyAgent forwardedPrivateKeyAgent, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
         {
             //  Ensure that connection is established.
             this.EnsureConnection();
 
-            return new ShellStream(this.Session, terminalName, columns, rows, width, height, bufferSize, terminalModeValues);
+            return new ShellStream(this.Session, terminalName, columns, rows, width, height, bufferSize, forwardedPrivateKeyAgent, terminalModeValues);
         }
 
 

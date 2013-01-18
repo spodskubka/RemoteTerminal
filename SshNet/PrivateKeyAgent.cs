@@ -12,21 +12,21 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the key files used for authentication.
         /// </summary>
-        private List<HostAlgorithm> keys = new List<HostAlgorithm>();
+        private List<KeyHostAlgorithm> keys = new List<KeyHostAlgorithm>();
 
-        public void Add(HostAlgorithm privateKeyFile)
+        public void Add(KeyHostAlgorithm privateKeyFile)
         {
             this.keys.Add(privateKeyFile);
         }
 
-        public IReadOnlyCollection<HostAlgorithm> List()
+        public IReadOnlyCollection<KeyHostAlgorithm> List()
         {
             return this.keys;
         }
 
         public byte[] Sign(byte[] keyData, byte[] signatureData)
         {
-            HostAlgorithm signKey = (from key in keys
+            KeyHostAlgorithm signKey = (from key in keys
                                      where key.Data.SequenceEqual(keyData)
                                      select key).FirstOrDefault();
 

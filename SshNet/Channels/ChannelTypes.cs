@@ -22,7 +22,9 @@ namespace Renci.SshNet.Channels
         /// direct-tcpip
         /// </summary>
         DirectTcpip,
-
-
+        /// <summary>
+        /// auth-agent@openssh.com
+        /// </summary>
+        PrivateKeyAgent,
     }
 }

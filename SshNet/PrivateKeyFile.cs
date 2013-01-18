@@ -34,7 +34,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the host key.
         /// </summary>
-        public HostAlgorithm HostKey { get; private set; }
+        public KeyHostAlgorithm HostKey { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyFile"/> class.

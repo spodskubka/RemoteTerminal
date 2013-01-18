@@ -108,6 +108,7 @@ namespace RemoteTerminal
                 this.usernameTextBox.Text = connectionData.Username;
                 this.authenticationMethodComboBox.SelectedIndex = (int)connectionData.Authentication;
                 this.privateKeyComboBox.SelectedItem = connectionData.PrivateKeyName;
+                this.privateKeyAgentForwardingCheckBox.IsChecked = connectionData.PrivateKeyAgentForwarding;
                 this.id = connectionData.Id;
             }
 
@@ -172,6 +173,7 @@ namespace RemoteTerminal
                 Username = this.usernameTextBox.Text,
                 Authentication = (AuthenticationType)this.authenticationMethodComboBox.SelectedIndex,
                 PrivateKeyName = this.privateKeyComboBox.SelectedItem as string ?? string.Empty,
+                PrivateKeyAgentForwarding = this.privateKeyAgentForwardingCheckBox.IsChecked ?? false,
             };
         }
 

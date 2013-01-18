@@ -178,6 +178,7 @@ namespace Renci.SshNet.Channels
 
             this._session = session;
             this.LocalWindowSize = this._initialWindowSize;  // Initial window size
+            this.ServerWindowSize = this._initialWindowSize;
             this.PacketSize = this._maximumPacketSize;     // Maximum packet size
 
             this.LocalChannelNumber = session.NextChannelNumber;

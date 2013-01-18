@@ -8,6 +8,7 @@ using Renci.SshNet.Common;
 using System.Threading;
 using System.Text.RegularExpressions;
 using Windows.Storage.Streams;
+using Renci.SshNet.Messages.Connection;
 
 namespace Renci.SshNet
 {
@@ -27,6 +28,8 @@ namespace Renci.SshNet
         private Queue<byte> _incoming;
 
         private Queue<byte> _outgoing;
+
+        private PrivateKeyAgent forwardedPrivateKeyAgent;
 
         /// <summary>
         /// Occurs when data was received.
@@ -52,7 +55,7 @@ namespace Renci.SshNet
             }
         }
 
-        internal ShellStream(Session session, string terminalName, uint columns, uint rows, uint width, uint height, int maxLines, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
+        internal ShellStream(Session session, string terminalName, uint columns, uint rows, uint width, uint height, int maxLines, PrivateKeyAgent forwardedPrivateKeyAgent, params KeyValuePair<TerminalModes, uint>[] terminalModeValues)
         {
             this._encoding = new Renci.SshNet.Common.ASCIIEncoding();
             this._session = session;
@@ -65,9 +68,33 @@ namespace Renci.SshNet
             this._session.Disconnected += new EventHandler<EventArgs>(Session_Disconnected);
             this._session.ErrorOccured += new EventHandler<ExceptionEventArgs>(Session_ErrorOccured);
 
+            this.forwardedPrivateKeyAgent = forwardedPrivateKeyAgent;
+
             this._channel.Open();
+            if (this.forwardedPrivateKeyAgent != null)
+            {
+                if (this._channel.SendPrivateKeyAgentForwardingRequest())
+                {
+                    this._session.RegisterMessage("SSH_MSG_CHANNEL_OPEN");
+                    this._session.ChannelOpenReceived += OnChannelOpen;
+                }
+            }
             this._channel.SendPseudoTerminalRequest(terminalName, columns, rows, width, height, terminalModeValues);
             this._channel.SendShellRequest();
+        }
+
+        void OnChannelOpen(object sender, MessageEventArgs<Messages.Connection.ChannelOpenMessage> e)
+        {
+            if (e.Message.ChannelType != ForwardedPrivateKeyAgentChannelInfo.NAME)
+            {
+                var failureMessage = new ChannelOpenFailureMessage(e.Message.LocalChannelNumber, "Channel not supported by Remote Terminal.", (uint)ChannelOpenFailureReasons.UnknownChannelType);
+                this._session.SendMessage(failureMessage);
+                return;
+            }
+
+            var channelPrivateKeyAgent = this._session.CreateChannel<ChannelPrivateKeyAgent>(e.Message.LocalChannelNumber, e.Message.InitialWindowSize, e.Message.MaximumPacketSize);
+            channelPrivateKeyAgent.PrivateKeyAgent = this.forwardedPrivateKeyAgent;
+            channelPrivateKeyAgent.Start();
         }
 
         #region Stream overide methods

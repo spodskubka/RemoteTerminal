@@ -111,6 +111,9 @@
     <Compile Include="BaseClient.cs" />
     <Compile Include="ChannelAsyncResult.cs" />
     <Compile Include="Channels\Channel.cs" />
+    <Compile Include="Channels\ChannelPrivateKeyAgent.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Channels\ChannelSession.cs" />
     <Compile Include="Channels\ChannelTypes.cs" />
     <Compile Include="CipherInfo.cs" />
@@ -151,6 +154,24 @@
     </Compile>
     <Compile Include="ConnectionInfo.cs" />
     <Compile Include="ExpectAction.cs" />
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\SignResponseMessage.cs" />
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\RequestIdentitiesMessage.cs" />
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\IdentitiesAnswerMessage.cs" />
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\PrivateKeyAgentMessage.cs" />
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\SuccessMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\SignRequestMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\FailureMessage.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Messages\Connection\ChannelOpenFailureReasons.cs" />
+    <Compile Include="Messages\Connection\ChannelOpen\ForwardedPrivateKeyAgentChannelInfo.cs" />
+    <Compile Include="Messages\Connection\ChannelRequest\PrivateKeyAgentForwardingRequestInfo.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="PrivateKeyAgent.cs" />
     <Compile Include="KeyboardInteractiveAuthenticationMethod.cs" />
     <Compile Include="KeyboardInteractiveAuthenticationMethod.NET40.cs" />

@@ -47,6 +47,7 @@ namespace RemoteTerminal.Model
                     Enum.TryParse<AuthenticationType>(jsonObject.GetNamedString("Authentication"), out authenticationMethod);
                     connectionData.Authentication = authenticationMethod;
                     connectionData.PrivateKeyName = jsonObject.GetNamedString("PrivateKeyName");
+                    connectionData.PrivateKeyAgentForwarding = jsonObject.ContainsKey("PrivateKeyAgentForwarding") ? jsonObject.GetNamedBoolean("PrivateKeyAgentForwarding") : false;
                 }
                 catch (Exception)
                 {
@@ -82,6 +83,7 @@ namespace RemoteTerminal.Model
             jsonObject.Add("Username", JsonValue.CreateStringValue(connectionData.Username));
             jsonObject.Add("Authentication", JsonValue.CreateStringValue(connectionData.Authentication.ToString()));
             jsonObject.Add("PrivateKeyName", JsonValue.CreateStringValue(connectionData.PrivateKeyName));
+            jsonObject.Add("PrivateKeyAgentForwarding", JsonValue.CreateBooleanValue(connectionData.PrivateKeyAgentForwarding));
             string favoriteJsonString = jsonObject.Stringify();
 
             favorites[connectionData.Id] = favoriteJsonString;

@@ -276,6 +276,7 @@ namespace Renci.SshNet
                 {XonXoffRequestInfo.NAME, new XonXoffRequestInfo()}, 
                 {EndOfWriteRequestInfo.NAME, new EndOfWriteRequestInfo()}, 
                 {KeepAliveRequestInfo.NAME, new KeepAliveRequestInfo()}, 
+                {PrivateKeyAgentForwardingRequestInfo.NAME, new PrivateKeyAgentForwardingRequestInfo()},
             };
 
             this.Host = host;
