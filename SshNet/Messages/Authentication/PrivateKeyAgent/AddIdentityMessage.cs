@@ -51,13 +51,10 @@ namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
             switch (keyType)
             {
                 case "ssh-rsa":
-                    var n = this.ReadBigInt();
-                    var e = this.ReadBigInt();
-                    var d = this.ReadBigInt();
-                    var iqmp = this.ReadBigInt();
-                    var p = this.ReadBigInt();
-                    var q = this.ReadBigInt();
-                    this.Key = new KeyHostAlgorithm(keyType, new RsaKey(n, e, d, p, q, iqmp));
+                    this.Key = new KeyHostAlgorithm(keyType, this.ReadRsaKey());
+                    break;
+                case "ssh-dss":
+                    this.Key = new KeyHostAlgorithm(keyType, this.ReadDsaKey());
                     break;
                 default:
                     throw new SshException("Private key type '" + keyType + "' is not supported.");
@@ -72,6 +69,28 @@ namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
         protected override void SaveData()
         {
             throw new NotImplementedException();
+        }
+
+        private RsaKey ReadRsaKey()
+        {
+            var n = this.ReadBigInt();
+            var e = this.ReadBigInt();
+            var d = this.ReadBigInt();
+            var iqmp = this.ReadBigInt();
+            var p = this.ReadBigInt();
+            var q = this.ReadBigInt();
+
+            return new RsaKey(n, e, d, p, q, iqmp);
+        }
+
+        private DsaKey ReadDsaKey()
+        {
+            var p = this.ReadBigInt();
+            var q = this.ReadBigInt();
+            var g = this.ReadBigInt();
+            var y = this.ReadBigInt();
+            var x = this.ReadBigInt();
+            return new DsaKey(p, q, g, y, x);
         }
     }
 }
