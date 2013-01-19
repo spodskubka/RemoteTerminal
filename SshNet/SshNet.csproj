@@ -154,6 +154,10 @@
     </Compile>
     <Compile Include="ConnectionInfo.cs" />
     <Compile Include="ExpectAction.cs" />
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\AddIdentityMessage.cs" />
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\RemoveAllRsaIdentitiesMessage.cs" />
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\RemoveIdentityMessage.cs" />
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\RemoveAllIdentitiesMessage.cs" />
     <Compile Include="Messages\Authentication\PrivateKeyAgent\SignResponseMessage.cs" />
     <Compile Include="Messages\Authentication\PrivateKeyAgent\RequestIdentitiesMessage.cs" />
     <Compile Include="Messages\Authentication\PrivateKeyAgent\IdentitiesAnswerMessage.cs" />
@@ -250,6 +254,7 @@
     <Compile Include="PasswordAuthenticationMethod.cs" />
     <Compile Include="PasswordAuthenticationMethod.NET40.cs" />
     <Compile Include="PasswordConnectionInfo.cs" />
+    <Compile Include="PrivateKeyAgentKey.cs" />
     <Compile Include="PrivateKeyAuthenticationMethod.cs" />
     <Compile Include="PrivateKeyConnectionInfo.cs" />
     <Compile Include="PrivateKeyFile.cs" />

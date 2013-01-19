@@ -62,8 +62,10 @@ namespace Renci.SshNet
 
             session.RegisterMessage("SSH_MSG_USERAUTH_PK_OK");
 
-            foreach (var key in this.PrivateKeyAgent.List())
+            foreach (var keyInfo in this.PrivateKeyAgent.List())
             {
+                var key = keyInfo.Key;
+
                 this._authenticationCompleted.Reset();
                 this._isSignatureRequired = false;
 

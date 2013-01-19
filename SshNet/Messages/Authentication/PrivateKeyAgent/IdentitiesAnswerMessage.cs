@@ -11,11 +11,11 @@ namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
     [Message("SSH_AGENT_IDENTITIES_ANSWER", 12)]
     public class IdentitiesAnswerMessage : PrivateKeyAgentMessage
     {
-        public List<KeyHostAlgorithm> Keys { get; private set; }
+        public List<PrivateKeyAgentKey> Keys { get; private set; }
 
-        public IdentitiesAnswerMessage(IReadOnlyCollection<KeyHostAlgorithm> keys)
+        public IdentitiesAnswerMessage(IReadOnlyCollection<PrivateKeyAgentKey> keys)
         {
-            this.Keys = new List<KeyHostAlgorithm>(keys);    
+            this.Keys = new List<PrivateKeyAgentKey>(keys);
         }
 
         /// <summary>
@@ -24,11 +24,12 @@ namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
         protected override void LoadData()
         {
             int count = (int)this.ReadUInt32();
-            this.Keys = new List<KeyHostAlgorithm>(count);
+            this.Keys = new List<PrivateKeyAgentKey>(count);
             for (int i = 0; i < count; i++)
             {
-                this.Keys.Add(new KeyHostAlgorithm("", new RsaKey(), this.ReadBytes()));
-                this.ReadString();
+                var key = new KeyHostAlgorithm("", new RsaKey(), this.ReadBytes());
+                string comment = this.ReadString();
+                this.Keys.Add(new PrivateKeyAgentKey(key, comment));
             }
         }
 
@@ -40,8 +41,8 @@ namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
             base.Write((UInt32)this.Keys.Count);
             foreach (var key in this.Keys)
             {
-                base.WriteBinaryString(key.Data);
-                base.Write("imported-openssh-key");
+                base.WriteBinaryString(key.Key.Data);
+                base.Write(key.Comment);
             }
         }
     }

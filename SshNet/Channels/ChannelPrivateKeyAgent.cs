@@ -183,6 +183,44 @@ namespace Renci.SshNet.Channels
             this.SendPrivateKeyAgentMessage(signResponseMessage);
         }
 
+        private void HandlePrivateKeyAgentMessage(AddIdentityMessage message)
+        {
+            if (this.PrivateKeyAgent.Add(message.Key, message.Comment))
+            {
+                this.SendPrivateKeyAgentMessage(new SuccessMessage());
+            }
+            else
+            {
+                this.SendPrivateKeyAgentMessage(new FailureMessage());
+            }
+        }
+
+        private void HandlePrivateKeyAgentMessage(RemoveIdentityMessage message)
+        {
+            if (this.PrivateKeyAgent.Remove(message.PublicKeyData))
+            {
+                this.SendPrivateKeyAgentMessage(new SuccessMessage());
+            }
+            else
+            {
+                this.SendPrivateKeyAgentMessage(new FailureMessage());
+            }
+        }
+
+        private void HandlePrivateKeyAgentMessage(RemoveAllIdentitiesMessage message)
+        {
+            this.PrivateKeyAgent.RemoveAll();
+            this.SendPrivateKeyAgentMessage(new SuccessMessage());
+        }
+
+        private void HandlePrivateKeyAgentMessage(RemoveAllRsaIdentitiesMessage message)
+        {
+            // Although the library doesn't support SSH1 connections and the agent doesn't support SSH1 keys
+            // we still return a success message for the SSH1 REMOVE ALL message so that ssh-add -D doesn't
+            // report an error.
+            this.SendPrivateKeyAgentMessage(new SuccessMessage());
+        }
+
         private void HandlePrivateKeyAgentMessage(PrivateKeyAgentMessage message)
         {
             this.SendPrivateKeyAgentMessage(new FailureMessage());
@@ -192,9 +230,14 @@ namespace Renci.SshNet.Channels
         {
             return new PrivateKeyAgentMessageMetadata[] 
             { 
+                // 3.1 Requests from client to agent for protocol 1 key operations
+                new PrivateKeyAgentMessageMetadata { Name = "SSH_AGENTC_REMOVE_ALL_RSA_IDENTITIES", Number = 9, Type = typeof(RemoveAllRsaIdentitiesMessage), },
                 // 3.2 Requests from client to agent for protocol 2 key operations
                 new PrivateKeyAgentMessageMetadata { Name = "SSH2_AGENTC_REQUEST_IDENTITIES", Number = 11, Type = typeof(RequestIdentitiesMessage), },
                 new PrivateKeyAgentMessageMetadata { Name = "SSH2_AGENTC_SIGN_REQUEST", Number = 13, Type = typeof(SignRequestMessage), },
+                new PrivateKeyAgentMessageMetadata { Name = "SSH2_AGENTC_ADD_IDENTITY", Number = 17, Type = typeof(AddIdentityMessage), },
+                new PrivateKeyAgentMessageMetadata { Name = "SSH2_AGENTC_REMOVE_IDENTITY", Number = 18, Type = typeof(RemoveIdentityMessage), },
+                new PrivateKeyAgentMessageMetadata { Name = "SSH2_AGENTC_REMOVE_ALL_IDENTITIES", Number = 19, Type = typeof(RemoveAllIdentitiesMessage), },
                 // 3.3 Key-type independent requests from client to agent
                 // 3.4 Generic replies from agent to client
                 new PrivateKeyAgentMessageMetadata { Name = "SSH_AGENT_FAILURE", Number = 5, Type = typeof(FailureMessage), },
