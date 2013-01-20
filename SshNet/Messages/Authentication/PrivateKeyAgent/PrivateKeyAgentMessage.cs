@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Renci.SshNet.Common;
 using Renci.SshNet.Messages;
 
 namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
@@ -24,6 +25,31 @@ namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
             uint messageLength = (uint)bytes.Count;
             bytes.InsertRange(0, messageLength.GetBytes());
             return bytes.ToArray();
+        }
+
+        /// <summary>
+        /// Reads next mpint1 (SSH1) data type from internal buffer.
+        /// </summary>
+        /// <returns>mpint read.</returns>
+        protected BigInteger ReadBigInt1()
+        {
+            var bitLength = this.ReadUInt16();
+
+            var data = this.ReadBytes((int)((int)bitLength + 7) / 8);
+
+            return new BigInteger(data);
+        }
+
+        /// <summary>
+        /// Reads next mpint1 (SSH1) data type from internal buffer.
+        /// </summary>
+        /// <returns>mpint read.</returns>
+        protected void WriteBigInt1(BigInteger bigInt)
+        {
+            this.Write((UInt16)bigInt.BitLength);
+
+            var bytes = bigInt.ToByteArray().Reverse();
+            this.Write(bytes);
         }
     }
 }

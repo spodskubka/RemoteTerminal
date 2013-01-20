@@ -62,7 +62,7 @@ namespace Renci.SshNet
 
             session.RegisterMessage("SSH_MSG_USERAUTH_PK_OK");
 
-            foreach (var keyInfo in this.PrivateKeyAgent.List())
+            foreach (var keyInfo in this.PrivateKeyAgent.ListSsh2())
             {
                 var key = keyInfo.Key;
 
@@ -84,7 +84,7 @@ namespace Renci.SshNet
 
                     var signatureData = new SignatureData(message, session.SessionId).GetBytes();
 
-                    var signature = this.PrivateKeyAgent.Sign(key.Data, signatureData);
+                    var signature = this.PrivateKeyAgent.SignSsh2(key.Data, signatureData);
 
                     if (signature != null)
                     {

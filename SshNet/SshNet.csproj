@@ -155,6 +155,12 @@
     <Compile Include="ConnectionInfo.cs" />
     <Compile Include="ExpectAction.cs" />
     <Compile Include="Messages\Authentication\PrivateKeyAgent\AddIdentityMessage.cs" />
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\AddRsaIdentityMessage.cs" />
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\RsaResponseMessage.cs" />
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\RsaChallengeMessage.cs" />
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\RsaIdentitiesAnswerMessage.cs" />
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\RequestRsaIdentitiesMessage.cs" />
+    <Compile Include="Messages\Authentication\PrivateKeyAgent\RemoveRsaIdentityMessage.cs" />
     <Compile Include="Messages\Authentication\PrivateKeyAgent\RemoveAllRsaIdentitiesMessage.cs" />
     <Compile Include="Messages\Authentication\PrivateKeyAgent\RemoveIdentityMessage.cs" />
     <Compile Include="Messages\Authentication\PrivateKeyAgent\RemoveAllIdentitiesMessage.cs" />

@@ -6,14 +6,14 @@ using Renci.SshNet.Security;
 namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
 {
     /// <summary>
-    /// Represents SSH2_AGENT_IDENTITIES_ANSWER message.
+    /// Represents SSH_AGENT_RSA_IDENTITIES_ANSWER message.
     /// </summary>
-    [Message("SSH2_AGENT_IDENTITIES_ANSWER", 12)]
-    public class IdentitiesAnswerMessage : PrivateKeyAgentMessage
+    [Message("SSH_AGENT_RSA_IDENTITIES_ANSWER", 2)]
+    public class RsaIdentitiesAnswerMessage : PrivateKeyAgentMessage
     {
         public List<PrivateKeyAgentKey> Keys { get; private set; }
 
-        public IdentitiesAnswerMessage(IReadOnlyCollection<PrivateKeyAgentKey> keys)
+        public RsaIdentitiesAnswerMessage(IReadOnlyCollection<PrivateKeyAgentKey> keys)
         {
             this.Keys = new List<PrivateKeyAgentKey>(keys);
         }
@@ -23,14 +23,7 @@ namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
         /// </summary>
         protected override void LoadData()
         {
-            int count = (int)this.ReadUInt32();
-            this.Keys = new List<PrivateKeyAgentKey>(count);
-            for (int i = 0; i < count; i++)
-            {
-                var key = new KeyHostAlgorithm("", new RsaKey(), this.ReadBytes());
-                string comment = this.ReadString();
-                this.Keys.Add(new PrivateKeyAgentKey(key, comment));
-            }
+            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -41,7 +34,9 @@ namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
             base.Write((UInt32)this.Keys.Count);
             foreach (var key in this.Keys)
             {
-                base.WriteBinaryString(key.Key.Data);
+                base.Write((uint)key.Key.Key.KeyLength);
+                base.WriteBigInt1(((RsaKey)key.Key.Key).Exponent);
+                base.WriteBigInt1(((RsaKey)key.Key.Key).Modulus);
                 base.Write(key.Comment);
             }
         }

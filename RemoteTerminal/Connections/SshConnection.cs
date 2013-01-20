@@ -169,7 +169,7 @@ namespace RemoteTerminal.Connections
                             }
 
                             var privateKeyAgent = new PrivateKeyAgent();
-                            privateKeyAgent.Add(privateKey.HostKey, connectionData.PrivateKeyName);
+                            privateKeyAgent.AddSsh2(privateKey.HostKey, connectionData.PrivateKeyName);
                             var privateKeyConnectionInfo = new PrivateKeyConnectionInfo(this.connectionData.Host, this.connectionData.Port, username, privateKeyAgent);
                             connectionInfo = privateKeyConnectionInfo;
                             if (connectionData.PrivateKeyAgentForwarding == true)
