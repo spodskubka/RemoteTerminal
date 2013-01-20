@@ -493,6 +493,9 @@ namespace RemoteTerminal.Terminals
                         modifier.DeleteLines(arg0 ?? 1, this.scrollTop, this.scrollBottom);
                         break;
 
+                    case "[@":
+                        modifier.InsertCells(arg0 ?? 1);
+                        break;
                     case "[P":
                         modifier.DeleteCells(arg0 ?? 1);
                         break;
