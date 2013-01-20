@@ -6,12 +6,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using RemoteTerminal.Model;
 using RemoteTerminal.Terminals;
+using Windows.ApplicationModel.Store;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Storage;
 using Windows.Storage.AccessCache;
 using Windows.System;
 using Windows.UI.ApplicationSettings;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -30,6 +32,8 @@ namespace RemoteTerminal
     /// </summary>
     public sealed partial class FavoritesPage : RemoteTerminal.Common.LayoutAwarePage
     {
+        private LicenseInformation licenseInformation;
+
         public FavoritesPage()
         {
             this.InitializeComponent();
@@ -56,6 +60,14 @@ namespace RemoteTerminal
                 this.SetupAppBar();
             }
 
+#if DEBUG
+            this.licenseInformation = CurrentAppSimulator.LicenseInformation;
+#else
+            this.licenseInformation = CurrentApp.LicenseInformation;
+#endif
+            this.RefreshTrialHint();
+            this.licenseInformation.LicenseChanged += RefreshTrialHint;
+
             if (TerminalManager.Terminals.Count > 0)
             {
                 this.previewGrid.ItemsSource = TerminalManager.Terminals;
@@ -66,6 +78,34 @@ namespace RemoteTerminal
             else
             {
                 this.TopAppBar = null;
+            }
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            base.OnNavigatedFrom(e);
+
+            this.licenseInformation.LicenseChanged -= RefreshTrialHint;
+        }
+
+        private void RefreshTrialHint()
+        {
+            if (this.licenseInformation.IsTrial)
+            {
+                this.trialPeriodDisplay.Visibility = Visibility.Visible;
+
+                var daysRemaining = Math.Min(30, (this.licenseInformation.ExpirationDate - DateTime.Now).Days);
+                this.trialPeriodDuration.Text = daysRemaining + "/30 days";
+                this.trialPeriodProgressBar.Value = daysRemaining;
+            }
+            else
+            {
+                if (this.trialPeriodDisplay.Visibility == Visibility.Visible)
+                {
+                    purchaseThanksDisplay.Visibility = Visibility.Visible;
+                }
+
+                this.trialPeriodDisplay.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -173,6 +213,29 @@ namespace RemoteTerminal
         {
             ITerminal terminal = ((Button)sender).Tag as ITerminal;
             TerminalManager.Remove(terminal);
+        }
+
+        private async void purchaseButton_Click(object sender, RoutedEventArgs e)
+        {
+            bool failed = false;
+            try
+            {
+#if DEBUG
+                var s = await CurrentAppSimulator.RequestAppPurchaseAsync(false);
+#else
+            this.licenseInformation = CurrentApp.LicenseInformation;
+#endif
+            }
+            catch (Exception ex)
+            {
+                failed = true;
+            }
+
+            if (failed)
+            {
+                MessageDialog dialog = new MessageDialog("Purchase failed, please try again.");
+                await dialog.ShowAsync();
+            }
         }
     }
 }

@@ -92,10 +92,10 @@
                 <RowDefinition Height="5*"/>
             </Grid.RowDefinitions>
             <Border Grid.Row="1" Background="#3FFFFFFF">
-                <TextBlock x:Name="textBlock" Text="You don't have any saved connections. Please use the bottom app bar to create new connections or to use Quick Connect." HorizontalAlignment="Left" VerticalAlignment="Center" Margin="116,0" Style="{StaticResource SubheaderTextStyle}"/>
+                <TextBlock x:Name="emptyHintTextBlock" Text="You don't have any saved connections. Please use the bottom app bar to create new connections or to use Quick Connect." HorizontalAlignment="Left" VerticalAlignment="Center" Margin="116,0" Style="{StaticResource SubheaderTextStyle}"/>
             </Border>
         </Grid>
-        
+
         <!-- Horizontal scrolling grid used in most view states -->
         <GridView
             x:Name="itemGridView"
@@ -124,6 +124,24 @@
             SelectionMode="Multiple"
             IsSwipeEnabled="True" IsItemClickEnabled="True" ItemClick="ItemView_ItemClick" SelectionChanged="ItemView_SelectionChanged"/>
         <!-- Back button and page title -->
+
+        <Border x:Name="trialPeriodDisplay" Grid.Row="1" Height="60" Width="320" Background="#3FFFFFFF" HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Collapsed">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <TextBlock Text="Trial period left:" Margin="10,10,5,10" Style="{StaticResource BasicTextStyle}"/>
+                    <TextBlock x:Name="trialPeriodDuration" Margin="0,10" Text="20/30 days" Style="{StaticResource BasicTextStyle}"/>
+                    <Button x:Name="purchaseButton" Content="Purchase" Margin="10,0" Click="purchaseButton_Click"/>
+                </StackPanel>
+                <Grid Margin="10,5">
+                    <ProgressBar x:Name="trialPeriodProgressBar" Maximum="30" Value="7"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+        <Border x:Name="purchaseThanksDisplay" Grid.Row="1" Height="60" Width="320" Background="#3FFFFFFF" HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Collapsed">
+            <TextBlock Text="Thank you!" Margin="10" HorizontalAlignment="Center" Style="{StaticResource SubheaderTextStyle}"/>
+        </Border>
+
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
@@ -178,7 +196,7 @@
                                 </DiscreteObjectKeyFrame.Value>
                             </DiscreteObjectKeyFrame>
                         </ObjectAnimationUsingKeyFrames>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="textBlock">
+                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="emptyHintTextBlock">
                             <DiscreteObjectKeyFrame KeyTime="0">
                                 <DiscreteObjectKeyFrame.Value>
                                     <Thickness>10,0</Thickness>
