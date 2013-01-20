@@ -185,26 +185,14 @@ namespace Renci.SshNet.Channels
 
         private void HandlePrivateKeyAgentMessage(AddIdentityMessage message)
         {
-            if (this.PrivateKeyAgent.AddSsh2(message.Key, message.Comment))
-            {
-                this.SendPrivateKeyAgentMessage(new SuccessMessage());
-            }
-            else
-            {
-                this.SendPrivateKeyAgentMessage(new FailureMessage());
-            }
+            bool success = this.PrivateKeyAgent.AddSsh2(message.Key, message.Comment);
+            this.SendSuccessMessage(success);
         }
 
         private void HandlePrivateKeyAgentMessage(RemoveIdentityMessage message)
         {
-            if (this.PrivateKeyAgent.RemoveSsh2(message.PublicKeyData))
-            {
-                this.SendPrivateKeyAgentMessage(new SuccessMessage());
-            }
-            else
-            {
-                this.SendPrivateKeyAgentMessage(new FailureMessage());
-            }
+            bool success = this.PrivateKeyAgent.RemoveSsh2(message.PublicKeyData);
+            this.SendSuccessMessage(success);
         }
 
         private void HandlePrivateKeyAgentMessage(RemoveAllIdentitiesMessage message)
@@ -227,26 +215,14 @@ namespace Renci.SshNet.Channels
 
         private void HandlePrivateKeyAgentMessage(AddRsaIdentityMessage message)
         {
-            if (this.PrivateKeyAgent.AddSsh1(message.Key, message.Comment))
-            {
-                this.SendPrivateKeyAgentMessage(new SuccessMessage());
-            }
-            else
-            {
-                this.SendPrivateKeyAgentMessage(new FailureMessage());
-            }
+            bool success = this.PrivateKeyAgent.AddSsh1(message.Key, message.Comment);
+            this.SendSuccessMessage(success);
         }
 
         private void HandlePrivateKeyAgentMessage(RemoveRsaIdentityMessage message)
         {
-            if (this.PrivateKeyAgent.RemoveSsh1(message.E, message.N))
-            {
-                this.SendPrivateKeyAgentMessage(new SuccessMessage());
-            }
-            else
-            {
-                this.SendPrivateKeyAgentMessage(new FailureMessage());
-            }
+            bool success = this.PrivateKeyAgent.RemoveSsh1(message.E, message.N);
+            this.SendSuccessMessage(success);
         }
 
         private void HandlePrivateKeyAgentMessage(RemoveAllRsaIdentitiesMessage message)
@@ -258,6 +234,18 @@ namespace Renci.SshNet.Channels
         private void HandlePrivateKeyAgentMessage(PrivateKeyAgentMessage message)
         {
             this.SendPrivateKeyAgentMessage(new FailureMessage());
+        }
+
+        private void SendSuccessMessage(bool success)
+        {
+            if (success)
+            {
+                this.SendPrivateKeyAgentMessage(new SuccessMessage());
+            }
+            else
+            {
+                this.SendPrivateKeyAgentMessage(new FailureMessage());
+            }
         }
 
         private static IEnumerable<PrivateKeyAgentMessageMetadata> GetPrivateKeyAgentMessagesMetadata()
