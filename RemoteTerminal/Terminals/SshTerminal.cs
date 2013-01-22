@@ -580,8 +580,16 @@ namespace RemoteTerminal.Terminals
                             case 1002:
                                 // TODO: mc (Use Cell Motion Mouse Tracking)
                                 break;
+                            case 1047: // Use Alternate Screen Buffer
+                                this.scrollTop = null;
+                                this.scrollBottom = null;
+                                break;
+                            case 1048:
+                                break;
                             case 1049:
                                 // TODO: aptitude (Use Normal Screen Buffer and restore cursor as in DECRC)
+                                this.scrollTop = null;
+                                this.scrollBottom = null;
                                 break;
                             default:
                                 break;
