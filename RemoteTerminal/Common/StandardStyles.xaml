@@ -1331,12 +1331,12 @@
     </Style>
     -->
 
+    <!--
     <Style x:Key="FullScreenAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
         <Setter Property="AutomationProperties.AutomationId" Value="FullScreenAppBarButton"/>
         <Setter Property="AutomationProperties.Name" Value="Full Screen"/>
         <Setter Property="Content" Value="&#xE1D9;"/>
     </Style>
-    <!--
     <Style x:Key="NewFolderAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
         <Setter Property="AutomationProperties.AutomationId" Value="NewFolderAppBarButton"/>
         <Setter Property="AutomationProperties.Name" Value="New Folder"/>

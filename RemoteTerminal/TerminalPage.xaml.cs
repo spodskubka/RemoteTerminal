@@ -9,6 +9,7 @@ using RemoteTerminal.Terminals;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -26,6 +27,8 @@ namespace RemoteTerminal
     /// </summary>
     public sealed partial class TerminalPage : RemoteTerminal.Common.LayoutAwarePage
     {
+        private InputPaneHelper inputPaneHelper;
+
         public static readonly DependencyProperty TerminalProperty = DependencyProperty.Register("Terminal", typeof(ITerminal), typeof(TerminalPage), null);
         public ITerminal Terminal
         {
@@ -43,6 +46,13 @@ namespace RemoteTerminal
         public TerminalPage()
         {
             this.InitializeComponent();
+
+            // InputPaneHelper is a custom class that allows keyboard event listeners to
+            // be attached to individual elements
+            this.inputPaneHelper = new InputPaneHelper();
+            this.inputPaneHelper.SubscribeToKeyboard(true);
+            this.inputPaneHelper.AddShowingHandler(this.screenDisplay, new InputPaneShowingHandler(CustomKeyboardHandler));
+            this.inputPaneHelper.SetHidingHandler(new InputPaneHidingHandler(InputPaneHiding));
         }
 
         /// <summary>
@@ -114,6 +124,13 @@ namespace RemoteTerminal
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
+            if (this.inputPaneHelper != null)
+            {
+                inputPaneHelper.SubscribeToKeyboard(false);
+                inputPaneHelper.RemoveShowingHandler(this.screenDisplay);
+                inputPaneHelper.SetHidingHandler(null);
+            }
+
             if (this.screenDisplay != null)
             {
                 this.screenDisplay.Dispose();
@@ -161,6 +178,26 @@ namespace RemoteTerminal
             }
 
             TerminalManager.Remove(terminal);
+        }
+
+        private void CustomKeyboardHandler(object sender, InputPaneVisibilityEventArgs e)
+        {
+            this.ContentGrid.VerticalAlignment = VerticalAlignment.Top;
+            this.ContentGrid.Height = e.OccludedRect.Y;
+
+            // Be careful with this property. Once it has been set, the framework will
+            // do nothing to help you keep the focused element in view.
+            e.EnsuredFocusedElementInView = true;
+        }
+
+        private void InputPaneHiding(InputPane sender, InputPaneVisibilityEventArgs e)
+        {
+            this.ContentGrid.VerticalAlignment = VerticalAlignment.Stretch;
+            this.ContentGrid.Height = Double.NaN;
+
+            // Be careful with this property. Once it has been set, the framework will not change
+            // any layouts in response to the keyboard coming up
+            e.EnsuredFocusedElementInView = true;
         }
     }
 }
