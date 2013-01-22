@@ -215,7 +215,15 @@ namespace RemoteTerminal.Screens
             {
                 while (this.screen.Count > rows)
                 {
-                    this.screen.RemoveAt(0);
+                    if (this.CursorRow < this.screen.Count - 1)
+                    {
+                        this.screen.RemoveAt(this.screen.Count - 1);
+                    }
+                    else
+                    {
+                        this.CursorRow--;
+                        this.screen.RemoveAt(0);
+                    }
                 }
 
                 while (this.screen.Count < rows)
