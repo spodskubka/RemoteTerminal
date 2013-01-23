@@ -32,6 +32,8 @@ namespace RemoteTerminal.Terminals
         private int localReadStartColumn = 0;
         private int localReadStartRow = 0;
 
+        private object disconnectLock = new object();
+
         public AbstractTerminal(ConnectionData connectionData, bool localEcho, string writtenNewLine)
         {
             switch (connectionData.Type)
@@ -195,12 +197,15 @@ namespace RemoteTerminal.Terminals
                         }
                         while (str.Length > 0);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                     }
                 }
 
-                this.connection.Disconnect();
+                lock (this.disconnectLock)
+                {
+                    this.connection.Disconnect();
+                }
                 this.IsConnected = false;
                 var disconnected = this.Disconnected;
                 if (disconnected != null)
@@ -212,7 +217,10 @@ namespace RemoteTerminal.Terminals
 
         public void PowerOff()
         {
-            this.connection.Disconnect();
+            lock (this.disconnectLock)
+            {
+                this.connection.Disconnect();
+            }
 
             if (this.localReadSync != null)
             {
