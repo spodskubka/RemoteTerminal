@@ -24,7 +24,7 @@
     </Page.Resources>
 
     <common:LayoutAwarePage.TopAppBar>
-        <AppBar>
+        <AppBar Style="{StaticResource SemiTransparentAppBarStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="100"/>

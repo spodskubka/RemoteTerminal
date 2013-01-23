@@ -22,7 +22,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Canvas Background="{StaticResource AppColor}" Width="50" Height="50">
+                <Canvas Background="{StaticResource AppColorBrush}" Width="50" Height="50">
                     <TextBlock Text="&#xE192;" FontFamily="Segoe UI Symbol" FontSize="30" Margin="7,4,0,0"/>
                 </Canvas>
                 <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="10,0,0,0">

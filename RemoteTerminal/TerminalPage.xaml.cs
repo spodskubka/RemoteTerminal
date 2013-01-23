@@ -71,40 +71,34 @@ namespace RemoteTerminal
                 this.Frame.GoBack();
             }
 
-            await this.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            ConnectionData connectionData;
+            if (navigationParameter is string)
             {
-                ConnectionData connectionData;
-                if (navigationParameter is string)
-                {
-                    connectionData = FavoritesDataSource.GetFavorite((string)navigationParameter);
-                    if (connectionData == null)
-                    {
-                        this.Frame.GoBack();
-                        return;
-                    }
-
-                    this.Terminal = TerminalManager.Create(connectionData);
-                }
-                else if (navigationParameter is ConnectionData)
-                {
-                    connectionData = navigationParameter as ConnectionData;
-                    this.Terminal = TerminalManager.Create(connectionData);
-                }
-                else if (navigationParameter is ITerminal)
-                {
-                    this.Terminal = navigationParameter as ITerminal;
-                }
-                else
+                connectionData = FavoritesDataSource.GetFavorite((string)navigationParameter);
+                if (connectionData == null)
                 {
                     this.Frame.GoBack();
                     return;
                 }
-            });
+
+                this.Terminal = TerminalManager.Create(connectionData);
+            }
+            else if (navigationParameter is ConnectionData)
+            {
+                connectionData = navigationParameter as ConnectionData;
+                this.Terminal = TerminalManager.Create(connectionData);
+            }
+            else if (navigationParameter is ITerminal)
+            {
+                this.Terminal = navigationParameter as ITerminal;
+            }
+            else
+            {
+                this.Frame.GoBack();
+                return;
+            }
 
             this.previewGrid.ItemsSource = TerminalManager.Terminals;
-            this.TopAppBar.IsOpen = true;
-            await Task.Delay(1000);
-            this.TopAppBar.IsOpen = false;
         }
 
         /// <summary>

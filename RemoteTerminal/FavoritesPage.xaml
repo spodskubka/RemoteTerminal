@@ -21,7 +21,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Border Background="{StaticResource AppColor}" Width="50" Height="50">
+                <Border Background="{StaticResource AppColorBrush}" Width="50" Height="50">
                     <!--<Image Source="{Binding Image}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Name}"/>-->
                     <TextBlock Text="{Binding ImageChar}" FontFamily="Segoe UI Symbol" FontSize="30" Margin="7,4,0,0"/>
                 </Border>
@@ -43,7 +43,7 @@
         </DataTemplate>
     </Page.Resources>
     <common:LayoutAwarePage.TopAppBar>
-        <AppBar>
+        <AppBar Style="{StaticResource SemiTransparentAppBarStyle}">
             <GridView x:Name="previewGrid" ItemTemplate="{StaticResource TerminalPreviewItemTemplate}" Margin="30,15,15,15" ItemClick="PreviewGrid_ItemClick" SelectionMode="None" IsItemClickEnabled="True">
                 <GridView.ItemsPanel>
                     <ItemsPanelTemplate>

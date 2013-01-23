@@ -11,11 +11,18 @@
         <ResourceDictionary Source="Common/StandardStyles.xaml"/>
     </ResourceDictionary.MergedDictionaries>
 
-    <SolidColorBrush x:Key="AppColor" Color="#001E4E"/>
+    <Color x:Key="AppColor">#001E4E</Color>
+    <SolidColorBrush x:Key="AppColorBrush" Color="{StaticResource AppColor}"/>
+    <SolidColorBrush x:Key="SemiTransparentAppColorBrush" Color="{StaticResource AppColor}" Opacity="0.5"/>
 
     <Style TargetType="AppBar">
-        <Setter Property="Background" Value="{StaticResource AppColor}"/>
-        <Setter Property="BorderBrush" Value="{StaticResource AppColor}"/>
+        <Setter Property="Background" Value="{StaticResource AppColorBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource AppColorBrush}"/>
+    </Style>
+    
+    <Style x:Key="SemiTransparentAppBarStyle" TargetType="AppBar">
+        <Setter Property="Background" Value="{StaticResource SemiTransparentAppColorBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource SemiTransparentAppColorBrush}"/>
     </Style>
 
     <Style x:Key="AppBarSpacerBorderStyle" TargetType="Border">
