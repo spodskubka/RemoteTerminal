@@ -12,7 +12,7 @@
 
     <Page.Resources>
         <DataTemplate x:Key="TerminalPreviewItemTemplate">
-            <Grid Width="180" Height="70" Background="Black">
+            <Grid Width="170" Height="70" Background="Black">
                 <TextBlock Text="{Binding Title}" Margin="10,5,0,10" Width="130" Height="20" TextTrimming="WordEllipsis" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 <TextBlock Text="{Binding Name}" Margin="10,3,0,5" Width="160" Height="20" TextTrimming="WordEllipsis" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
                 <!--<Terminals:ScreenPreview TerminalGuid="{Binding}"/>-->
@@ -27,12 +27,12 @@
         <AppBar Style="{StaticResource SemiTransparentAppBarStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="100"/>
+                    <ColumnDefinition Width="90"/>
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
 
                 <Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackAppBarButtonStyle}" VerticalAlignment="Center"/>
-                <GridView x:Name="previewGrid" Grid.Column="1" ItemTemplate="{StaticResource TerminalPreviewItemTemplate}" Margin="15,15,15,15" ItemClick="PreviewGrid_ItemClick" SelectionMode="None" IsItemClickEnabled="True">
+                <GridView x:Name="previewGrid" Grid.Column="1" ItemTemplate="{StaticResource TerminalPreviewItemTemplate}" Margin="15,15,15,15" ItemClick="PreviewGrid_ItemClick" SelectionMode="None" IsItemClickEnabled="True" IsSwipeEnabled="False">
                     <GridView.ItemsPanel>
                         <ItemsPanelTemplate>
                             <WrapGrid Orientation="Horizontal"/>
