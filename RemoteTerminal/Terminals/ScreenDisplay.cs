@@ -46,7 +46,7 @@ namespace RemoteTerminal.Terminals
                 Child = this.rectangle
             };
 
-            this.border.BorderBrush = new SolidColorBrush(Colors.Gray);
+            this.border.BorderBrush = new SolidColorBrush(Colors.Black);
             this.border.BorderThickness = new Thickness(2d);
             this.border.Background = new SolidColorBrush(Colors.Black);
 
@@ -83,7 +83,7 @@ namespace RemoteTerminal.Terminals
 
             this.terminal.Disconnected += terminal_Disconnected;
 
-            this.border.BorderBrush = new SolidColorBrush(this.terminal.IsConnected ? Colors.Gray : Colors.Red);
+            this.border.BorderBrush = new SolidColorBrush(this.terminal.IsConnected ? Colors.Black : Colors.Red);
             this.IsEnabled = this.terminal.IsConnected;
 
             // This will result in ArrangeOverride being called, where the new renderer is attached.
