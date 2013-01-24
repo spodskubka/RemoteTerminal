@@ -270,6 +270,15 @@ namespace RemoteTerminal
                 this.privateKeyOptions.Visibility = Visibility.Collapsed;
             }
 
+            if (authenticationMethod == AuthenticationType.PrivateKeyAgent)
+            {
+                this.privateKeyAgentOptions.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                this.privateKeyAgentOptions.Visibility = Visibility.Collapsed;
+            }
+
             this.SetupAppBar();
         }
 

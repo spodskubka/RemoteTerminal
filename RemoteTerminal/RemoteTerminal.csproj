@@ -120,6 +120,7 @@
     <Compile Include="Common\SuspensionManager.cs" />
     <Compile Include="Connections\SshConnection.cs" />
     <Compile Include="InputPaneHelper.cs" />
+    <Compile Include="PrivateKeyAgentManager.cs" />
     <Compile Include="TerminalManager.cs" />
     <Compile Include="Connections\IConnection.cs" />
     <Compile Include="Terminals\ScreenPreview.cs" />

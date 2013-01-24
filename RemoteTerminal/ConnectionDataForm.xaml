@@ -71,7 +71,8 @@
                     <ComboBox.Items>
                         <x:String>Password</x:String>
                         <x:String>Keyboard-Interactive</x:String>
-                        <x:String>Private Key (Agent)</x:String>
+                        <x:String>Private Key</x:String>
+                        <x:String>Private Key Agent</x:String>
                         <!--<x:String>Host-Based</x:String>-->
                     </ComboBox.Items>
                 </ComboBox>
@@ -79,6 +80,8 @@
                 <StackPanel x:Name="privateKeyOptions" Visibility="Visible" Width="300">
                     <TextBlock Text="Private key" Style="{StaticResource SubtitleTextStyle}"/>
                     <ComboBox x:Name="privateKeyComboBox" Margin="0,10" SelectionChanged="privateKeyComboBox_SelectionChanged"/>
+                </StackPanel>
+                <StackPanel x:Name="privateKeyAgentOptions" Visibility="Visible" Width="300">
                     <CheckBox x:Name="privateKeyAgentForwardingCheckBox" Margin="0,10" Content="Agent forwarding (OpenSSH style)" VerticalAlignment="Stretch"/>
                 </StackPanel>
             </StackPanel>

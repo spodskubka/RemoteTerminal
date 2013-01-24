@@ -72,11 +72,9 @@ namespace RemoteTerminal.Connections
                 terminal.WriteLine("Username: " + username);
             }
 
-            string exception;
             int numRetries = 0;
             do
             {
-                exception = null;
                 bool retry = true;
                 try
                 {
@@ -168,13 +166,25 @@ namespace RemoteTerminal.Connections
                                 }
                             }
 
-                            var privateKeyAgent = new PrivateKeyAgent();
-                            privateKeyAgent.AddSsh2(privateKey.HostKey, connectionData.PrivateKeyName);
-                            var privateKeyConnectionInfo = new PrivateKeyConnectionInfo(this.connectionData.Host, this.connectionData.Port, username, privateKeyAgent);
+                            // In the normal PrivateKey authentication there is only a connection-local PrivateKeyAgent.
+                            var localPprivateKeyAgent = new PrivateKeyAgent();
+                            localPprivateKeyAgent.AddSsh2(privateKey.HostKey, connectionData.PrivateKeyName);
+                            var privateKeyConnectionInfo = new PrivateKeyConnectionInfo(this.connectionData.Host, this.connectionData.Port, username, localPprivateKeyAgent);
                             connectionInfo = privateKeyConnectionInfo;
+
+                            break;
+                        case AuthenticationType.PrivateKeyAgent:
+                            var globalPrivateKeyAgent = PrivateKeyAgentManager.PrivateKeyAgent;
+                            if (globalPrivateKeyAgent.ListSsh2().Count == 0)
+                            {
+                                throw new SshAuthenticationException("The private key agent doesn't contain any private keys.");
+                            }
+
+                            var privateKeyAgentConnectionInfo = new PrivateKeyConnectionInfo(this.connectionData.Host, this.connectionData.Port, username, globalPrivateKeyAgent);
+                            connectionInfo = privateKeyAgentConnectionInfo;
                             if (connectionData.PrivateKeyAgentForwarding == true)
                             {
-                                forwardedPrivateKeyAgent = privateKeyAgent;
+                                forwardedPrivateKeyAgent = globalPrivateKeyAgent;
                             }
 
                             break;
@@ -199,27 +209,31 @@ namespace RemoteTerminal.Connections
                 }
                 catch (SshConnectionException ex)
                 {
-                    exception = ex.Message;
+                    terminal.WriteLine(ex.Message);
                     retry = false;
                 }
                 catch (SshAuthenticationException ex)
                 {
-                    exception = ex.Message;
-                    retry = true;
+                    terminal.WriteLine(ex.Message);
+                    if (connectionData.Authentication == AuthenticationType.PrivateKeyAgent)
+                    {
+                        terminal.WriteLine("Please load the necessary private key(s) into the private key agent.");
+                        retry = false;
+                    }
+                    else
+                    {
+                        retry = true;
+                    }
                 }
                 catch (Exception ex)
                 {
-                    exception = ex.Message;
+                    terminal.WriteLine(ex.Message);
                     retry = false;
                 }
 
-                if (exception != null)
+                if (!retry || numRetries++ > 5)
                 {
-                    terminal.WriteLine(exception);
-                    if (!retry || numRetries++ > 5)
-                    {
-                        return false;
-                    }
+                    return false;
                 }
             }
             while (true);

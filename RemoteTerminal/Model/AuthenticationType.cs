@@ -23,6 +23,11 @@ namespace RemoteTerminal.Model
         /// </summary>
         PrivateKey,
 
+        /// <summary>
+        /// Private Key Agent authentication.
+        /// </summary>
+        PrivateKeyAgent,
+
         ///// <summary>
         ///// Host-based authentication.
         ///// </summary>
