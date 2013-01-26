@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace Renci.SshNet
         /// </summary>
         private List<PrivateKeyAgentKey> keysSsh2 = new List<PrivateKeyAgentKey>();
 
-        public bool AddSsh1(KeyHostAlgorithm key, string comment)
+        public PrivateKeyAgentKey AddSsh1(KeyHostAlgorithm key, string comment)
         {
             if (!(key.Key is RsaKey))
             {
@@ -33,7 +34,7 @@ namespace Renci.SshNet
             return Add(this.keysSsh1, key, comment);
         }
 
-        public bool AddSsh2(KeyHostAlgorithm key, string comment)
+        public PrivateKeyAgentKey AddSsh2(KeyHostAlgorithm key, string comment)
         {
             return Add(this.keysSsh2, key, comment);
         }
@@ -100,16 +101,17 @@ namespace Renci.SshNet
             return signKey.Key.Sign(signatureData);
         }
 
-        private static bool Add(List<PrivateKeyAgentKey> keys, KeyHostAlgorithm key, string comment)
+        private static PrivateKeyAgentKey Add(List<PrivateKeyAgentKey> keys, KeyHostAlgorithm key, string comment)
         {
             var existingKey = GetKey(keys, key.Data);
             if (existingKey != null)
             {
-                return false;
+                return null;
             }
 
-            keys.Add(new PrivateKeyAgentKey(key, comment));
-            return true;
+            var agentKey = new PrivateKeyAgentKey(key, comment);
+            keys.Add(agentKey);
+            return agentKey;
         }
 
         private static PrivateKeyAgentKey GetKey(List<PrivateKeyAgentKey> keys, byte[] keyData)

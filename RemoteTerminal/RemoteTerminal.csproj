@@ -121,6 +121,9 @@
     <Compile Include="Connections\SshConnection.cs" />
     <Compile Include="InputPaneHelper.cs" />
     <Compile Include="PrivateKeyAgentManager.cs" />
+    <Compile Include="PrivateKeyAgentPage.xaml.cs">
+      <DependentUpon>PrivateKeyAgentPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TerminalManager.cs" />
     <Compile Include="Connections\IConnection.cs" />
     <Compile Include="Terminals\ScreenPreview.cs" />
@@ -178,6 +181,10 @@
     <Content Include="Assets\SplashScreen.png" />
     <Content Include="Assets\StoreLogo.png" />
     <Content Include="Common\ReadMe.txt" />
+    <Page Include="PrivateKeyAgentPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <None Include="Package.StoreAssociation.xml" />
     <Page Include="PrivateKeysPage.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -225,6 +232,9 @@
     <Folder Include="Themes\" />
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="Callisto">
+      <HintPath>..\packages\Callisto.1.2.6\lib\winrt45\Callisto.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX, Version=2.4.2.0, Culture=neutral, PublicKeyToken=627a3d6d1956f55a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\SharpDX.2.4.2\lib\win8\SharpDX.dll</HintPath>

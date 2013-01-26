@@ -180,11 +180,14 @@ namespace RemoteTerminal.Connections
                                 throw new SshAuthenticationException("The private key agent doesn't contain any private keys.");
                             }
 
+                            terminal.WriteLine("Performing private key agent authentication.");
+
                             var privateKeyAgentConnectionInfo = new PrivateKeyConnectionInfo(this.connectionData.Host, this.connectionData.Port, username, globalPrivateKeyAgent);
                             connectionInfo = privateKeyAgentConnectionInfo;
                             if (connectionData.PrivateKeyAgentForwarding == true)
                             {
                                 forwardedPrivateKeyAgent = globalPrivateKeyAgent;
+                                terminal.WriteLine("Agent forwarding is enabled.");
                             }
 
                             break;

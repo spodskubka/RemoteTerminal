@@ -58,6 +58,7 @@
         <AppBar x:Name="bottomAppBar" IsSticky="True">
             <StackPanel x:Name="appBarStackPanel" Orientation="Horizontal" HorizontalAlignment="Right">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Style="{StaticResource PrivateKeyAgentAppBarButtonStyle}" Click="privateKeyAgentButton_Click"/>
                     <Button Style="{StaticResource PrivateKeysAppBarButtonStyle}" Click="privateKeysButton_Click"/>
                 </StackPanel>
                 <Border Style="{StaticResource AppBarSpacerBorderStyle}"/>

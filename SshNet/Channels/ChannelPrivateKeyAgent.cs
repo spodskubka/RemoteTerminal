@@ -185,7 +185,7 @@ namespace Renci.SshNet.Channels
 
         private void HandlePrivateKeyAgentMessage(AddIdentityMessage message)
         {
-            bool success = this.PrivateKeyAgent.AddSsh2(message.Key, message.Comment);
+            bool success = this.PrivateKeyAgent.AddSsh2(message.Key, message.Comment) != null;
             this.SendSuccessMessage(success);
         }
 
@@ -215,7 +215,7 @@ namespace Renci.SshNet.Channels
 
         private void HandlePrivateKeyAgentMessage(AddRsaIdentityMessage message)
         {
-            bool success = this.PrivateKeyAgent.AddSsh1(message.Key, message.Comment);
+            bool success = this.PrivateKeyAgent.AddSsh1(message.Key, message.Comment) != null;
             this.SendSuccessMessage(success);
         }
 

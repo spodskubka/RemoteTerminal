@@ -32,6 +32,10 @@
         <Setter Property="AutomationProperties.AutomationId" Value="PrivateKeysAppBarButton"/>
         <Setter Property="AutomationProperties.Name" Value="Private Keys"/>
     </Style>
+    <Style x:Key="PrivateKeyAgentAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource PermissionsAppBarButtonStyle}">
+        <Setter Property="AutomationProperties.AutomationId" Value="PrivateKeyAgentAppBarButton"/>
+        <Setter Property="AutomationProperties.Name" Value="Private Key Agent"/>
+    </Style>
     <Style x:Key="QuickConnectAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource GoAppBarButtonStyle}">
         <Setter Property="AutomationProperties.AutomationId" Value="QuickConnectAppBarButton"/>
         <Setter Property="AutomationProperties.Name" Value="Quick Connect"/>

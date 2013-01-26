@@ -150,6 +150,11 @@ namespace RemoteTerminal
             this.Frame.Navigate(typeof(PrivateKeysPage), null);
         }
 
+        private void privateKeyAgentButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.Frame.Navigate(typeof(PrivateKeyAgentPage), null);
+        }
+
         private void ItemView_ItemClick(object sender, ItemClickEventArgs e)
         {
             if (e.ClickedItem != null)
