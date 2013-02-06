@@ -109,6 +109,7 @@ namespace RemoteTerminal.Screens
                 var line = this.screen[this.screen.CursorRow];
                 var cell = line[this.screen.CursorColumn];
                 cell.ApplyFormat(format);
+                this.changed = true;
             }
 
             public void Erase(int startRow, int startColumn, int endRow, int endColumn, ScreenCellFormat format)
@@ -127,6 +128,7 @@ namespace RemoteTerminal.Screens
 
                         cell.Character = ' ';
                         cell.ApplyFormat(format);
+                        this.changed = true;
                     }
                 }
             }
@@ -161,6 +163,7 @@ namespace RemoteTerminal.Screens
                 {
                     this.screen.RemoveAt(scrollBottom ?? (this.screen.Count - 1));
                     this.screen.Insert(scrollTop ?? 0, new ScreenLine(this.screen.ColumnCount));
+                    this.changed = true;
                 }
             }
 
@@ -170,6 +173,7 @@ namespace RemoteTerminal.Screens
                 {
                     this.screen.RemoveAt(scrollTop ?? 0);
                     this.screen.Insert(scrollBottom ?? this.screen.Count, new ScreenLine(this.screen.ColumnCount));
+                    this.changed = true;
                 }
             }
 
@@ -179,6 +183,7 @@ namespace RemoteTerminal.Screens
                 {
                     this.screen.RemoveAt(scrollBottom ?? (this.screen.Count - 1));
                     this.screen.Insert(this.screen.CursorRow, new ScreenLine(this.screen.ColumnCount));
+                    this.changed = true;
                 }
             }
 
@@ -188,6 +193,7 @@ namespace RemoteTerminal.Screens
                 {
                     this.screen.RemoveAt(this.screen.CursorRow);
                     this.screen.Insert(scrollBottom ?? (this.screen.Count - 1), new ScreenLine(this.screen.ColumnCount));
+                    this.changed = true;
                 }
             }
 
@@ -198,6 +204,7 @@ namespace RemoteTerminal.Screens
                 {
                     line.RemoveAt(line.Count - 1);
                     line.Insert(this.screen.CursorColumn, new ScreenCell());
+                    this.changed = true;
                 }
             }
 
@@ -208,6 +215,7 @@ namespace RemoteTerminal.Screens
                 {
                     line.RemoveAt(this.screen.CursorColumn);
                     line.Insert(line.Count, new ScreenCell());
+                    this.changed = true;
                 }
             }
 
@@ -246,6 +254,8 @@ namespace RemoteTerminal.Screens
 
                 this.CursorRow = Math.Min(this.CursorRow, rows - 1);
                 this.CursorColumn = Math.Min(this.CursorColumn, columns - 1);
+
+                this.changed = true;
             }
 
             public void Dispose()
