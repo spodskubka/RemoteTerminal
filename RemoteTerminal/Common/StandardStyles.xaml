@@ -951,11 +951,13 @@
         <Setter Property="AutomationProperties.Name" Value="Attach"/>
         <Setter Property="Content" Value="&#xE16C;"/>
     </Style>
+    -->
     <Style x:Key="PasteAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
         <Setter Property="AutomationProperties.AutomationId" Value="PasteAppBarButton"/>
         <Setter Property="AutomationProperties.Name" Value="Paste"/>
         <Setter Property="Content" Value="&#xE16D;"/>
     </Style>
+    <!--
     <Style x:Key="FilterAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
         <Setter Property="AutomationProperties.AutomationId" Value="FilterAppBarButton"/>
         <Setter Property="AutomationProperties.Name" Value="Filter"/>

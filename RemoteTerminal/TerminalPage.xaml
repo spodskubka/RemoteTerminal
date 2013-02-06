@@ -42,21 +42,21 @@
             </Grid>
         </AppBar>
     </common:LayoutAwarePage.TopAppBar>
-    <!--<common:LayoutAwarePage.BottomAppBar>
+    <common:LayoutAwarePage.BottomAppBar>
         <AppBar>
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal"/>
+                <StackPanel Orientation="Horizontal">
+                    <Button Style="{StaticResource PasteAppBarButtonStyle}" Click="pasteAppBarButton_Click"/>
+                </StackPanel>
                 <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
-                    <Button x:Name="terminalWindowedAppBarButton" Style="{StaticResource FullScreenAppBarButtonStyle}" Click="terminalWindowedAppBarButton_Click" Visibility="Collapsed"/>
-                    <Button x:Name="terminalFullScreenAppBarButton" Style="{StaticResource FullScreenAppBarButtonStyle}" Click="terminalFullScreenAppBarButton_Click"/>
                 </StackPanel>
             </Grid>
         </AppBar>
-    </common:LayoutAwarePage.BottomAppBar>-->
+    </common:LayoutAwarePage.BottomAppBar>
 
     <!--
         This grid acts as a root panel for the page that defines two rows:

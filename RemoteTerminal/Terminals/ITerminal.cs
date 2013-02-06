@@ -25,6 +25,7 @@ namespace RemoteTerminal.Terminals
 
         void ProcessKeyPress(char ch);
         bool ProcessKeyPress(VirtualKey key, KeyModifiers keyModifiers);
+        void ProcessPastedText(string str);
         bool ScreenHasFocus { set; }
 
         bool IsConnected { get; }

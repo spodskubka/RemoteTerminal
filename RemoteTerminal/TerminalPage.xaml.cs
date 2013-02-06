@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using RemoteTerminal.Connections;
 using RemoteTerminal.Model;
 using RemoteTerminal.Terminals;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Core;
@@ -192,6 +193,26 @@ namespace RemoteTerminal
             // Be careful with this property. Once it has been set, the framework will not change
             // any layouts in response to the keyboard coming up
             e.EnsuredFocusedElementInView = true;
+        }
+
+        private async void pasteAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (!this.Terminal.IsConnected)
+            {
+                return;
+            }
+
+            var clipboardContent = Clipboard.GetContent();
+            if (!clipboardContent.Contains(StandardDataFormats.Text))
+            {
+                return;
+            }
+
+            string text = await clipboardContent.GetTextAsync();
+            this.Terminal.ProcessPastedText(text);
+
+            this.TopAppBar.IsOpen = false;
+            this.BottomAppBar.IsOpen = false;
         }
     }
 }

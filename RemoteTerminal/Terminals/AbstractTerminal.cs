@@ -274,11 +274,9 @@ namespace RemoteTerminal.Terminals
         {
             // This method receives all input that represents "characters".
             // It does not receive: Return, Cursor keys (Up, Down, Left, Right), Tabulator, Function keys (F1 - F12), 
-            string str = ch.ToString();
-
             if (this.localReadSync != null)
             {
-                if (str == "\b")
+                if (ch == '\b')
                 {
                     if (this.localReadLine.Length == 0)
                     {
@@ -317,7 +315,7 @@ namespace RemoteTerminal.Terminals
             }
             else
             {
-                this.ProcessUserInput(ch);
+                this.ProcessUserInput(ch.ToString());
             }
         }
 
@@ -369,7 +367,34 @@ namespace RemoteTerminal.Terminals
             }
         }
 
-        protected abstract void ProcessUserInput(char ch);
+        public void ProcessPastedText(string str)
+        {
+            if (this.localReadSync != null)
+            {
+                string pastedText = str;
+                int newlinePos = str.IndexOfAny(new[] { '\r', '\n' });
+                if (newlinePos >= 0)
+                {
+                    pastedText = str.Substring(0, newlinePos);
+                }
+
+                foreach (char ch in pastedText)
+                {
+                    this.ProcessKeyPress(ch);
+                }
+
+                if (newlinePos >= 0)
+                {
+                    this.ProcessKeyPress(VirtualKey.Enter, KeyModifiers.None);
+                }
+            }
+            else
+            {
+                this.ProcessUserInput(str.Replace("\r\n", "\r"));
+            }
+        }
+
+        protected abstract void ProcessUserInput(string str);
         protected abstract bool ProcessUserInput(VirtualKey key, KeyModifiers keyModifiers);
 
         public bool IsConnected { get; private set; }

@@ -194,11 +194,11 @@ namespace RemoteTerminal.Terminals
             }
         }
 
-        protected override void ProcessUserInput(char ch)
+        protected override void ProcessUserInput(string str)
         {
             // This method receives all input that represents "characters".
             // It does not receive: Return, Cursor keys (Up, Down, Left, Right), Tabulator, Function keys (F1 - F12), 
-            this.Transmit(ch.ToString());
+            this.Transmit(str);
         }
 
         /// <summary>
