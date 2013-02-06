@@ -50,6 +50,8 @@ namespace RemoteTerminal.Terminals
 
         private ScreenCellFormat currentFormat = new ScreenCellFormat();
 
+        private readonly Dictionary<byte, Color> paletteColors;
+
         //public static double TerminalCellFontSize { get { return 17d; } }
         //public static double TerminalCellWidth { get { return 9d; } }
         //public static double TerminalCellHeight { get { return 20d; } }
@@ -62,6 +64,52 @@ namespace RemoteTerminal.Terminals
         public SshTerminal(ConnectionData connectionData, bool localEcho)
             : base(connectionData, localEcho, writtenNewLine: "\r")
         {
+            this.paletteColors = new Dictionary<byte, Color>(256);
+            this.InitDefaultPaletteColors();
+        }
+
+        private void InitDefaultPaletteColors()
+        {
+            this.paletteColors[0] = Colors.Black;
+            this.paletteColors[1] = Colors.Red;
+            this.paletteColors[2] = Colors.Green;
+            this.paletteColors[3] = Colors.Yellow;
+            this.paletteColors[4] = Colors.Blue;
+            this.paletteColors[5] = Colors.DarkMagenta;
+            this.paletteColors[6] = Colors.DarkCyan;
+            this.paletteColors[7] = Colors.LightGray;
+            this.paletteColors[8] = Colors.DarkGray;
+            this.paletteColors[9] = Colors.IndianRed;
+            this.paletteColors[10] = Colors.LightGreen;
+            this.paletteColors[11] = Colors.Yellow;
+            this.paletteColors[12] = Colors.BlueViolet;
+            this.paletteColors[13] = Colors.Magenta;
+            this.paletteColors[14] = Colors.Cyan;
+            this.paletteColors[15] = Colors.White;
+
+            // colors 16-231 are a 6x6x6 color cube
+            for (int r = 0; r < 6; r++)
+            {
+                for (int g = 0; g < 6; g++)
+                {
+                    for (int b = 0; b < 6; b++)
+                    {
+                        int colorIndex = 16 + (r * 36) + (g * 6) + b;
+                        int red = r > 0 ? (r * 40) + 55 : 0;
+                        int green = g > 0 ? (g * 40) + 55 : 0;
+                        int blue = b > 0 ? (b * 40) + 55 : 0;
+                        this.paletteColors[(byte)colorIndex] = Color.FromArgb(255, (byte)red, (byte)green, (byte)blue);
+                    }
+                }
+            }
+
+            // colors 232-255 are a grayscale ramp, intentionally leaving out black and white
+            for (int gray = 0; gray < 24; gray++)
+            {
+                int colorIndex = 232 + gray;
+                int level = (gray * 10) + 8;
+                this.paletteColors[(byte)colorIndex] = Color.FromArgb(255, (byte)level, (byte)level, (byte)level);
+            }
         }
 
         public override string TerminalName
@@ -604,6 +652,28 @@ namespace RemoteTerminal.Terminals
                             this.currentFormat.Reset();
                             break;
                         }
+                        // 256-color support:
+                        else if (args.Length == 3 && (arg0 == 38 || arg0 == 48) && arg1 == 5)
+                        {
+                            int arg2;
+                            if (args[2] == "" || !int.TryParse(args[2], out arg2))
+                            {
+                                break;
+                            }
+
+                            byte colorIndex = (byte)arg2;
+                            if (arg0 == 38)
+                            {
+                                this.currentFormat.ForegroundColor = this.paletteColors[colorIndex];
+                            }
+                            else if (arg0 == 48)
+                            {
+                                this.currentFormat.BackgroundColor = this.paletteColors[colorIndex];
+                            }
+
+                            break;
+                        }
+
                         foreach (var arg in args)
                         {
                             switch (arg)
@@ -660,7 +730,38 @@ namespace RemoteTerminal.Terminals
                         break;
                     case "]\a":
                     case "]\u001b\\":
-                        this.Title = args[1];
+                        switch (arg0)
+                        {
+                            case 0:
+                            case 1:
+                            case 2:
+                                this.Title = args[1];
+                                break;
+                            case 3:
+                                break;
+                            case 4:
+                                // Change the 256 color palette
+                                ////if (arg1 == null || args.Length < 3)
+                                ////{
+                                ////    break;
+                                ////}
+
+                                ////byte colorIndex = (byte)arg1;
+
+                                ////// colors below index 16 may not be modified
+                                ////if (colorIndex < 16)
+                                ////{
+                                ////    break;
+                                ////}
+
+                                ////Color? color = XParseColor(args[2]);
+                                ////if (color != null)
+                                ////{
+                                ////    this.paletteColors[colorIndex] = color.Value;
+                                ////}
+
+                                break;
+                        }
                         break;
                     //case "#3":
                     //case "#4":
@@ -718,6 +819,43 @@ namespace RemoteTerminal.Terminals
                 modifier.CursorColumn = Math.Min(Math.Max(cursorColumn, 0), this.Columns - 1);
             }
         }
+
+        ////private static Color? XParseColor(string colorString)
+        ////{
+        ////    if (colorString.StartsWith("rgb:", StringComparison.Ordinal) && colorString.Length > 4)
+        ////    {
+        ////        string[] rgbStrings = colorString.Substring(4).Split('/');
+        ////        if (rgbStrings.Length != 3)
+        ////        {
+        ////            return null;
+        ////        }
+
+        ////        byte[] rgbValues = new byte[3];
+        ////        for (int i = 0; i < 3; i++)
+        ////        {
+        ////            if (rgbStrings[i].Length == 0 || rgbStrings.Length > 4)
+        ////            {
+        ////                return null;
+        ////            }
+
+        ////            int value;
+        ////            try
+        ////            {
+        ////                value = Convert.ToInt32(rgbStrings[i], 16);
+        ////                double scale = 256d / Math.Pow(2d, rgbStrings[i].Length * 4d);
+        ////                rgbValues[i] = (byte)(value * scale);
+        ////            }
+        ////            catch (Exception)
+        ////            {
+        ////                return null;
+        ////            }
+        ////        }
+
+        ////        return Color.FromArgb(255, rgbValues[0], rgbValues[1], rgbValues[2]);
+        ////    }
+
+        ////    return null;
+        ////}
 
         private void JumpToNextHorizontalTabStop(IScreenModifier modifier)
         {
