@@ -11,7 +11,7 @@ namespace RemoteTerminal.Screens
     {
         char Character { get; }
         ScreenCellModifications Modifications { get; }
-        Color ForegroundColor { get; }
-        Color BackgroundColor { get; }
+        ScreenColor ForegroundColor { get; }
+        ScreenColor BackgroundColor { get; }
     }
 }

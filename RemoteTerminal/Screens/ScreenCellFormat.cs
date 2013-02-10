@@ -9,24 +9,21 @@ namespace RemoteTerminal.Screens
 {
     public class ScreenCellFormat
     {
-        public static readonly Color DefaultForegroundColor = Colors.White;
-        public static readonly Color DefaultBackgroundColor = Colors.Black;
-
         public ScreenCellFormat()
         {
             this.Reset();
         }
 
-        public Color ForegroundColor { get; set; }
-        public Color BackgroundColor { get; set; }
+        public ScreenColor ForegroundColor { get; set; }
+        public ScreenColor BackgroundColor { get; set; }
         public bool BoldMode { get; set; }
         public bool UnderlineMode { get; set; }
         public bool ReverseMode { get; set; }
 
         public void Reset()
         {
-            this.ForegroundColor = DefaultForegroundColor;
-            this.BackgroundColor = DefaultBackgroundColor;
+            this.ForegroundColor = ScreenColor.DefaultForeground;
+            this.BackgroundColor = ScreenColor.DefaultBackground;
             this.BoldMode = false;
             this.UnderlineMode = false;
             this.ReverseMode = false;

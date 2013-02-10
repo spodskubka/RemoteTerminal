@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using CommonDX;
 using RemoteTerminal.Connections;
 using RemoteTerminal.Model;
+using RemoteTerminal.Screens;
 using Windows.Foundation;
 using Windows.Graphics.Display;
 using Windows.System;
@@ -62,8 +63,7 @@ namespace RemoteTerminal.Terminals
         public static double TerminalCellWidth { get { return 9d; } }
         public static double TerminalCellHeight { get { return 20d; } }
 
-        public Color CursorForegroundColor { get { return Colors.Black; } }
-        public Color CursorBackgroundColor { get { return Colors.Green; } }
+        public ScreenColorTheme ColorTheme { get; set; }
 
         public ITerminal Terminal
         {

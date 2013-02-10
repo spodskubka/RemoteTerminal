@@ -64,52 +64,6 @@ namespace RemoteTerminal.Terminals
         public SshTerminal(ConnectionData connectionData, bool localEcho)
             : base(connectionData, localEcho, writtenNewLine: "\r")
         {
-            this.paletteColors = new Dictionary<byte, Color>(256);
-            this.InitDefaultPaletteColors();
-        }
-
-        private void InitDefaultPaletteColors()
-        {
-            this.paletteColors[0] = Colors.Black;
-            this.paletteColors[1] = Colors.Red;
-            this.paletteColors[2] = Colors.Green;
-            this.paletteColors[3] = Colors.Yellow;
-            this.paletteColors[4] = Colors.Blue;
-            this.paletteColors[5] = Colors.DarkMagenta;
-            this.paletteColors[6] = Colors.DarkCyan;
-            this.paletteColors[7] = Colors.LightGray;
-            this.paletteColors[8] = Colors.DarkGray;
-            this.paletteColors[9] = Colors.IndianRed;
-            this.paletteColors[10] = Colors.LightGreen;
-            this.paletteColors[11] = Colors.Yellow;
-            this.paletteColors[12] = Colors.BlueViolet;
-            this.paletteColors[13] = Colors.Magenta;
-            this.paletteColors[14] = Colors.Cyan;
-            this.paletteColors[15] = Colors.White;
-
-            // colors 16-231 are a 6x6x6 color cube
-            for (int r = 0; r < 6; r++)
-            {
-                for (int g = 0; g < 6; g++)
-                {
-                    for (int b = 0; b < 6; b++)
-                    {
-                        int colorIndex = 16 + (r * 36) + (g * 6) + b;
-                        int red = r > 0 ? (r * 40) + 55 : 0;
-                        int green = g > 0 ? (g * 40) + 55 : 0;
-                        int blue = b > 0 ? (b * 40) + 55 : 0;
-                        this.paletteColors[(byte)colorIndex] = Color.FromArgb(255, (byte)red, (byte)green, (byte)blue);
-                    }
-                }
-            }
-
-            // colors 232-255 are a grayscale ramp, intentionally leaving out black and white
-            for (int gray = 0; gray < 24; gray++)
-            {
-                int colorIndex = 232 + gray;
-                int level = (gray * 10) + 8;
-                this.paletteColors[(byte)colorIndex] = Color.FromArgb(255, (byte)level, (byte)level, (byte)level);
-            }
         }
 
         public override string TerminalName
@@ -664,11 +618,11 @@ namespace RemoteTerminal.Terminals
                             byte colorIndex = (byte)arg2;
                             if (arg0 == 38)
                             {
-                                this.currentFormat.ForegroundColor = this.paletteColors[colorIndex];
+                                this.currentFormat.ForegroundColor = (ScreenColor)colorIndex;
                             }
                             else if (arg0 == 48)
                             {
-                                this.currentFormat.BackgroundColor = this.paletteColors[colorIndex];
+                                this.currentFormat.BackgroundColor = (ScreenColor)colorIndex;
                             }
 
                             break;
@@ -704,24 +658,24 @@ namespace RemoteTerminal.Terminals
                                 case "27":
                                     this.currentFormat.ReverseMode = false;
                                     break;
-                                case "30": this.currentFormat.ForegroundColor = Colors.Black; break;
-                                case "31": this.currentFormat.ForegroundColor = Colors.Red; break;
-                                case "32": this.currentFormat.ForegroundColor = Colors.Green; break;
-                                case "33": this.currentFormat.ForegroundColor = Colors.Yellow; break;
-                                case "34": this.currentFormat.ForegroundColor = Colors.Blue; break;
-                                case "35": this.currentFormat.ForegroundColor = Colors.Magenta; break;
-                                case "36": this.currentFormat.ForegroundColor = Colors.DarkCyan; break;
-                                case "37": this.currentFormat.ForegroundColor = Colors.White; break;
-                                case "39": this.currentFormat.ForegroundColor = ScreenCellFormat.DefaultForegroundColor; break;
-                                case "40": this.currentFormat.BackgroundColor = Colors.Black; break;
-                                case "41": this.currentFormat.BackgroundColor = Colors.Red; break;
-                                case "42": this.currentFormat.BackgroundColor = Colors.Green; break;
-                                case "43": this.currentFormat.BackgroundColor = Colors.Yellow; break;
-                                case "44": this.currentFormat.BackgroundColor = Colors.Blue; break;
-                                case "45": this.currentFormat.BackgroundColor = Colors.Magenta; break;
-                                case "46": this.currentFormat.BackgroundColor = Colors.DarkCyan; break;
-                                case "47": this.currentFormat.BackgroundColor = Colors.White; break;
-                                case "49": this.currentFormat.BackgroundColor = ScreenCellFormat.DefaultBackgroundColor; break;
+                                case "30": this.currentFormat.ForegroundColor = ScreenColor.Black; break;
+                                case "31": this.currentFormat.ForegroundColor = ScreenColor.Red; break;
+                                case "32": this.currentFormat.ForegroundColor = ScreenColor.Green; break;
+                                case "33": this.currentFormat.ForegroundColor = ScreenColor.Yellow; break;
+                                case "34": this.currentFormat.ForegroundColor = ScreenColor.Blue; break;
+                                case "35": this.currentFormat.ForegroundColor = ScreenColor.Magenta; break;
+                                case "36": this.currentFormat.ForegroundColor = ScreenColor.Cyan; break;
+                                case "37": this.currentFormat.ForegroundColor = ScreenColor.White; break;
+                                case "39": this.currentFormat.ForegroundColor = ScreenColor.DefaultForeground; break;
+                                case "40": this.currentFormat.BackgroundColor = ScreenColor.Black; break;
+                                case "41": this.currentFormat.BackgroundColor = ScreenColor.Red; break;
+                                case "42": this.currentFormat.BackgroundColor = ScreenColor.Green; break;
+                                case "43": this.currentFormat.BackgroundColor = ScreenColor.Yellow; break;
+                                case "44": this.currentFormat.BackgroundColor = ScreenColor.Blue; break;
+                                case "45": this.currentFormat.BackgroundColor = ScreenColor.Magenta; break;
+                                case "46": this.currentFormat.BackgroundColor = ScreenColor.Cyan; break;
+                                case "47": this.currentFormat.BackgroundColor = ScreenColor.White; break;
+                                case "49": this.currentFormat.BackgroundColor = ScreenColor.DefaultBackground; break;
                                 default:
                                     break;
                             }

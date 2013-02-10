@@ -10,9 +10,6 @@ namespace RemoteTerminal.Screens
 {
     public class ScreenCell : IRenderableScreenCell
     {
-        private static readonly Color DefaultForegroundColor = Colors.White;
-        private static readonly Color DefaultBackgroundColor = Colors.Black;
-
         public ScreenCell()
         {
             this.Reset();
@@ -22,8 +19,8 @@ namespace RemoteTerminal.Screens
         {
             this.Character = ' ';
             this.Modifications = ScreenCellModifications.None;
-            this.ForegroundColor = DefaultForegroundColor;
-            this.BackgroundColor = DefaultBackgroundColor;
+            this.ForegroundColor = ScreenColor.DefaultForeground;
+            this.BackgroundColor = ScreenColor.DefaultBackground;
         }
 
         public override string ToString()
@@ -74,7 +71,7 @@ namespace RemoteTerminal.Screens
 
         public char Character { get; set; }
         public ScreenCellModifications Modifications { get; set; }
-        public Color ForegroundColor { get; set; }
-        public Color BackgroundColor { get; set; }
+        public ScreenColor ForegroundColor { get; set; }
+        public ScreenColor BackgroundColor { get; set; }
     }
 }

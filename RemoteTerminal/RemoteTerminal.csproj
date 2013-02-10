@@ -124,6 +124,8 @@
     <Compile Include="PrivateKeyAgentPage.xaml.cs">
       <DependentUpon>PrivateKeyAgentPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Screens\ScreenColor.cs" />
+    <Compile Include="Screens\ScreenColorTheme.cs" />
     <Compile Include="TerminalManager.cs" />
     <Compile Include="Connections\IConnection.cs" />
     <Compile Include="Terminals\ScreenPreview.cs" />

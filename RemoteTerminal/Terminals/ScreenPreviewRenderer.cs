@@ -21,8 +21,8 @@ namespace RemoteTerminal.Terminals
     {
         private readonly Dictionary<Color, Brush> brushes = new Dictionary<Color, Brush>();
 
-        ScreenPreview screenPreview;
-        IRenderableScreen screen;
+        private readonly ScreenPreview screenPreview;
+        private readonly IRenderableScreen screen;
 
         private static readonly Color TerminalBackgroundColor = Color.Black;
         private const string TerminalFontFamily = "Consolas";
@@ -99,12 +99,12 @@ namespace RemoteTerminal.Terminals
                 Color backgroundColor;
                 if (isCursor && hasFocus)
                 {
-                    var color = this.screenPreview.CursorBackgroundColor;
+                    var color = this.screenPreview.ColorTheme.CursorBackgroundColor;
                     backgroundColor = new Color(color.R, color.G, color.B, color.A);
                 }
                 else
                 {
-                    var color = cell.BackgroundColor;
+                    var color = this.GetColor(cell.BackgroundColor);
                     backgroundColor = new Color(color.R, color.G, color.B, color.A);
                 }
 
@@ -119,7 +119,7 @@ namespace RemoteTerminal.Terminals
             {
                 if (isCursor && !hasFocus)
                 {
-                    var color = this.screenPreview.CursorBackgroundColor;
+                    var color = this.screenPreview.ColorTheme.CursorBackgroundColor;
                     Color borderColor = new Color(color.R, color.G, color.B, color.A);
                     Brush borderBrush = GetBrush(context2D, borderColor);
                     context2D.DrawRectangle(rect, borderBrush);
@@ -135,7 +135,7 @@ namespace RemoteTerminal.Terminals
                 }
                 else
                 {
-                    var color = cell.ForegroundColor;
+                    var color = this.GetColor(cell.ForegroundColor);
                     foregroundColor = new Color(color.R, color.G, color.B, color.A);
                 }
 
@@ -159,6 +159,11 @@ namespace RemoteTerminal.Terminals
                     context2D.DrawLine(point1, point2, foregroundBrush);
                 }
             }
+        }
+
+        private Color GetColor(ScreenColor screenColor)
+        {
+            return this.screenPreview.ColorTheme.ColorTable[screenColor];
         }
 
         private Brush GetBrush(RenderTarget renderTarget, Color color)
