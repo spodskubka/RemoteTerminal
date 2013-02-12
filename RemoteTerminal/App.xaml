@@ -15,6 +15,7 @@
             <x:String x:Key="AppName">Remote Terminal</x:String>
             <model:FavoritesDataSource x:Key="favoritesDataSource"/>
             <model:PrivateKeysDataSource x:Key="privateKeysDataSource"/>
+            <model:ColorThemesDataSource x:Key="colorThemesDataSource"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

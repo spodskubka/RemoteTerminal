@@ -50,8 +50,6 @@ namespace RemoteTerminal.Terminals
 
         private ScreenCellFormat currentFormat = new ScreenCellFormat();
 
-        private readonly Dictionary<byte, Color> paletteColors;
-
         //public static double TerminalCellFontSize { get { return 17d; } }
         //public static double TerminalCellWidth { get { return 9d; } }
         //public static double TerminalCellHeight { get { return 20d; } }

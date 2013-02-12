@@ -112,6 +112,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ColorSettingsFlyout.xaml.cs">
+      <DependentUpon>ColorSettingsFlyout.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Common\BindableBase.cs" />
     <Compile Include="Common\BooleanNegationConverter.cs" />
     <Compile Include="Common\BooleanToVisibilityConverter.cs" />
@@ -120,12 +123,13 @@
     <Compile Include="Common\SuspensionManager.cs" />
     <Compile Include="Connections\SshConnection.cs" />
     <Compile Include="InputPaneHelper.cs" />
+    <Compile Include="Model\ColorThemesDataSource.cs" />
     <Compile Include="PrivateKeyAgentManager.cs" />
     <Compile Include="PrivateKeyAgentPage.xaml.cs">
       <DependentUpon>PrivateKeyAgentPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Screens\ScreenColor.cs" />
-    <Compile Include="Screens\ScreenColorTheme.cs" />
+    <Compile Include="Model\ColorThemeData.cs" />
     <Compile Include="TerminalManager.cs" />
     <Compile Include="Connections\IConnection.cs" />
     <Compile Include="Terminals\ScreenPreview.cs" />
@@ -182,6 +186,10 @@
     <Content Include="Assets\SmallLogo.png" />
     <Content Include="Assets\SplashScreen.png" />
     <Content Include="Assets\StoreLogo.png" />
+    <Page Include="ColorSettingsFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Content Include="Common\ReadMe.txt" />
     <Page Include="PrivateKeyAgentPage.xaml">
       <SubType>Designer</SubType>

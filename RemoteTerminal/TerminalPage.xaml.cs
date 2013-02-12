@@ -40,6 +40,7 @@ namespace RemoteTerminal
                 if (this.screenDisplay != null)
                 {
                     this.screenDisplay.AssignTerminal(value);
+                    this.screenDisplay.ColorTheme = ColorThemesDataSource.GetCustomTheme();
                 }
             }
         }
@@ -213,6 +214,14 @@ namespace RemoteTerminal
 
             this.TopAppBar.IsOpen = false;
             this.BottomAppBar.IsOpen = false;
+        }
+
+        public void ForceRender()
+        {
+            if (this.screenDisplay != null)
+            {
+                this.screenDisplay.ForceRender();
+            }
         }
     }
 }

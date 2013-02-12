@@ -163,7 +163,8 @@ namespace RemoteTerminal.Terminals
 
         private Color GetColor(ScreenColor screenColor)
         {
-            return this.screenPreview.ColorTheme.ColorTable[screenColor];
+            var color = this.screenPreview.ColorTheme.ColorTable[screenColor];
+            return new Color(color.R, color.G, color.B, color.A);
         }
 
         private Brush GetBrush(RenderTarget renderTarget, Color color)

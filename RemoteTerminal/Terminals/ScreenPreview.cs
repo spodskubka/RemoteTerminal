@@ -63,7 +63,7 @@ namespace RemoteTerminal.Terminals
         public static double TerminalCellWidth { get { return 9d; } }
         public static double TerminalCellHeight { get { return 20d; } }
 
-        public ScreenColorTheme ColorTheme { get; set; }
+        public ColorThemeData ColorTheme { get; set; }
 
         public ITerminal Terminal
         {

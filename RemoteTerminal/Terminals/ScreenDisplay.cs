@@ -37,7 +37,7 @@ namespace RemoteTerminal.Terminals
         private readonly DeviceManager deviceManager;
         private ScreenDisplayRenderer terminalRenderer = null;
         private SurfaceImageSourceTarget d2dTarget = null;
-        private bool firstRender = true;
+        private bool forceRender = true;
 
         public ScreenDisplay()
         {
@@ -56,7 +56,7 @@ namespace RemoteTerminal.Terminals
             this.IsTabStop = true;
             this.IsTapEnabled = true;
 
-            this.ColorTheme = ScreenColorTheme.Default;
+            this.ColorTheme = ColorThemeData.CreateDefault();
 
             this.deviceManager = new DeviceManager();
         }
@@ -65,7 +65,7 @@ namespace RemoteTerminal.Terminals
         public static double TerminalCellWidth { get { return 9d; } }
         public static double TerminalCellHeight { get { return 20d; } }
 
-        public ScreenColorTheme ColorTheme { get; set; }
+        public ColorThemeData ColorTheme { get; set; }
 
         public void AssignTerminal(ITerminal terminal)
         {
@@ -132,7 +132,7 @@ namespace RemoteTerminal.Terminals
 
         void CompositionTarget_Rendering(object sender, object e)
         {
-            if (!this.terminal.RenderableScreen.Changed && !this.firstRender)
+            if (!this.terminal.RenderableScreen.Changed && !this.forceRender)
             {
                 return;
             }
@@ -145,8 +145,13 @@ namespace RemoteTerminal.Terminals
                 }
 
                 this.d2dTarget.RenderAll();
-                this.firstRender = false;
+                this.forceRender = false;
             }
+        }
+
+        public void ForceRender()
+        {
+            this.forceRender = true;
         }
 
         /// <summary>
@@ -233,7 +238,7 @@ namespace RemoteTerminal.Terminals
 
                 this.terminalRenderer = new ScreenDisplayRenderer(this, this.terminal.RenderableScreen);
                 this.d2dTarget = new SurfaceImageSourceTarget(pixelWidth, pixelHeight);
-                this.firstRender = true;
+                this.forceRender = true;
 
                 this.deviceManager.OnInitialize += this.d2dTarget.Initialize;
                 this.deviceManager.OnInitialize += this.terminalRenderer.Initialize;
