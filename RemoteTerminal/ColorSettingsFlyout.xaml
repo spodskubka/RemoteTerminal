@@ -150,8 +150,8 @@
                             <TextBlock FontWeight="Bold" Text="Theme Colors" Style="{StaticResource BasicTextStyle}"/>
                             <Grid Margin="0,7,0,0">
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition/>
-                                    <ColumnDefinition/>
+                                    <ColumnDefinition Width="4*"/>
+                                    <ColumnDefinition Width="5*"/>
                                 </Grid.ColumnDefinitions>
 
                                 <ListBox x:Name="ScreenColorListBox" SelectionChanged="ScreenColorListBox_SelectionChanged">
@@ -168,7 +168,7 @@
                                     <ListBoxItem Content="Cyan"/>
                                     <ListBoxItem Content="White"/>
                                 </ListBox>
-                                <StackPanel Grid.Column="1" Margin="7,0,0,0">
+                                <StackPanel Grid.Column="1" Margin="30,0,0,0">
                                     <TextBlock Text="Red" Style="{StaticResource BasicTextStyle}"/>
                                     <Slider x:Name="RedSlider" Minimum="0" Maximum="255" ValueChanged="ColorSlider_ValueChanged"/>
                                     <TextBlock Text="Green" Style="{StaticResource BasicTextStyle}"/>
