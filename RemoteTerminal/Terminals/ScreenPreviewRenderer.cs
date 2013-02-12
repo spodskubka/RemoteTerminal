@@ -131,7 +131,7 @@ namespace RemoteTerminal.Terminals
                 Color foregroundColor;
                 if (isCursor && hasFocus)
                 {
-                    var color = this.screenDisplay.ColorTheme.ColorTable[ScreenColor.CursorForeground];
+                    var color = this.screenPreview.ColorTheme.ColorTable[ScreenColor.CursorForeground];
                     foregroundColor = new Color(color.R, color.G, color.B, color.A);
                 }
                 else
