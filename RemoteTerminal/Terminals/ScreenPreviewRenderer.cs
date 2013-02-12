@@ -99,7 +99,7 @@ namespace RemoteTerminal.Terminals
                 Color backgroundColor;
                 if (isCursor && hasFocus)
                 {
-                    var color = this.screenPreview.ColorTheme.CursorBackgroundColor;
+                    var color = this.screenPreview.ColorTheme.ColorTable[ScreenColor.CursorBackground];
                     backgroundColor = new Color(color.R, color.G, color.B, color.A);
                 }
                 else
@@ -119,7 +119,7 @@ namespace RemoteTerminal.Terminals
             {
                 if (isCursor && !hasFocus)
                 {
-                    var color = this.screenPreview.ColorTheme.CursorBackgroundColor;
+                    var color = this.screenPreview.ColorTheme.ColorTable[ScreenColor.CursorBackground];
                     Color borderColor = new Color(color.R, color.G, color.B, color.A);
                     Brush borderBrush = GetBrush(context2D, borderColor);
                     context2D.DrawRectangle(rect, borderBrush);
@@ -131,7 +131,8 @@ namespace RemoteTerminal.Terminals
                 Color foregroundColor;
                 if (isCursor && hasFocus)
                 {
-                    foregroundColor = Color.Black;
+                    var color = this.screenDisplay.ColorTheme.ColorTable[ScreenColor.CursorForeground];
+                    foregroundColor = new Color(color.R, color.G, color.B, color.A);
                 }
                 else
                 {

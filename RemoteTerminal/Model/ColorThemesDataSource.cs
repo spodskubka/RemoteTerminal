@@ -27,15 +27,13 @@ namespace RemoteTerminal.Model
                 return;
             }
 
-            ColorThemeData colorThemeData = new ColorThemeData();
+            ColorThemeData colorThemeData = ColorThemeData.CreateDefault();
 
             try
             {
                 string colorThemeJsonString = (string)colorThemes["CustomTheme"];
                 JsonObject jsonObject = JsonObject.Parse(colorThemeJsonString);
 
-                colorThemeData.CursorForegroundColor = DoubleToColor(jsonObject.GetNamedNumber("CursorForegroundColor"));
-                colorThemeData.CursorBackgroundColor = DoubleToColor(jsonObject.GetNamedNumber("CursorBackgroundColor"));
                 JsonObject jsonColorTable = jsonObject.GetNamedObject("ColorTable");
                 foreach (var jsonColorTableEntry in jsonColorTable)
                 {
@@ -91,8 +89,6 @@ namespace RemoteTerminal.Model
             //}
 
             JsonObject jsonObject = new JsonObject();
-            jsonObject.Add("CursorForegroundColor", JsonValue.CreateNumberValue(ColorToDouble(colorThemeData.CursorForegroundColor)));
-            jsonObject.Add("CursorBackgroundColor", JsonValue.CreateNumberValue(ColorToDouble(colorThemeData.CursorBackgroundColor)));
             JsonObject jsonColorTable = new JsonObject();
             foreach (var colorTableEntry in colorThemeData.ColorTable.Where(c => (int)c.Key < 16))
             {

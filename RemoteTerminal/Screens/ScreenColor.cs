@@ -2,6 +2,8 @@
 {
     public enum ScreenColor
     {
+        CursorBackground = -4,
+        CursorForeground = -3,
         DefaultBackground = -2,
         DefaultForeground = -1,
         Black = 0,

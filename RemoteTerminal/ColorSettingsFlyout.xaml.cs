@@ -60,9 +60,7 @@ namespace RemoteTerminal
         private void ResetClicked(object sender, RoutedEventArgs e)
         {
             var defaultTheme = ColorThemeData.CreateDefault();
-            this.customTheme.CursorBackgroundColor = defaultTheme.CursorBackgroundColor;
-            this.customTheme.CursorForegroundColor = defaultTheme.CursorForegroundColor;
-            for (int i = -2; i < 16; i++)
+            for (int i = -4; i < 16; i++)
             {
                 this.customTheme.ColorTable[(ScreenColor)i] = defaultTheme.ColorTable[(ScreenColor)i];
             }
@@ -78,19 +76,7 @@ namespace RemoteTerminal
         private void ScreenColorListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             int screenColor = this.ScreenColorListBox.SelectedIndex - 4;
-            Color color;
-            switch (screenColor)
-            {
-                case -4:
-                    color = this.customTheme.CursorBackgroundColor;
-                    break;
-                case -3:
-                    color = this.customTheme.CursorForegroundColor;
-                    break;
-                default:
-                    color = this.customTheme.ColorTable[(ScreenColor)screenColor];
-                    break;
-            }
+            Color color = this.customTheme.ColorTable[(ScreenColor)screenColor];
 
             this.ignoreScreenColorListBoxSelectionChanging = true;
             this.RedSlider.Value = color.R;
@@ -118,30 +104,12 @@ namespace RemoteTerminal
             ((SolidColorBrush)this.PreviewRectangle.Fill).Color = color;
 
             int screenColor = this.ScreenColorListBox.SelectedIndex - 4;
-            switch (screenColor)
+
+            if (this.customTheme.ColorTable[(ScreenColor)screenColor] == color)
             {
-                case -4:
-                    if (this.customTheme.CursorBackgroundColor == color)
-                    {
-                        return;
-                    }
-                    this.customTheme.CursorBackgroundColor = color;
-                    break;
-                case -3:
-                    if (this.customTheme.CursorForegroundColor == color)
-                    {
-                        return;
-                    }
-                    this.customTheme.CursorForegroundColor = color;
-                    break;
-                default:
-                    if (this.customTheme.ColorTable[(ScreenColor)screenColor] == color)
-                    {
-                        return;
-                    }
-                    this.customTheme.ColorTable[(ScreenColor)screenColor] = color;
-                    break;
+                return;
             }
+            this.customTheme.ColorTable[(ScreenColor)screenColor] = color;
 
             TerminalPageForceRender();
         }
