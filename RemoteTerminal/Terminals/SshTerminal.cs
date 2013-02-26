@@ -149,93 +149,103 @@ namespace RemoteTerminal.Terminals
         protected override void ProcessUserInput(string str)
         {
             // This method receives all input that represents "characters".
-            // It does not receive: Return, Cursor keys (Up, Down, Left, Right), Tabulator, Function keys (F1 - F12), 
+            // It does not receive: Return, Cursor keys (Up, Down, Left, Right), Tabulator, Function keys (F1 - F12), Alt/Ctrl key combinations
             this.Transmit(str);
         }
 
         /// <summary>
-        /// Processes key presses of non-character keys (e.g. Up, Down, Left, Right, Function keys F1-F12, ...).
+        /// Processes key presses of non-character keys (e.g. Up, Down, Left, Right, Function keys F1-F12, Alt/Ctrl key combinations, ...).
         /// </summary>
         /// <param name="key">The pressed key.</param>
         protected override bool ProcessUserInput(VirtualKey key, KeyModifiers keyModifiers)
         {
             string input;
-            switch (key)
+
+            // handle Alt key combinations
+            if (keyModifiers.HasFlag(KeyModifiers.Alt) && key >= VirtualKey.Number0 && key <= VirtualKey.Z)
             {
-                case VirtualKey.Enter:
-                    input = Environment.NewLine;
-                    break;
-                case VirtualKey.Tab:
-                    input = "\t";
-                    break;
-                case VirtualKey.Left:
-                    input = this.applicationCursorKeys ? "\u001bOD" : "\u001b[D";
-                    break;
-                case VirtualKey.Up:
-                    input = this.applicationCursorKeys ? "\u001bOA" : "\u001b[A";
-                    break;
-                case VirtualKey.Right:
-                    input = this.applicationCursorKeys ? "\u001bOC" : "\u001b[C";
-                    break;
-                case VirtualKey.Down:
-                    input = this.applicationCursorKeys ? "\u001bOB" : "\u001b[B";
-                    break;
-                case VirtualKey.Insert:
-                    input = "\u001b[2~";
-                    break;
-                case VirtualKey.Delete:
-                    input = "\u001b[3~";
-                    break;
-                case VirtualKey.Home:
-                    input = "\u001b[1~";
-                    break;
-                case VirtualKey.End:
-                    input = "\u001b[4~";
-                    break;
-                case VirtualKey.PageUp:
-                    input = "\u001b[5~";
-                    break;
-                case VirtualKey.PageDown:
-                    input = "\u001b[6~";
-                    break;
-                case VirtualKey.F1:
-                    input = "\u001b[11" + GetFunctionKeyModifier(keyModifiers) + "~";
-                    break;
-                case VirtualKey.F2:
-                    input = "\u001b[12" + GetFunctionKeyModifier(keyModifiers) + "~";
-                    break;
-                case VirtualKey.F3:
-                    input = "\u001b[13" + GetFunctionKeyModifier(keyModifiers) + "~";
-                    break;
-                case VirtualKey.F4:
-                    input = "\u001b[14" + GetFunctionKeyModifier(keyModifiers) + "~";
-                    break;
-                case VirtualKey.F5:
-                    input = "\u001b[15" + GetFunctionKeyModifier(keyModifiers) + "~";
-                    break;
-                case VirtualKey.F6:
-                    input = "\u001b[17" + GetFunctionKeyModifier(keyModifiers) + "~";
-                    break;
-                case VirtualKey.F7:
-                    input = "\u001b[18" + GetFunctionKeyModifier(keyModifiers) + "~";
-                    break;
-                case VirtualKey.F8:
-                    input = "\u001b[19" + GetFunctionKeyModifier(keyModifiers) + "~";
-                    break;
-                case VirtualKey.F9:
-                    input = "\u001b[20" + GetFunctionKeyModifier(keyModifiers) + "~";
-                    break;
-                case VirtualKey.F10:
-                    input = "\u001b[21" + GetFunctionKeyModifier(keyModifiers) + "~";
-                    break;
-                case VirtualKey.F11:
-                    input = "\u001b[23" + GetFunctionKeyModifier(keyModifiers) + "~";
-                    break;
-                case VirtualKey.F12:
-                    input = "\u001b[24" + GetFunctionKeyModifier(keyModifiers) + "~";
-                    break;
-                default:
-                    return false;
+                // the "+ 32" produces lower case characters
+                input = "\x1b" + (char)(key >= VirtualKey.A && key <= VirtualKey.Z ? key + 32 : key);
+            }
+            else
+            {
+                switch (key)
+                {
+                    case VirtualKey.Enter:
+                        input = Environment.NewLine;
+                        break;
+                    case VirtualKey.Tab:
+                        input = "\t";
+                        break;
+                    case VirtualKey.Left:
+                        input = this.applicationCursorKeys ? "\u001bOD" : "\u001b[D";
+                        break;
+                    case VirtualKey.Up:
+                        input = this.applicationCursorKeys ? "\u001bOA" : "\u001b[A";
+                        break;
+                    case VirtualKey.Right:
+                        input = this.applicationCursorKeys ? "\u001bOC" : "\u001b[C";
+                        break;
+                    case VirtualKey.Down:
+                        input = this.applicationCursorKeys ? "\u001bOB" : "\u001b[B";
+                        break;
+                    case VirtualKey.Insert:
+                        input = "\u001b[2~";
+                        break;
+                    case VirtualKey.Delete:
+                        input = "\u001b[3~";
+                        break;
+                    case VirtualKey.Home:
+                        input = "\u001b[1~";
+                        break;
+                    case VirtualKey.End:
+                        input = "\u001b[4~";
+                        break;
+                    case VirtualKey.PageUp:
+                        input = "\u001b[5~";
+                        break;
+                    case VirtualKey.PageDown:
+                        input = "\u001b[6~";
+                        break;
+                    case VirtualKey.F1:
+                        input = "\u001b[11" + GetFunctionKeyModifier(keyModifiers) + "~";
+                        break;
+                    case VirtualKey.F2:
+                        input = "\u001b[12" + GetFunctionKeyModifier(keyModifiers) + "~";
+                        break;
+                    case VirtualKey.F3:
+                        input = "\u001b[13" + GetFunctionKeyModifier(keyModifiers) + "~";
+                        break;
+                    case VirtualKey.F4:
+                        input = "\u001b[14" + GetFunctionKeyModifier(keyModifiers) + "~";
+                        break;
+                    case VirtualKey.F5:
+                        input = "\u001b[15" + GetFunctionKeyModifier(keyModifiers) + "~";
+                        break;
+                    case VirtualKey.F6:
+                        input = "\u001b[17" + GetFunctionKeyModifier(keyModifiers) + "~";
+                        break;
+                    case VirtualKey.F7:
+                        input = "\u001b[18" + GetFunctionKeyModifier(keyModifiers) + "~";
+                        break;
+                    case VirtualKey.F8:
+                        input = "\u001b[19" + GetFunctionKeyModifier(keyModifiers) + "~";
+                        break;
+                    case VirtualKey.F9:
+                        input = "\u001b[20" + GetFunctionKeyModifier(keyModifiers) + "~";
+                        break;
+                    case VirtualKey.F10:
+                        input = "\u001b[21" + GetFunctionKeyModifier(keyModifiers) + "~";
+                        break;
+                    case VirtualKey.F11:
+                        input = "\u001b[23" + GetFunctionKeyModifier(keyModifiers) + "~";
+                        break;
+                    case VirtualKey.F12:
+                        input = "\u001b[24" + GetFunctionKeyModifier(keyModifiers) + "~";
+                        break;
+                    default:
+                        return false;
+                }
             }
 
             this.Transmit(input);

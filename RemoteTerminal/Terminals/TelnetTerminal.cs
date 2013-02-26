@@ -61,12 +61,12 @@ namespace RemoteTerminal.Terminals
         protected override void ProcessUserInput(string str)
         {
             // This method receives all input that represents "characters".
-            // It does not receive: Return, Cursor keys (Up, Down, Left, Right), Tabulator, Function keys (F1 - F12), 
+            // It does not receive: Return, Cursor keys (Up, Down, Left, Right), Tabulator, Function keys (F1 - F12), Alt/Ctrl key combinations
             this.Transmit(str);
         }
 
         /// <summary>
-        /// Processes key presses of non-character keys (e.g. Up, Down, Left, Right, Function keys F1-F12, ...).
+        /// Processes key presses of non-character keys (e.g. Up, Down, Left, Right, Function keys F1-F12, Alt/Ctrl key combinations, ...).
         /// </summary>
         /// <param name="key">The pressed key.</param>
         /// <returns>true if the terminal handled the key press; false otherwise.</returns>

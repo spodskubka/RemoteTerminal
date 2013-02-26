@@ -273,7 +273,7 @@ namespace RemoteTerminal.Terminals
         public void ProcessKeyPress(char ch)
         {
             // This method receives all input that represents "characters".
-            // It does not receive: Return, Cursor keys (Up, Down, Left, Right), Tabulator, Function keys (F1 - F12), 
+            // It does not receive: Return, Cursor keys (Up, Down, Left, Right), Tabulator, Function keys (F1 - F12), Alt/Ctrl key combinations
             if (this.localReadSync != null)
             {
                 if (ch == '\b')
