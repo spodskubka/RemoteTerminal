@@ -133,7 +133,7 @@ namespace Renci.SshNet.Messages.Connection
             this.Write(this.EnvironmentVariable);
             this.Write(this.Columns);
             this.Write(this.Rows);
-            this.Write(this.Rows);
+            this.Write(this.PixelWidth);
             this.Write(this.PixelHeight);
 
             this.Write((uint)this.TerminalModeValues.Length * 5 + 1);

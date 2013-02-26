@@ -132,6 +132,11 @@ namespace Renci.SshNet
         /// <exception cref="T:System.IO.IOException">An I/O error occurs. </exception>
         public override void Flush()
         {
+            if (this._outgoing.Count == 0)
+            {
+                return;
+            }
+
             if (this._channel != null)
             {
                 this._channel.SendData(this._outgoing.ToArray());

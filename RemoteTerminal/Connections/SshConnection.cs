@@ -203,7 +203,10 @@ namespace RemoteTerminal.Connections
                     this.client = new SshClient(connectionInfo);
                     await Task.Run(() => { this.client.Connect(); });
 
-                    this.stream = this.client.CreateShellStream(terminal.TerminalName, (uint)terminal.Columns, (uint)terminal.Rows, 0, 0, 1024, forwardedPrivateKeyAgent);
+                    var terminalModes = new Dictionary<TerminalModes, uint>();
+                    terminalModes[TerminalModes.TTY_OP_ISPEED] = 0x00009600;
+                    terminalModes[TerminalModes.TTY_OP_OSPEED] = 0x00009600;
+                    this.stream = this.client.CreateShellStream(terminal.TerminalName, (uint)terminal.Columns, (uint)terminal.Rows, 0, 0, 1024, forwardedPrivateKeyAgent, terminalModes.ToArray());
 
                     this.reader = new StreamReader(this.stream);
                     this.writer = new StreamWriter(this.stream);
