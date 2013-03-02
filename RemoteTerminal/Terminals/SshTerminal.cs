@@ -48,6 +48,8 @@ namespace RemoteTerminal.Terminals
         private bool autoWrapMode = true;
         private bool wrapNextChar = false;
 
+        private bool ignoreStringUserInput = false;
+
         private ScreenCellFormat currentFormat = new ScreenCellFormat();
 
         //public static double TerminalCellFontSize { get { return 17d; } }
@@ -150,6 +152,14 @@ namespace RemoteTerminal.Terminals
         {
             // This method receives all input that represents "characters".
             // It does not receive: Return, Cursor keys (Up, Down, Left, Right), Tabulator, Function keys (F1 - F12), Alt/Ctrl key combinations
+
+            // This field is set to true if the other ProcessUserInput method has already processed something that also reaches this method.
+            if (this.ignoreStringUserInput)
+            {
+                this.ignoreStringUserInput = false;
+                return;
+            }
+
             this.Transmit(str);
         }
 
@@ -162,15 +172,50 @@ namespace RemoteTerminal.Terminals
             string input;
 
             // handle Alt key combinations
-            if (keyModifiers.HasFlag(KeyModifiers.Alt) && key >= VirtualKey.Number0 && key <= VirtualKey.Z)
+            if (keyModifiers == KeyModifiers.Alt)
             {
-                // the "+ 32" produces lower case characters
-                input = "\x1b" + (char)(key >= VirtualKey.A && key <= VirtualKey.Z ? key + 32 : key);
+                if (key >= VirtualKey.Number0 && key <= VirtualKey.Number9)
+                {
+                    input = "\x1b" + (char)key;
+                }
+                else if (key >= VirtualKey.A && key <= VirtualKey.Z)
+                {
+                    // the "+ 32" produces lower case characters
+                    input = "\x1b" + (char)(key + 32);
+                }
+                else if (key == VirtualKey.Shift || key == VirtualKey.Menu || key == VirtualKey.Control)
+                {
+                    return false;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else if (keyModifiers == KeyModifiers.Ctrl)
+            {
+                if (key == VirtualKey.Space)
+                {
+                    this.ignoreStringUserInput = true;
+                    input = "\0";
+                }
+                else if (key == VirtualKey.Shift || key == VirtualKey.Menu || key == VirtualKey.Control)
+                {
+                    return false;
+                }
+                else
+                {
+                    return false;
+                }
             }
             else
             {
                 switch (key)
                 {
+                    case VirtualKey.Back:
+                        this.ignoreStringUserInput = true;
+                        input = "\x7f";
+                        break;
                     case VirtualKey.Enter:
                         input = Environment.NewLine;
                         break;
@@ -243,6 +288,10 @@ namespace RemoteTerminal.Terminals
                     case VirtualKey.F12:
                         input = "\u001b[24" + GetFunctionKeyModifier(keyModifiers) + "~";
                         break;
+                    case VirtualKey.Shift:
+                    case VirtualKey.Menu:
+                    case VirtualKey.Control:
+                        return false;
                     default:
                         return false;
                 }
