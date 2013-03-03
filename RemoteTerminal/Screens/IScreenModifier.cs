@@ -24,5 +24,6 @@ namespace RemoteTerminal.Screens
         void InsertCells(int cells);
         void DeleteCells(int cells);
         void Resize(int rows, int columns);
+        void SwitchBuffer(bool alternateBuffer);
     }
 }

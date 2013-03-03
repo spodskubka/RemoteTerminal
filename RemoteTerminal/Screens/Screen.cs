@@ -9,7 +9,7 @@ using System.Threading;
 
 namespace RemoteTerminal.Screens
 {
-    public class Screen : List<ScreenLine>, IWritableScreen, IRenderableScreen
+    public class Screen : IWritableScreen, IRenderableScreen
     {
         private class ScreenModifier : IScreenModifier
         {
@@ -70,14 +70,14 @@ namespace RemoteTerminal.Screens
             {
                 get
                 {
-                    var line = this.screen[this.screen.CursorRow];
+                    var line = this.screen.CurrentBuffer[this.screen.CursorRow];
                     var cell = line[this.screen.CursorColumn];
                     return cell.Character;
                 }
 
                 set
                 {
-                    var line = this.screen[this.screen.CursorRow];
+                    var line = this.screen.CurrentBuffer[this.screen.CursorRow];
                     var cell = line[this.screen.CursorColumn];
                     if (cell.Character != value)
                     {
@@ -106,7 +106,7 @@ namespace RemoteTerminal.Screens
 
             public void ApplyFormatToCursor(ScreenCellFormat format)
             {
-                var line = this.screen[this.screen.CursorRow];
+                var line = this.screen.CurrentBuffer[this.screen.CursorRow];
                 var cell = line[this.screen.CursorColumn];
                 cell.ApplyFormat(format);
                 this.changed = true;
@@ -119,7 +119,7 @@ namespace RemoteTerminal.Screens
                 ScreenCell cell;
                 for (int row = startRow; row <= endRow; row++)
                 {
-                    line = display[row];
+                    line = display.CurrentBuffer[row];
                     int startColumnLine = row == startRow ? startColumn : 0;
                     int endColumnLine = row == endRow ? endColumn : this.screen.ColumnCount - 1;
                     for (int column = startColumnLine; column <= endColumnLine; column++)
@@ -135,7 +135,7 @@ namespace RemoteTerminal.Screens
 
             public void CursorRowIncreaseWithScroll(int? scrollTop, int? scrollBottom)
             {
-                if (this.CursorRow + 1 > (scrollBottom ?? (this.screen.Count - 1)))
+                if (this.CursorRow + 1 > (scrollBottom ?? (this.screen.CurrentBuffer.Count - 1)))
                 {
                     this.ScrollUp(1, scrollTop, scrollBottom);
                 }
@@ -161,8 +161,8 @@ namespace RemoteTerminal.Screens
             {
                 for (int i = 0; i < lines; i++)
                 {
-                    this.screen.RemoveAt(scrollBottom ?? (this.screen.Count - 1));
-                    this.screen.Insert(scrollTop ?? 0, new ScreenLine(this.screen.ColumnCount));
+                    this.screen.CurrentBuffer.RemoveAt(scrollBottom ?? (this.screen.CurrentBuffer.Count - 1));
+                    this.screen.CurrentBuffer.Insert(scrollTop ?? 0, new ScreenLine(this.screen.ColumnCount));
                     this.changed = true;
                 }
             }
@@ -171,8 +171,8 @@ namespace RemoteTerminal.Screens
             {
                 for (int i = 0; i < lines; i++)
                 {
-                    this.screen.RemoveAt(scrollTop ?? 0);
-                    this.screen.Insert(scrollBottom ?? this.screen.Count, new ScreenLine(this.screen.ColumnCount));
+                    this.screen.CurrentBuffer.RemoveAt(scrollTop ?? 0);
+                    this.screen.CurrentBuffer.Insert(scrollBottom ?? this.screen.CurrentBuffer.Count, new ScreenLine(this.screen.ColumnCount));
                     this.changed = true;
                 }
             }
@@ -181,8 +181,8 @@ namespace RemoteTerminal.Screens
             {
                 for (int i = 0; i < lines; i++)
                 {
-                    this.screen.RemoveAt(scrollBottom ?? (this.screen.Count - 1));
-                    this.screen.Insert(this.screen.CursorRow, new ScreenLine(this.screen.ColumnCount));
+                    this.screen.CurrentBuffer.RemoveAt(scrollBottom ?? (this.screen.CurrentBuffer.Count - 1));
+                    this.screen.CurrentBuffer.Insert(this.screen.CursorRow, new ScreenLine(this.screen.ColumnCount));
                     this.changed = true;
                 }
             }
@@ -191,15 +191,15 @@ namespace RemoteTerminal.Screens
             {
                 for (int i = 0; i < lines; i++)
                 {
-                    this.screen.RemoveAt(this.screen.CursorRow);
-                    this.screen.Insert(scrollBottom ?? (this.screen.Count - 1), new ScreenLine(this.screen.ColumnCount));
+                    this.screen.CurrentBuffer.RemoveAt(this.screen.CursorRow);
+                    this.screen.CurrentBuffer.Insert(scrollBottom ?? (this.screen.CurrentBuffer.Count - 1), new ScreenLine(this.screen.ColumnCount));
                     this.changed = true;
                 }
             }
 
             public void InsertCells(int cells)
             {
-                var line = this.screen[this.screen.CursorRow];
+                var line = this.screen.CurrentBuffer[this.screen.CursorRow];
                 for (int i = 0; i < cells; i++)
                 {
                     line.RemoveAt(line.Count - 1);
@@ -210,7 +210,7 @@ namespace RemoteTerminal.Screens
 
             public void DeleteCells(int cells)
             {
-                var line = this.screen[this.screen.CursorRow];
+                var line = this.screen.CurrentBuffer[this.screen.CursorRow];
                 for (int i = 0; i < cells; i++)
                 {
                     line.RemoveAt(this.screen.CursorColumn);
@@ -221,25 +221,50 @@ namespace RemoteTerminal.Screens
 
             public void Resize(int rows, int columns)
             {
-                while (this.screen.Count > rows)
+                this.Resize(this.screen.mainBuffer, rows, columns);
+                this.Resize(this.screen.alternateBuffer, rows, columns);
+            }
+
+            public void SwitchBuffer(bool alternateBuffer)
+            {
+                if (this.screen.useAlternateBuffer != alternateBuffer)
                 {
-                    if (this.CursorRow < this.screen.Count - 1)
+                    this.screen.useAlternateBuffer = alternateBuffer;
+                    this.changed = true;
+                }
+            }
+
+            public void Dispose()
+            {
+                if (this.changed)
+                {
+                    this.screen.Changed = true;
+                }
+
+                Monitor.Exit(this.screen.changeLock);
+            }
+
+            private void Resize(List<ScreenLine> buffer, int rows, int columns)
+            {
+                while (buffer.Count > rows)
+                {
+                    if (this.CursorRow < buffer.Count - 1)
                     {
-                        this.screen.RemoveAt(this.screen.Count - 1);
+                        buffer.RemoveAt(buffer.Count - 1);
                     }
                     else
                     {
                         this.CursorRow--;
-                        this.screen.RemoveAt(0);
+                        buffer.RemoveAt(0);
                     }
                 }
 
-                while (this.screen.Count < rows)
+                while (buffer.Count < rows)
                 {
-                    this.screen.Add(new ScreenLine(columns));
+                    buffer.Add(new ScreenLine(columns));
                 }
 
-                foreach (var line in this.screen)
+                foreach (var line in buffer)
                 {
                     while (line.Count > columns)
                     {
@@ -257,16 +282,6 @@ namespace RemoteTerminal.Screens
 
                 this.changed = true;
             }
-
-            public void Dispose()
-            {
-                if (this.changed)
-                {
-                    this.screen.Changed = true;
-                }
-
-                Monitor.Exit(this.screen.changeLock);
-            }
         }
 
         private class TerminalScreenCopy : IRenderableScreenCopy
@@ -275,7 +290,7 @@ namespace RemoteTerminal.Screens
 
             public TerminalScreenCopy(Screen terminalScreen)
             {
-                this.cells = terminalScreen.Select(l => l.Select(c => c.Clone()).ToArray()).ToArray();
+                this.cells = terminalScreen.CurrentBuffer.Select(l => l.Select(c => c.Clone()).ToArray()).ToArray();
                 this.CursorRow = terminalScreen.CursorRow;
                 this.CursorColumn = terminalScreen.CursorColumn;
                 this.CursorHidden = terminalScreen.CursorHidden;
@@ -312,17 +327,35 @@ namespace RemoteTerminal.Screens
             }
         }
 
+        private readonly List<ScreenLine> mainBuffer;
+        private readonly List<ScreenLine> alternateBuffer;
+        private bool useAlternateBuffer = false;
         private readonly object changeLock = new object();
 
         public Screen(int rows, int columns)
-            : base(rows)
         {
             this.CursorColumn = 0;
             this.CursorRow = 0;
             this.CursorHidden = false;
+
+            this.mainBuffer = new List<ScreenLine>(rows);
             for (int i = 0; i < rows; i++)
             {
-                this.Add(new ScreenLine(columns));
+                this.mainBuffer.Add(new ScreenLine(columns));
+            }
+
+            this.alternateBuffer = new List<ScreenLine>(rows);
+            for (int i = 0; i < rows; i++)
+            {
+                this.alternateBuffer.Add(new ScreenLine(columns));
+            }
+        }
+
+        private List<ScreenLine> CurrentBuffer
+        {
+            get
+            {
+                return useAlternateBuffer ? this.alternateBuffer : this.mainBuffer;
             }
         }
 
@@ -343,7 +376,7 @@ namespace RemoteTerminal.Screens
         {
             get
             {
-                return this.Count;
+                return this.mainBuffer.Count;
             }
         }
 
@@ -354,7 +387,7 @@ namespace RemoteTerminal.Screens
         {
             get
             {
-                var line = this[0];
+                var line = this.mainBuffer[0];
                 return line.Count;
             }
         }

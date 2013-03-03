@@ -631,7 +631,7 @@ namespace RemoteTerminal.Terminals
                                 // this.Display.CursorHidden = h;
                                 break;
                             case 47:
-                                // TODO: mc (Use Normal/Alternate Screen Buffer)
+                                modifier.SwitchBuffer(alternateBuffer: h);
                                 break;
                             case 1000:
                                 // TODO: aptitude (Don’t Send Mouse X & Y on button press and release)
@@ -642,13 +642,24 @@ namespace RemoteTerminal.Terminals
                             case 1047: // Use Alternate Screen Buffer
                                 this.scrollTop = null;
                                 this.scrollBottom = null;
+                                modifier.SwitchBuffer(alternateBuffer: h);
+                                if (!h)
+                                {
+                                    modifier.Erase(0, 0, this.Rows - 1, this.Columns - 1, this.currentFormat);
+                                }
                                 break;
                             case 1048:
+                                this.SaveOrRestoreCursor(ref cursorRow, ref cursorColumn, save: h);
                                 break;
                             case 1049:
-                                // TODO: aptitude (Use Normal Screen Buffer and restore cursor as in DECRC)
+                                this.SaveOrRestoreCursor(ref cursorRow, ref cursorColumn, save: h);
                                 this.scrollTop = null;
                                 this.scrollBottom = null;
+                                modifier.SwitchBuffer(alternateBuffer: h);
+                                if (h)
+                                {
+                                    modifier.Erase(0, 0, this.Rows - 1, this.Columns - 1, this.currentFormat);
+                                }
                                 break;
                             default:
                                 break;
@@ -783,18 +794,11 @@ namespace RemoteTerminal.Terminals
 
                     //case "[s": _saveRow = Row; _saveColumn = Column; break;
                     case "7":
-                        this.savedCursor = new SavedCursor(cursorRow, cursorColumn, this.currentFormat);
+                        this.SaveOrRestoreCursor(ref cursorRow, ref cursorColumn, save: true);
                         break;
                     //case "[u": Row = _saveRow; Column = _saveColumn; break;
                     case "8":
-                        if (this.savedCursor == null)
-                        {
-                            break;
-                        }
-
-                        cursorRow = this.savedCursor.CursorRow;
-                        cursorColumn = this.savedCursor.CursorColumn;
-                        this.currentFormat = this.savedCursor.Format.Clone();
+                        this.SaveOrRestoreCursor(ref cursorRow, ref cursorColumn, save: false);
                         break;
 
                     //case "c": Reset(); break;
@@ -828,6 +832,25 @@ namespace RemoteTerminal.Terminals
 
                 modifier.CursorRow = Math.Min(Math.Max(cursorRow, 0), this.Rows - 1);
                 modifier.CursorColumn = Math.Min(Math.Max(cursorColumn, 0), this.Columns - 1);
+            }
+        }
+
+        private void SaveOrRestoreCursor(ref int cursorRow, ref int cursorColumn, bool save)
+        {
+            if (save)
+            {
+                this.savedCursor = new SavedCursor(cursorRow, cursorColumn, this.currentFormat);
+            }
+            else
+            {
+                if (this.savedCursor == null)
+                {
+                    return;
+                }
+
+                cursorRow = this.savedCursor.CursorRow;
+                cursorColumn = this.savedCursor.CursorColumn;
+                this.currentFormat = this.savedCursor.Format.Clone();
             }
         }
 
