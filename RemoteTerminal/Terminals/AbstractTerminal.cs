@@ -430,7 +430,16 @@ namespace RemoteTerminal.Terminals
                 this.ProcessConnectionInput(str == Environment.NewLine ? "\r\n" : str);
             }
 
-            this.connection.Write(str == Environment.NewLine ? this.writtenNewLine : str);
+            try
+            {
+                this.connection.Write(str == Environment.NewLine ? this.writtenNewLine : str);
+            }
+            catch (Exception ex)
+            {
+                this.PowerOff();
+                this.WriteLine(string.Empty);
+                this.WriteLine(ex.Message);
+            }
         }
 
         public void Dispose()

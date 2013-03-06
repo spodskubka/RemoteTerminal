@@ -308,7 +308,7 @@ namespace RemoteTerminal.Connections
                 {
                     this.client.Disconnect();
                 }
-                catch (NullReferenceException)
+                catch (Exception)
                 {
                     // this can happen because the IsConnected code was not ported to WinRT perfectly
                 }

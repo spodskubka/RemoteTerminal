@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Renci.SshNet.Messages.Transport;
 using Windows.Storage.Streams;
 
 namespace Renci.SshNet.Common
@@ -30,13 +31,20 @@ namespace Renci.SshNet.Common
         /// <returns>The number of bytes received (must be equal to <paramref name="count"/>).</returns>
         internal static int Receive(this DataReader dataReader, byte[] buffer, int offset, int count)
         {
-            var loadAsync = dataReader.LoadAsync((uint)count).AsTask();
-            loadAsync.Wait();
-            byte[] tempData = new byte[count];
-            dataReader.ReadBytes(tempData);
-            System.Buffer.BlockCopy(tempData, 0, buffer, offset, count);
+            try
+            {
+                var loadAsync = dataReader.LoadAsync((uint)count).AsTask();
+                loadAsync.Wait();
+                byte[] tempData = new byte[count];
+                dataReader.ReadBytes(tempData);
+                System.Buffer.BlockCopy(tempData, 0, buffer, offset, count);
 
-            return (int)loadAsync.Result;
+                return (int)loadAsync.Result;
+            }
+            catch (AggregateException aex)
+            {
+                throw new SshConnectionException(aex.InnerException.Message, DisconnectReason.ConnectionLost, aex.InnerException);
+            }
         }
 
         /// <summary>
@@ -49,14 +57,21 @@ namespace Renci.SshNet.Common
         /// <returns>The number of bytes sent (must be equal to <paramref name="count"/>).</returns>
         internal static int Send(this DataWriter dataWriter, byte[] data, int offset, int count)
         {
-            byte[] tempData = new byte[count];
-            System.Buffer.BlockCopy(data, offset, tempData, 0, count);
-            dataWriter.WriteBytes(tempData);
-            
-            var storeAsync = dataWriter.StoreAsync().AsTask();
-            storeAsync.Wait();
+            try
+            {
+                byte[] tempData = new byte[count];
+                System.Buffer.BlockCopy(data, offset, tempData, 0, count);
+                dataWriter.WriteBytes(tempData);
 
-            return (int)storeAsync.Result;
+                var storeAsync = dataWriter.StoreAsync().AsTask();
+                storeAsync.Wait();
+
+                return (int)storeAsync.Result;
+            }
+            catch (AggregateException aex)
+            {
+                throw new SshConnectionException(aex.InnerException.Message, DisconnectReason.ConnectionLost, aex.InnerException);
+            }
         }
 
         internal static bool IsValidPort(this uint value)

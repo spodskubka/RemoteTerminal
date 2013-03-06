@@ -501,6 +501,10 @@ namespace Renci.SshNet
                         {
                             this.MessageListener();
                         }
+                        catch (Exception ex)
+                        {
+                            this.Disconnect();
+                        }
                         finally
                         {
                             this._messageListenerCompleted.Set();
