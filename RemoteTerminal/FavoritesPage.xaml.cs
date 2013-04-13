@@ -228,7 +228,7 @@ namespace RemoteTerminal
 #if DEBUG
                 var s = await CurrentAppSimulator.RequestAppPurchaseAsync(false);
 #else
-            this.licenseInformation = CurrentApp.LicenseInformation;
+                var s = await CurrentApp.RequestAppPurchaseAsync(false);
 #endif
             }
             catch (Exception ex)
