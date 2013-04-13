@@ -47,13 +47,14 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
-                    <ColumnDefinition/>
+                    <!--<ColumnDefinition/>-->
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
                     <Button Style="{StaticResource PasteAppBarButtonStyle}" Click="pasteAppBarButton_Click"/>
+                    <Button Style="{StaticResource CopyModeAppBarButtonStyle}" Click="copyModeAppBarButton_Click"/>
                 </StackPanel>
-                <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
-                </StackPanel>
+                <!--<StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
+                </StackPanel>-->
             </Grid>
         </AppBar>
     </common:LayoutAwarePage.BottomAppBar>
@@ -69,6 +70,12 @@
                 <TranslateTransform x:Name="TerminalContainerTransform" />
             </Border.RenderTransform>
             <Terminals:ScreenDisplay x:Name="screenDisplay" TabIndex="0" Margin="0,0,1,1" />
+        </Border>
+
+        <Border x:Name="copyContainer" Background="#BF000000" Tapped="copyContainer_Tapped">
+            <ScrollViewer x:Name="screenDisplayCopyBoxScroll" Width="200" Height="200" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden">
+                <RichEditBox x:Name="screenDisplayCopyBox" Style="{StaticResource RichEditBoxCopyModeStyle}" IsSpellCheckEnabled="false" IsTextPredictionEnabled="false" TextWrapping="NoWrap" Loaded="screenDisplayCopyBox_Loaded" />
+            </ScrollViewer>
         </Border>
 
         <VisualStateManager.VisualStateGroups>
