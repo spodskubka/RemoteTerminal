@@ -295,6 +295,7 @@ namespace RemoteTerminal
 
         private async Task<InMemoryRandomAccessStream> GenerateRtf(IRenderableScreenCopy screenCopy, bool fake)
         {
+            Encoding codepage1252 = Encoding.GetEncoding("Windows-1252");
             var rtfStream = new InMemoryRandomAccessStream();
             using (DataWriter rtf = new DataWriter(rtfStream))
             {
@@ -369,7 +370,14 @@ namespace RemoteTerminal
                                 rtf.WriteString(" ");
                             }
 
-                            rtf.WriteString(line[x].Character.ToString());
+                            if ( line[x].Character == codepage1252.GetChars(codepage1252.GetBytes(new[] { line[x].Character }))[0])
+                            {
+                                rtf.WriteBytes(codepage1252.GetBytes(new[] {line[x].Character}));
+                            }
+                            else
+                            {
+                                rtf.WriteString(@"\u" + ((int)line[x].Character).ToString() + "?");
+                            }
 
                             if (x + 1 >= screenCopy.Cells.Length)
                             {
