@@ -1,30 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
-using RemoteTerminal.Connections;
 using RemoteTerminal.Model;
 using RemoteTerminal.Screens;
 using RemoteTerminal.Terminals;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Storage.Streams;
-using Windows.UI.Core;
 using Windows.UI.Text;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Windows.UI.Xaml.Documents;
-using System.Threading;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -37,6 +29,8 @@ namespace RemoteTerminal
     {
         private ManualResetEventSlim screenDisplayCopyBoxLoaded = new ManualResetEventSlim();
         private InputPaneHelper inputPaneHelper;
+
+        private static Lazy<Regex> hyperlinkRegex = new Lazy<Regex>(CreateHyperlinkRegex);
 
         public static readonly DependencyProperty TerminalProperty = DependencyProperty.Register("Terminal", typeof(ITerminal), typeof(TerminalPage), null);
         public ITerminal Terminal
@@ -51,6 +45,38 @@ namespace RemoteTerminal
                     this.screenDisplay.ColorTheme = ColorThemesDataSource.GetCustomTheme();
                 }
             }
+        }
+
+        public static Regex CreateHyperlinkRegex()
+        {
+            // based on http://www.ietf.org/rfc/rfc2396.txt
+            string scheme = "[A-Za-z][-+.0-9A-Za-z]{3,}";
+            string unreserved = "[-._~0-9A-Za-z]";
+            string pctEncoded = "%[0-9A-Fa-f]{2}";
+            string subDelims = "[!$&'()*+,;:=]";
+            string userinfo = "(?:" + unreserved + "|" + pctEncoded + "|" + subDelims + "|:)*";
+            string h16 = "[0-9A-Fa-f]{1,4}";
+            string decOctet = "(?:[0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])";
+            string ipv4address = decOctet + "\\." + decOctet + "\\." + decOctet + "\\." + decOctet;
+            string ls32 = "(?:" + h16 + ":" + h16 + "|" + ipv4address + ")";
+            string ipv6address = "(?:(?:" + h16 + "){6}" + ls32 + ")";
+            string ipvfuture = "v[0-9A-Fa-f]+.(?:" + unreserved + "|" + subDelims + "|:)+";
+            string ipLiteral = "\\[(?:" + ipv6address + "|" + ipvfuture + ")\\]";
+            string regName = "(?:" + unreserved + "|" + pctEncoded + "|" + subDelims + ")*";
+            string host = "(?:" + ipLiteral + "|" + ipv4address + "|" + regName + ")";
+            string port = "[0-9]*";
+            string authority = "(?:" + userinfo + "@)?" + host + "(?::" + port + ")?";
+            string pchar = "(?:" + unreserved + "|" + pctEncoded + "|" + subDelims + "|@)";
+            string segment = pchar + "*";
+            string pathAbempty = "(?:/" + segment + ")*";
+            string segmentNz = pchar + "+";
+            string pathAbsolute = "/(?:" + segmentNz + "(?:/" + segment + ")*)?";
+            string pathRootless = segmentNz + "(?:/" + segment + ")*";
+            string hierPart = "(?://" + authority + pathAbempty + "|" + pathAbsolute + "|" + pathRootless + ")";
+            string query = "(?:" + pchar + "|/|\\?)*";
+            string fragment = "(?:" + pchar + "|/|\\?)*";
+            string uriRegex = scheme + ":" + hierPart + "(?:" + query + ")?(?:#" + fragment + ")?";
+            return new Regex(uriRegex);
         }
 
         public TerminalPage()
@@ -329,6 +355,7 @@ namespace RemoteTerminal
                     rtf.WriteString(Environment.NewLine);
                 }
                 rtf.WriteString(@"\pard\ltrpar\f0\fs17");
+                rtf.WriteString(Environment.NewLine);
 
                 StringBuilder formatCodes = new StringBuilder();
                 string fakeLineText = fake && screenCopy.Cells.Length > 0 ? new string('X', screenCopy.Cells[0].Length) : null;
@@ -341,14 +368,20 @@ namespace RemoteTerminal
                     else
                     {
                         var line = screenCopy.Cells[y];
+                        string lineString = new string(line.Select(c => c.Character).ToArray());
+                        var hyperlinkMatches = hyperlinkRegex.Value.Matches(lineString).Cast<Match>();
 
                         for (int x = 0; x < line.Length; x++)
                         {
+                            Match startingMatch = hyperlinkMatches.Where(m => m.Index == x).SingleOrDefault();
+                            if (startingMatch != null)
+                            {
+                                rtf.WriteString(@"{\field{\*\fldinst HYPERLINK """ + RtfEscape(startingMatch.Value) + @"""}{\fldrslt ");
+                            }
+
                             if (x == 0 || line[x - 1].BackgroundColor != line[x].BackgroundColor)
                             {
                                 formatCodes.Append(@"\chshdng0\chcbpat" + (line[x].BackgroundColor - ScreenColor.DefaultBackground + 1));
-                                formatCodes.Append(@"\highlight" + (line[x].BackgroundColor - ScreenColor.DefaultBackground + 1));
-                                formatCodes.Append(@"\cb" + (line[x].BackgroundColor - ScreenColor.DefaultBackground + 1));
                             }
 
                             if (x == 0 || line[x - 1].ForegroundColor != line[x].ForegroundColor)
@@ -383,11 +416,17 @@ namespace RemoteTerminal
 
                             if (line[x].Character == codepage1252.GetChars(codepage1252.GetBytes(new[] { line[x].Character }))[0])
                             {
-                                rtf.WriteBytes(codepage1252.GetBytes(new[] { line[x].Character }));
+                                rtf.WriteBytes(codepage1252.GetBytes(RtfEscape(line[x].Character.ToString())));
                             }
                             else
                             {
                                 rtf.WriteString(@"\u" + ((int)line[x].Character).ToString() + "?");
+                            }
+
+                            Match endingMatch = hyperlinkMatches.Where(m => m.Index + m.Length == x + 1).SingleOrDefault();
+                            if (endingMatch != null)
+                            {
+                                rtf.WriteString("}}");
                             }
 
                             if (x + 1 >= screenCopy.Cells.Length)
@@ -426,6 +465,14 @@ namespace RemoteTerminal
             rtfStream.Seek(0);
 
             return rtfStream;
+        }
+
+        private static string RtfEscape(string str)
+        {
+            str = str.Replace(@"\", @"\\");
+            str = str.Replace(@"{", @"\{");
+            str = str.Replace(@"}", @"\}");
+            return str;
         }
 
         public void ForceRender()

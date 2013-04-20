@@ -138,7 +138,7 @@
 
     <Style x:Key="CopyModeAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
         <Setter Property="AutomationProperties.AutomationId" Value="CopyModeAppBarButton"/>
-        <Setter Property="AutomationProperties.Name" Value="Copy Mode"/>
+        <Setter Property="AutomationProperties.Name" Value="Copy/URL Mode"/>
         <Setter Property="Content" Value="&#xE16F;"/>
     </Style>
     <Style x:Key="RichEditBoxCopyModeStyle" TargetType="RichEditBox">
