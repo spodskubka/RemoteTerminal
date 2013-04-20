@@ -311,6 +311,8 @@ namespace RemoteTerminal
             // The reason for this is that we need to determine the final size of the RichEditBox
             // to resize it correctly. But if the text contains spaces somewhere the ExtentWidth/Height
             // of the ScrollViewer, which is used to resize the RichEditBox, is off.
+            this.screenDisplayCopyBoxScroll.HorizontalScrollMode = ScrollMode.Enabled;
+            this.screenDisplayCopyBoxScroll.VerticalScrollMode = ScrollMode.Enabled;
             using (InMemoryRandomAccessStream rtfStream = await this.GenerateRtf(screenCopy, fake: true))
             {
                 this.screenDisplayCopyBox.Document.LoadFromStream(TextSetOptions.ApplyRtfDocumentDefaults | TextSetOptions.FormatRtf | TextSetOptions.Unhide, rtfStream);
@@ -318,6 +320,8 @@ namespace RemoteTerminal
 
             this.screenDisplayCopyBoxScroll.Width = this.screenDisplayCopyBoxScroll.ExtentWidth;
             this.screenDisplayCopyBoxScroll.Height = this.screenDisplayCopyBoxScroll.ExtentHeight;
+            this.screenDisplayCopyBoxScroll.HorizontalScrollMode = ScrollMode.Disabled;
+            this.screenDisplayCopyBoxScroll.VerticalScrollMode = ScrollMode.Disabled;
 
             using (InMemoryRandomAccessStream rtfStream = await this.GenerateRtf(screenCopy, fake: false))
             {
