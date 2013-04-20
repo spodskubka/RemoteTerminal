@@ -237,8 +237,18 @@ namespace RemoteTerminal
             await this.ShowCopyMode();
         }
 
+        private void ChangeCopyModeSize(object sender, SizeChangedEventArgs e)
+        {
+            if (this.screenDisplayCopyBoxScroll.Width > e.NewSize.Width || this.screenDisplayCopyBoxScroll.Height > e.NewSize.Height)
+            {
+                this.HideCopyMode();
+            }
+        }
+
         private void HideCopyMode()
         {
+            this.SizeChanged -= ChangeCopyModeSize;
+
             if (this.copyContainer.Visibility == Visibility.Visible)
             {
                 this.screenDisplayCopyBox.IsReadOnly = false;
@@ -260,6 +270,7 @@ namespace RemoteTerminal
             // We have to wait until the RichEditBox is loaded before we try to load any content into it.
             // If we don't do that the fonts and colors get lost.
             this.copyContainer.Visibility = Visibility.Visible;
+            this.SizeChanged += ChangeCopyModeSize;
             ManualResetEventSlim loadedEvent = this.screenDisplayCopyBoxLoaded;
             if (loadedEvent != null)
             {
@@ -370,9 +381,9 @@ namespace RemoteTerminal
                                 rtf.WriteString(" ");
                             }
 
-                            if ( line[x].Character == codepage1252.GetChars(codepage1252.GetBytes(new[] { line[x].Character }))[0])
+                            if (line[x].Character == codepage1252.GetChars(codepage1252.GetBytes(new[] { line[x].Character }))[0])
                             {
-                                rtf.WriteBytes(codepage1252.GetBytes(new[] {line[x].Character}));
+                                rtf.WriteBytes(codepage1252.GetBytes(new[] { line[x].Character }));
                             }
                             else
                             {
