@@ -269,7 +269,15 @@ namespace RemoteTerminal.Connections
         {
             this.MustBeConnected(true);
 
-            this.stream.ResizeTerminal((uint)columns, (uint)rows, 0, 0);
+            try
+            {
+                this.stream.ResizeTerminal((uint)columns, (uint)rows, 0, 0);
+            }
+            catch (Exception ex)
+            {
+                // The connection was probably disconnected.
+                // Ignore it for now, it will be detected somewhere else.
+            }
         }
 
         public void Disconnect()
