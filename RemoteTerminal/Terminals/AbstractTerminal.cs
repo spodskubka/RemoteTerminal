@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -31,6 +32,8 @@ namespace RemoteTerminal.Terminals
         private string localReadLine = string.Empty;
         private int localReadStartColumn = 0;
         private int localReadStartRow = 0;
+
+        private bool connected = false;
 
         private object disconnectLock = new object();
 
@@ -115,6 +118,11 @@ namespace RemoteTerminal.Terminals
 
         public void WriteLine(string text)
         {
+            if (this.connected)
+            {
+                throw new InvalidOperationException("This method can only be called before the connection is established.");
+            }
+
             using (var modifier = this.screen.GetModifier())
             {
                 foreach (var ch in text)
@@ -129,6 +137,11 @@ namespace RemoteTerminal.Terminals
 
         public async Task<string> ReadLineAsync(string prompt, bool echo)
         {
+            if (this.connected)
+            {
+                throw new InvalidOperationException("This method can only be called before the connection is established.");
+            }
+
             this.localReadStartColumn = this.screen.CursorColumn;
             this.localReadStartRow = this.screen.CursorRow;
             this.localReadPrompt = prompt;
@@ -187,6 +200,8 @@ namespace RemoteTerminal.Terminals
                 bool connected = await this.connection.ConnectAsync(this);
                 if (connected)
                 {
+                    this.connected = true;
+
                     try
                     {
                         string str;
@@ -217,6 +232,8 @@ namespace RemoteTerminal.Terminals
 
         public void PowerOff()
         {
+            this.connected = false;
+
             lock (this.disconnectLock)
             {
                 this.connection.Disconnect();
@@ -315,7 +332,14 @@ namespace RemoteTerminal.Terminals
             }
             else
             {
-                this.ProcessUserInput(ch.ToString());
+                if (this.connected)
+                {
+                    this.ProcessUserInput(ch.ToString());
+                }
+                else
+                {
+                    Debug.WriteLine("Input character '" + ch + "' ignored, not yet connected.");
+                }
             }
         }
 
@@ -363,7 +387,15 @@ namespace RemoteTerminal.Terminals
             }
             else
             {
-                return this.ProcessUserInput(key, keyModifiers);
+                if (this.connected)
+                {
+                    return this.ProcessUserInput(key, keyModifiers);
+                }
+                else
+                {
+                    Debug.WriteLine("Input key '" + key + "' with modifier(s) '" + keyModifiers + "' ignored, not yet connected.");
+                    return true;
+                }
             }
         }
 
