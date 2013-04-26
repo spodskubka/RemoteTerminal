@@ -46,12 +46,9 @@ namespace RemoteTerminal.Terminals
         /// </summary>
         public ScreenDisplayRenderer(ScreenDisplay screenDisplay, IRenderableScreen screen)
         {
-            Show = true;
             this.screenDisplay = screenDisplay;
             this.screen = screen;
         }
-
-        public bool Show { get; set; }
 
         public virtual void Initialize(DeviceManager deviceManager)
         {
@@ -67,9 +64,6 @@ namespace RemoteTerminal.Terminals
 
         public virtual void Render(TargetBase target)
         {
-            if (!Show)
-                return;
-
             IRenderableScreenCopy screenCopy = this.screen.GetScreenCopy();
 
             var context2D = target.DeviceManager.ContextDirect2D;
