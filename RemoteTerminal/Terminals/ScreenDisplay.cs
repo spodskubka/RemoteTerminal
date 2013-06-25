@@ -91,7 +91,6 @@ namespace RemoteTerminal.Terminals
             this.terminal.Disconnected += terminal_Disconnected;
 
             this.border.BorderBrush = new SolidColorBrush(this.terminal.IsConnected ? Colors.Black : Colors.Red);
-            this.IsEnabled = this.terminal.IsConnected;
 
             // This will result in ArrangeOverride being called, where the new renderer is attached.
             this.InvalidateArrange();
@@ -102,7 +101,6 @@ namespace RemoteTerminal.Terminals
             await this.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
             {
                 this.border.BorderBrush = new SolidColorBrush(Colors.Red);
-                this.IsEnabled = false;
             });
         }
 
@@ -222,6 +220,11 @@ namespace RemoteTerminal.Terminals
         /// <param name="e">State information and event data associated with KeyDown event.</param>
         void Terminal_CharacterReceived(CoreWindow sender, CharacterReceivedEventArgs args)
         {
+            if (!this.terminal.IsConnected)
+            {
+                return;
+            }
+
             // This method receives all input that represents "characters".
             // It does not receive: Return, Cursor keys (Up, Down, Left, Right), Tabulator, Function keys (F1 - F12), 
             this.terminal.ProcessKeyPress((char)args.KeyCode);
@@ -265,6 +268,11 @@ namespace RemoteTerminal.Terminals
                     this.terminal.ProcessPastedText(text);
                     return;
                 }
+            }
+
+            if (!this.terminal.IsConnected)
+            {
+                return;
             }
 
             e.Handled = this.terminal.ProcessKeyPress(e.Key, keyModifiers);

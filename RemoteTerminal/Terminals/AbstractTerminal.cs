@@ -186,7 +186,7 @@ namespace RemoteTerminal.Terminals
                 {
                     using (var modifier = this.screen.GetModifier())
                     {
-                        modifier.HasFocus = value;
+                        modifier.HasFocus = value && this.IsConnected;
                     }
                 }
             }
@@ -222,6 +222,7 @@ namespace RemoteTerminal.Terminals
                     this.connection.Disconnect();
                 }
                 this.IsConnected = false;
+                this.ScreenHasFocus = false;
                 var disconnected = this.Disconnected;
                 if (disconnected != null)
                 {
