@@ -15,6 +15,7 @@ namespace RemoteTerminal.Screens
         {
             private readonly Screen screen;
             private bool changed;
+            private bool contentChanged;
 
             public ScreenModifier(Screen screen)
             {
@@ -83,6 +84,7 @@ namespace RemoteTerminal.Screens
                     {
                         cell.Character = value;
                         this.changed = true;
+                        this.contentChanged = true;
                     }
                 }
             }
@@ -110,6 +112,7 @@ namespace RemoteTerminal.Screens
                 var cell = line[this.screen.CursorColumn];
                 cell.ApplyFormat(format);
                 this.changed = true;
+                this.contentChanged = true;
             }
 
             public void Erase(int startRow, int startColumn, int endRow, int endColumn, ScreenCellFormat format)
@@ -129,6 +132,7 @@ namespace RemoteTerminal.Screens
                         cell.Character = ' ';
                         cell.ApplyFormat(format);
                         this.changed = true;
+                        this.contentChanged = true;
                     }
                 }
             }
@@ -164,6 +168,7 @@ namespace RemoteTerminal.Screens
                     this.screen.CurrentBuffer.RemoveAt(scrollBottom ?? (this.screen.CurrentBuffer.Count - 1));
                     this.screen.CurrentBuffer.Insert(scrollTop ?? 0, new ScreenLine(this.screen.ColumnCount));
                     this.changed = true;
+                    this.contentChanged = true;
                 }
             }
 
@@ -171,9 +176,15 @@ namespace RemoteTerminal.Screens
             {
                 for (int i = 0; i < lines; i++)
                 {
+                    if (!this.screen.useAlternateBuffer && (scrollTop ?? 0) == 0)
+                    {
+                        this.screen.scrollbackBuffer.Append(this.screen.mainBuffer[0]);
+                    }
+
                     this.screen.CurrentBuffer.RemoveAt(scrollTop ?? 0);
                     this.screen.CurrentBuffer.Insert(scrollBottom ?? this.screen.CurrentBuffer.Count, new ScreenLine(this.screen.ColumnCount));
                     this.changed = true;
+                    this.contentChanged = true;
                 }
             }
 
@@ -184,6 +195,7 @@ namespace RemoteTerminal.Screens
                     this.screen.CurrentBuffer.RemoveAt(scrollBottom ?? (this.screen.CurrentBuffer.Count - 1));
                     this.screen.CurrentBuffer.Insert(this.screen.CursorRow, new ScreenLine(this.screen.ColumnCount));
                     this.changed = true;
+                    this.contentChanged = true;
                 }
             }
 
@@ -194,6 +206,7 @@ namespace RemoteTerminal.Screens
                     this.screen.CurrentBuffer.RemoveAt(this.screen.CursorRow);
                     this.screen.CurrentBuffer.Insert(scrollBottom ?? (this.screen.CurrentBuffer.Count - 1), new ScreenLine(this.screen.ColumnCount));
                     this.changed = true;
+                    this.contentChanged = true;
                 }
             }
 
@@ -205,6 +218,7 @@ namespace RemoteTerminal.Screens
                     line.RemoveAt(line.Count - 1);
                     line.Insert(this.screen.CursorColumn, new ScreenCell());
                     this.changed = true;
+                    this.contentChanged = true;
                 }
             }
 
@@ -216,6 +230,7 @@ namespace RemoteTerminal.Screens
                     line.RemoveAt(this.screen.CursorColumn);
                     line.Insert(line.Count, new ScreenCell());
                     this.changed = true;
+                    this.contentChanged = true;
                 }
             }
 
@@ -231,6 +246,7 @@ namespace RemoteTerminal.Screens
                 {
                     this.screen.useAlternateBuffer = alternateBuffer;
                     this.changed = true;
+                    this.contentChanged = true;
                 }
             }
 
@@ -239,6 +255,11 @@ namespace RemoteTerminal.Screens
                 if (this.changed)
                 {
                     this.screen.Changed = true;
+                }
+
+                if (this.contentChanged)
+                {
+                    this.screen.scrollbackPosition = 0;
                 }
 
                 Monitor.Exit(this.screen.changeLock);
@@ -290,11 +311,28 @@ namespace RemoteTerminal.Screens
 
             public TerminalScreenCopy(Screen terminalScreen)
             {
-                this.cells = terminalScreen.CurrentBuffer.Select(l => l.Select(c => c.Clone()).ToArray()).ToArray();
                 this.CursorRow = terminalScreen.CursorRow;
                 this.CursorColumn = terminalScreen.CursorColumn;
                 this.CursorHidden = terminalScreen.CursorHidden;
                 this.HasFocus = terminalScreen.HasFocus;
+
+                IEnumerable<ScreenLine> lines;
+                if (!terminalScreen.useAlternateBuffer && terminalScreen.scrollbackPosition > 0)
+                {
+                    lines = terminalScreen.scrollbackBuffer.Skip(terminalScreen.scrollbackBuffer.Count - terminalScreen.scrollbackPosition).Take(terminalScreen.mainBuffer.Count);
+                    if (terminalScreen.scrollbackPosition < terminalScreen.mainBuffer.Count)
+                    {
+                        lines = lines.Union(terminalScreen.mainBuffer.Take(terminalScreen.mainBuffer.Count - terminalScreen.scrollbackPosition));
+                    }
+
+                    this.CursorRow += terminalScreen.scrollbackPosition;
+                }
+                else
+                {
+                    lines = terminalScreen.CurrentBuffer;
+                }
+
+                this.cells = lines.Select(l => l.Select(c => c.Clone()).ToArray()).ToArray();
             }
 
             public int CursorRow
@@ -327,10 +365,12 @@ namespace RemoteTerminal.Screens
             }
         }
 
+        private readonly ScreenScrollbackBuffer scrollbackBuffer = new ScreenScrollbackBuffer(5000);
         private readonly List<ScreenLine> mainBuffer;
         private readonly List<ScreenLine> alternateBuffer;
         private bool useAlternateBuffer = false;
         private readonly object changeLock = new object();
+        private int scrollbackPosition = 0;
 
         public Screen(int rows, int columns)
         {
@@ -349,6 +389,8 @@ namespace RemoteTerminal.Screens
             {
                 this.alternateBuffer.Add(new ScreenLine(columns));
             }
+
+            this.ScrollbackPosition = 0;
         }
 
         private List<ScreenLine> CurrentBuffer
@@ -389,6 +431,47 @@ namespace RemoteTerminal.Screens
             {
                 var line = this.mainBuffer[0];
                 return line.Count;
+            }
+        }
+
+        /// <summary>
+        /// Gets the amount of rows in the scrollback buffer.
+        /// </summary>
+        public int ScrollbackRowCount
+        {
+            get
+            {
+                return this.scrollbackBuffer.Count;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets the scrollback position.
+        /// </summary>
+        public int ScrollbackPosition
+        {
+            get
+            {
+                return this.scrollbackPosition;
+            }
+
+            set
+            {
+                if (value > this.scrollbackBuffer.Count)
+                {
+                    throw new ArgumentOutOfRangeException("value", value, "Scrollback buffer only contains " + this.scrollbackBuffer.Count + " rows.");
+                }
+
+                if (value < 0)
+                {
+                    throw new ArgumentOutOfRangeException("value", value, "Scrollback position must be >= 0.");
+                }
+
+                this.scrollbackPosition = value;
+                lock (this.changeLock)
+                {
+                    this.Changed = true;
+                }
             }
         }
 

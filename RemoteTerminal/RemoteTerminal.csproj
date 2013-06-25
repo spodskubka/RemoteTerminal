@@ -130,6 +130,7 @@
     </Compile>
     <Compile Include="Screens\ScreenColor.cs" />
     <Compile Include="Model\ColorThemeData.cs" />
+    <Compile Include="Screens\ScreenScrollbackBuffer.cs" />
     <Compile Include="TerminalManager.cs" />
     <Compile Include="Connections\IConnection.cs" />
     <Compile Include="Terminals\ScreenPreview.cs" />

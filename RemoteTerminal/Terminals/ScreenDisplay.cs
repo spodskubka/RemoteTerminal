@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -55,6 +56,7 @@ namespace RemoteTerminal.Terminals
 
             this.IsTabStop = true;
             this.IsTapEnabled = true;
+            this.ManipulationMode = ManipulationModes.TranslateY | ManipulationModes.TranslateInertia;
 
             this.ColorTheme = ColorThemeData.CreateDefault();
 
@@ -66,6 +68,8 @@ namespace RemoteTerminal.Terminals
         public static double TerminalCellHeight { get { return 20d; } }
 
         public ColorThemeData ColorTheme { get; set; }
+
+        private double scroller = 0d;
 
         public void AssignTerminal(ITerminal terminal)
         {
@@ -186,9 +190,17 @@ namespace RemoteTerminal.Terminals
         protected override void OnLostFocus(RoutedEventArgs e)
         {
             CoreWindow.GetForCurrentThread().CharacterReceived -= Terminal_CharacterReceived;
+
             if (this.terminal != null)
             {
                 this.terminal.ScreenHasFocus = false;
+            }
+
+            // if the focus was lost during scrolling (unclear why, it just happens) get the focus back automatically
+            if (this.scroller != 0d)
+            {
+                this.Focus(Windows.UI.Xaml.FocusState.Programmatic);
+                return;
             }
         }
 
@@ -224,7 +236,95 @@ namespace RemoteTerminal.Terminals
             keyModifiers |= coreWindow.GetKeyState(VirtualKey.Control).HasFlag(CoreVirtualKeyStates.Down) ? KeyModifiers.Ctrl : KeyModifiers.None;
             keyModifiers |= coreWindow.GetKeyState(VirtualKey.Menu).HasFlag(CoreVirtualKeyStates.Down) ? KeyModifiers.Alt : KeyModifiers.None;
 
+            if (keyModifiers == KeyModifiers.Shift)
+            {
+                if (e.Key == VirtualKey.PageUp || e.Key == VirtualKey.PageDown)
+                {
+                    this.scroller = TerminalCellHeight * (this.terminal.RenderableScreen.RowCount / 2);
+                    this.scroller *= e.Key == VirtualKey.PageUp ? 1d : -1d;
+                    ProcessScroller();
+                    this.scroller = 0d;
+                    e.Handled = true;
+                    return;
+                }
+            }
+
             e.Handled = this.terminal.ProcessKeyPress(e.Key, keyModifiers);
+        }
+
+        protected override void OnManipulationStarting(ManipulationStartingRoutedEventArgs e)
+        {
+            base.OnManipulationStarting(e);
+        }
+
+        protected override void OnManipulationStarted(ManipulationStartedRoutedEventArgs e)
+        {
+            this.scroller = 0d;
+            e.Handled = true;
+
+            base.OnManipulationStarted(e);
+        }
+
+        protected override void OnManipulationInertiaStarting(ManipulationInertiaStartingRoutedEventArgs e)
+        {
+            this.scroller += e.Delta.Translation.Y;
+            ProcessScroller();
+            e.Handled = true;
+
+            base.OnManipulationInertiaStarting(e);
+        }
+
+        protected override void OnManipulationDelta(ManipulationDeltaRoutedEventArgs e)
+        {
+            this.scroller += e.Delta.Translation.Y;
+            e.Handled = true;
+            if (ProcessScroller() && e.IsInertial)
+            {
+                e.Complete();
+            }
+
+            base.OnManipulationDelta(e);
+        }
+
+        protected override void OnManipulationCompleted(ManipulationCompletedRoutedEventArgs e)
+        {
+            this.scroller = 0d;
+
+            base.OnManipulationCompleted(e);
+        }
+
+        protected override void OnPointerWheelChanged(PointerRoutedEventArgs e)
+        {
+            var mouseProperties = e.GetCurrentPoint(null).Properties;
+            if (!mouseProperties.IsHorizontalMouseWheel)
+            {
+                this.scroller += mouseProperties.MouseWheelDelta;
+                ProcessScroller();
+                e.Handled = true;
+                this.scroller = 0d;
+            }
+
+            base.OnPointerWheelChanged(e);
+        }
+
+        // returns true if a scrolling boundary was reached.
+        private bool ProcessScroller()
+        {
+            if (Math.Abs(this.scroller) > TerminalCellHeight)
+            {
+                int scrollRows = (int)(this.scroller / TerminalCellHeight);
+                this.scroller -= scrollRows * TerminalCellHeight;
+
+                IRenderableScreen screen = this.terminal.RenderableScreen;
+                int scrollRowsCalculated = scrollRows;
+                scrollRows = Math.Max(scrollRows, 0 - screen.ScrollbackPosition);
+                scrollRows = Math.Min(scrollRows, screen.ScrollbackRowCount - screen.ScrollbackPosition);
+                this.terminal.RenderableScreen.ScrollbackPosition += scrollRows;
+
+                return scrollRows != scrollRowsCalculated;
+            }
+
+            return false;
         }
 
         private void AttachRenderer(int pixelWidth, int pixelHeight)
