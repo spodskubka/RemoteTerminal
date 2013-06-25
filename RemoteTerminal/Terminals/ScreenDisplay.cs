@@ -9,6 +9,7 @@ using CommonDX;
 using RemoteTerminal.Connections;
 using RemoteTerminal.Model;
 using RemoteTerminal.Screens;
+using Windows.ApplicationModel.DataTransfer;
 using Windows.Foundation;
 using Windows.Graphics.Display;
 using Windows.System;
@@ -245,6 +246,23 @@ namespace RemoteTerminal.Terminals
                     ProcessScroller();
                     this.scroller = 0d;
                     e.Handled = true;
+                    return;
+                }
+                else if (e.Key == VirtualKey.Insert)
+                {
+                    if (!this.terminal.IsConnected)
+                    {
+                        return;
+                    }
+
+                    var clipboardContent = Clipboard.GetContent();
+                    if (!clipboardContent.Contains(StandardDataFormats.Text))
+                    {
+                        return;
+                    }
+
+                    string text = clipboardContent.GetTextAsync().AsTask().Result;
+                    this.terminal.ProcessPastedText(text);
                     return;
                 }
             }
