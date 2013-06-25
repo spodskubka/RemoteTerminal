@@ -365,7 +365,7 @@ namespace RemoteTerminal.Screens
             }
         }
 
-        private readonly ScreenScrollbackBuffer scrollbackBuffer = new ScreenScrollbackBuffer(5000);
+        private readonly ScreenScrollbackBuffer scrollbackBuffer = new ScreenScrollbackBuffer(1000);
         private readonly List<ScreenLine> mainBuffer;
         private readonly List<ScreenLine> alternateBuffer;
         private bool useAlternateBuffer = false;
