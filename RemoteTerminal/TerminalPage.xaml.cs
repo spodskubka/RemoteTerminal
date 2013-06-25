@@ -191,6 +191,7 @@ namespace RemoteTerminal
             this.Terminal = terminal;
 
             this.TopAppBar.IsOpen = false;
+            this.BottomAppBar.IsOpen = false;
         }
 
         private void PreviewGrid_ItemCloseButtonClick(object sender, RoutedEventArgs e)
