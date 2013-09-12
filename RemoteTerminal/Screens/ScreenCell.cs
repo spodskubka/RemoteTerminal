@@ -1,26 +1,68 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using System.Linq;
 using Windows.UI;
 using Windows.UI.Text;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
+using System;
 
 namespace RemoteTerminal.Screens
 {
     public class ScreenCell : IRenderableScreenCell
     {
-        public ScreenCell()
+        private const int RecyclerSize = 10000;
+
+        private static readonly object RecyclableCellsLock = new object();
+        private static readonly List<ScreenCell> RecyclableCells = new List<ScreenCell>(RecyclerSize);
+
+        public static IEnumerable<ScreenCell> GetFreshCells(int count)
+        {
+            List<ScreenCell> cellsRecycled;
+            lock (RecyclableCellsLock)
+            {
+                cellsRecycled = RecyclableCells.GetRange(0, Math.Min(count, RecyclableCells.Count));
+                RecyclableCells.RemoveRange(0, cellsRecycled.Count);
+            }
+
+            foreach (var cell in cellsRecycled)
+            {
+                cell.Reset();
+            }
+
+            IEnumerable<ScreenCell> cellsNonRecycled = new int[count - cellsRecycled.Count].Select(c => new ScreenCell());
+
+            return cellsRecycled.Concat(cellsNonRecycled);
+        }
+
+        public static void RecycleCells(IEnumerable<ScreenCell> cells)
+        {
+            lock (RecyclableCellsLock)
+            {
+                if (RecyclableCells.Count >= RecyclerSize)
+                {
+                    return;
+                }
+
+                RecyclableCells.AddRange(cells);
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private ScreenCell()
         {
             this.Reset();
         }
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         public void Reset()
         {
             this.Character = ' ';
-            this.Modifications = ScreenCellModifications.None;
+            /*this.Modifications = ScreenCellModifications.None;
             this.ForegroundColor = ScreenColor.DefaultForeground;
-            this.BackgroundColor = ScreenColor.DefaultBackground;
+            this.BackgroundColor = ScreenColor.DefaultBackground;*/
         }
 
         public override string ToString()

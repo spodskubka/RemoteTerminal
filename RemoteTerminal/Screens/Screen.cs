@@ -174,6 +174,7 @@ namespace RemoteTerminal.Screens
 
             public void ScrollUp(int lines, int? scrollTop, int? scrollBottom)
             {
+                ScreenLine newLine;
                 for (int i = 0; i < lines; i++)
                 {
                     if (!this.screen.useAlternateBuffer && (scrollTop ?? 0) == 0)
@@ -182,7 +183,8 @@ namespace RemoteTerminal.Screens
                     }
 
                     this.screen.CurrentBuffer.RemoveAt(scrollTop ?? 0);
-                    this.screen.CurrentBuffer.Insert(scrollBottom ?? this.screen.CurrentBuffer.Count, new ScreenLine(this.screen.ColumnCount));
+                    newLine = new ScreenLine(this.screen.ColumnCount);
+                    this.screen.CurrentBuffer.Insert(scrollBottom ?? this.screen.CurrentBuffer.Count, newLine);
                     this.changed = true;
                     this.contentChanged = true;
                 }
@@ -213,25 +215,21 @@ namespace RemoteTerminal.Screens
             public void InsertCells(int cells)
             {
                 var line = this.screen.CurrentBuffer[this.screen.CursorRow];
-                for (int i = 0; i < cells; i++)
-                {
-                    line.RemoveAt(line.Count - 1);
-                    line.Insert(this.screen.CursorColumn, new ScreenCell());
-                    this.changed = true;
-                    this.contentChanged = true;
-                }
+                cells = Math.Max(cells, line.Count - this.screen.CursorColumn);
+                line.RemoveRange(line.Count - cells, cells);
+                line.InsertRange(this.screen.CursorColumn, ScreenCell.GetFreshCells(cells));
+                this.changed = true;
+                this.contentChanged = true;
             }
 
             public void DeleteCells(int cells)
             {
                 var line = this.screen.CurrentBuffer[this.screen.CursorRow];
-                for (int i = 0; i < cells; i++)
-                {
-                    line.RemoveAt(this.screen.CursorColumn);
-                    line.Insert(line.Count, new ScreenCell());
-                    this.changed = true;
-                    this.contentChanged = true;
-                }
+                cells = Math.Max(cells, line.Count - this.screen.CursorColumn);
+                line.RemoveRange(this.screen.CursorColumn, cells);
+                line.AddRange(ScreenCell.GetFreshCells(cells));
+                this.changed = true;
+                this.contentChanged = true;
             }
 
             public void Resize(int rows, int columns)
@@ -287,14 +285,13 @@ namespace RemoteTerminal.Screens
 
                 foreach (var line in buffer)
                 {
-                    while (line.Count > columns)
+                    if (line.Count > columns)
                     {
-                        line.RemoveAt(line.Count - 1);
+                        line.RemoveRange(line.Count - (line.Count - columns), line.Count - columns);
                     }
-
-                    while (line.Count < columns)
+                    else if (line.Count < columns)
                     {
-                        line.Add(new ScreenCell());
+                        line.AddRange(ScreenCell.GetFreshCells(line.Count - columns));
                     }
                 }
 

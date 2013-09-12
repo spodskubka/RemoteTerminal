@@ -28,7 +28,12 @@ namespace RemoteTerminal.Screens
             {
                 if ((this.partitions.Count - 1) * PartitionSize >= this.maximumCount)
                 {
+                    var oldPartition = this.partitions[this.partitions.Count - 1];
                     this.partitions.RemoveAt(this.partitions.Count - 1);
+                    foreach (var line in oldPartition)
+                    {
+                        ScreenCell.RecycleCells(line);
+                    }
                 }
 
                 this.partitions.Insert(0, new List<ScreenLine>(PartitionSize));

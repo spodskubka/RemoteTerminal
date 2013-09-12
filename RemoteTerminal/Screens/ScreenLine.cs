@@ -14,10 +14,7 @@ namespace RemoteTerminal.Screens
         public ScreenLine(int columns)
             : base(columns)
         {
-            for (int i = 0; i < columns; i++)
-            {
-                this.Add(new ScreenCell());
-            }
+            this.AddRange(ScreenCell.GetFreshCells(columns));
         }
     }
 }

@@ -346,6 +346,7 @@ namespace RemoteTerminal.Terminals
 
         private void DrawLocalModeChar(char ch, IScreenModifier modifier, bool echo)
         {
+            ScreenCellFormat defaultFormat = new ScreenCellFormat();
             switch (ch)
             {
                 case '\r':
@@ -356,6 +357,7 @@ namespace RemoteTerminal.Terminals
                     break;
                 default:
                     modifier.CursorCharacter = echo ? ch : '●';
+                    modifier.ApplyFormatToCursor(defaultFormat);
                     if (modifier.CursorColumn + 1 >= this.Screen.ColumnCount)
                     {
                         modifier.CursorColumn = 0;
