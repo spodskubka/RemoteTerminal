@@ -25,14 +25,13 @@ namespace RemoteTerminal.Terminals
         private readonly ScreenDisplay screenDisplay;
         private readonly IRenderableScreen screen;
 
-        private static readonly Color TerminalBackgroundColor = Color.Black;
         private const string TerminalFontFamily = "Consolas";
 
         TextFormat textFormatNormal;
         TextFormat textFormatBold;
 
         private const float LogicalCellFontSize = 17.0f;
-        private const float LogicalCellWidth = 9.0f;
+        private const float LogicalCellWidth = 9.35f;
         private const float LogicalCellHeight = 20.0f;
 
         private float CellFontSize;
@@ -70,99 +69,104 @@ namespace RemoteTerminal.Terminals
 
             context2D.BeginDraw();
             context2D.Transform = Matrix.Identity;
-            context2D.Clear(TerminalBackgroundColor);
+            context2D.Clear(this.GetColor(ScreenColor.DefaultBackground));
 
-            RectangleF rect = new RectangleF();
-            var lines = screenCopy.Cells;
-            for (int y = 0; y < lines.Count(); y++)
+            // 1. Paint backgrounds
             {
-                var cols = lines[y];
-                rect.Top = y * CellHeight;
-                rect.Bottom = rect.Top + CellHeight;
-                for (int x = 0; x < cols.Count(); x++)
+                RectangleF rect = new RectangleF();
+                var lines = screenCopy.Cells;
+                for (int y = 0; y < lines.Length; y++)
                 {
-                    var cell = cols[x];
-                    rect.Left = x * CellWidth;
-                    rect.Right = rect.Left + CellWidth;
+                    var cols = lines[y];
 
-                    bool isCursor = !screenCopy.CursorHidden && y == screenCopy.CursorRow && x == screenCopy.CursorColumn;
-                    this.DrawCell(target, rect, cell, isCursor, screenCopy.HasFocus);
+                    rect.Top = y * CellHeight;
+                    rect.Bottom = rect.Top + CellHeight;
+
+                    ScreenColor currentBackgroundColor = cols.Length > 0 ? cols[0].BackgroundColor : ScreenColor.DefaultBackground;
+                    ScreenColor cellBackgroundColor;
+                    int blockStart = 0;
+                    for (int x = 0; x <= cols.Length; x++) // loop once above the upper bound
+                    {
+                        var cell = cols[x < cols.Length ? x : x - 1];
+
+                        bool isCursor = !screenCopy.CursorHidden && y == screenCopy.CursorRow && x == screenCopy.CursorColumn;
+                        cellBackgroundColor = isCursor ? ScreenColor.CursorBackground : cell.BackgroundColor;
+                        if (cellBackgroundColor != currentBackgroundColor || x == cols.Length)
+                        {
+                            rect.Left = blockStart * CellWidth;
+                            rect.Right = x * CellWidth;
+
+                            Brush backgroundBrush = this.GetBrush(context2D, this.GetColor(currentBackgroundColor));
+                            if (currentBackgroundColor == ScreenColor.CursorBackground && !screenCopy.HasFocus)
+                            {
+                                rect.Right = rect.Right - 1.0f;
+                                context2D.DrawRectangle(rect, backgroundBrush);
+                            }
+                            else
+                            {
+                                context2D.FillRectangle(rect, backgroundBrush);
+                            }
+
+                            blockStart = x;
+
+                            currentBackgroundColor = cellBackgroundColor;
+                        }
+                    }
+                }
+            }
+
+            // 2. Paint foregrounds
+            {
+                RectangleF rect = new RectangleF();
+                var lines = screenCopy.Cells;
+                for (int y = 0; y < lines.Length; y++)
+                {
+                    var cols = lines[y];
+
+                    rect.Top = y * CellHeight;
+                    rect.Bottom = rect.Top + CellHeight;
+
+                    ScreenColor currentForegroundColor = cols.Length > 0 ? cols[0].ForegroundColor : ScreenColor.DefaultForeground;
+                    ScreenCellModifications currentCellModifications = cols.Length > 0 ? cols[0].Modifications : ScreenCellModifications.None;
+                    ScreenColor cellForegroundColor;
+                    int blockStart = 0;
+                    for (int x = 0; x <= cols.Length; x++) // loop once above the upper bound
+                    {
+                        var cell = cols[x < cols.Length ? x : x - 1];
+
+                        bool isCursor = !screenCopy.CursorHidden && y == screenCopy.CursorRow && x == screenCopy.CursorColumn;
+                        cellForegroundColor = isCursor && screenCopy.HasFocus ? ScreenColor.CursorForeground : cell.ForegroundColor;
+                        if (cellForegroundColor != currentForegroundColor || cell.Modifications != currentCellModifications || x == cols.Length)
+                        {
+                            rect.Left = blockStart * CellWidth;
+                            rect.Right = x * CellWidth;
+
+                            Brush foregroundBrush = this.GetBrush(context2D, this.GetColor(currentForegroundColor));
+                            TextFormat textFormat = this.textFormatNormal;
+                            if (currentCellModifications.HasFlag(ScreenCellModifications.Bold))
+                            {
+                                textFormat = this.textFormatBold;
+                            }
+
+                            string text = new string(cols.Skip(blockStart).Take(x - blockStart).Select(c => char.IsWhiteSpace(c.Character) ? ' ' : c.Character).ToArray()).TrimEnd();
+                            context2D.DrawText(text, textFormat, rect, foregroundBrush, DrawTextOptions.Clip);
+
+                            if (currentCellModifications.HasFlag(ScreenCellModifications.Underline))
+                            {
+                                var point1 = new DrawingPointF(rect.Left, rect.Bottom - 1.0f);
+                                var point2 = new DrawingPointF(rect.Right, rect.Bottom - 1.0f);
+                                context2D.DrawLine(point1, point2, foregroundBrush);
+                            }
+
+                            blockStart = x;
+
+                            currentForegroundColor = cellForegroundColor;
+                        }
+                    }
                 }
             }
 
             context2D.EndDraw();
-        }
-
-        private void DrawCell(TargetBase target, RectangleF rect, IRenderableScreenCell cell, bool isCursor, bool hasFocus)
-        {
-            var context2D = target.DeviceManager.ContextDirect2D;
-
-            // 1. Paint background
-            {
-                Color backgroundColor;
-                if (isCursor && hasFocus)
-                {
-                    var color = this.screenDisplay.ColorTheme.ColorTable[ScreenColor.CursorBackground];
-                    backgroundColor = new Color(color.R, color.G, color.B, color.A);
-                }
-                else
-                {
-                    var color = this.GetColor(cell.BackgroundColor);
-                    backgroundColor = new Color(color.R, color.G, color.B, color.A);
-                }
-
-                if (backgroundColor != TerminalBackgroundColor)
-                {
-                    Brush backgroundBrush = GetBrush(context2D, backgroundColor);
-                    context2D.FillRectangle(rect, backgroundBrush);
-                }
-            }
-
-            // 2. Paint border
-            {
-                if (isCursor && !hasFocus)
-                {
-                    var color = this.screenDisplay.ColorTheme.ColorTable[ScreenColor.CursorBackground];
-                    Color borderColor = new Color(color.R, color.G, color.B, color.A);
-                    Brush borderBrush = GetBrush(context2D, borderColor);
-                    context2D.DrawRectangle(rect, borderBrush);
-                }
-            }
-
-            // 3. Paint foreground (character)
-            {
-                Color foregroundColor;
-                if (isCursor && hasFocus)
-                {
-                    var color = this.screenDisplay.ColorTheme.ColorTable[ScreenColor.CursorForeground];
-                    foregroundColor = new Color(color.R, color.G, color.B, color.A);
-                }
-                else
-                {
-                    var color = this.GetColor(cell.ForegroundColor);
-                    foregroundColor = new Color(color.R, color.G, color.B, color.A);
-                }
-
-                var foregroundBrush = GetBrush(context2D, foregroundColor);
-
-                if (cell.Character != ' ')
-                {
-                    TextFormat textFormat = this.textFormatNormal;
-                    if (cell.Modifications.HasFlag(ScreenCellModifications.Bold))
-                    {
-                        textFormat = this.textFormatBold;
-                    }
-
-                    context2D.DrawText(cell.Character.ToString(), textFormat, rect, foregroundBrush, DrawTextOptions.Clip);
-                }
-
-                if (cell.Modifications.HasFlag(ScreenCellModifications.Underline))
-                {
-                    var point1 = new DrawingPointF(rect.Left, rect.Bottom - 1.0f);
-                    var point2 = new DrawingPointF(rect.Right, rect.Bottom - 1.0f);
-                    context2D.DrawLine(point1, point2, foregroundBrush);
-                }
-            }
         }
 
         private Color GetColor(ScreenColor screenColor)

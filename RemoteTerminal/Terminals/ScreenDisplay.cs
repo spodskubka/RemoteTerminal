@@ -64,9 +64,9 @@ namespace RemoteTerminal.Terminals
             this.deviceManager = new DeviceManager();
         }
 
-        public static double TerminalCellFontSize { get { return 17d; } }
-        public static double TerminalCellWidth { get { return 9d; } }
-        public static double TerminalCellHeight { get { return 20d; } }
+        public static double TerminalCellFontSize { get { return 17.0d; } }
+        public static double TerminalCellWidth { get { return 9.35d; } }
+        public static double TerminalCellHeight { get { return 20.0d; } }
 
         public ColorThemeData ColorTheme { get; set; }
 

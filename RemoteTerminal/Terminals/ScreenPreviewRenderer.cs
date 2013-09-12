@@ -31,7 +31,7 @@ namespace RemoteTerminal.Terminals
         TextFormat textFormatBold;
 
         private const float CellFontSize = 17.0f / 5f;
-        private const float CellWidth = 9.0f / 5f;
+        private const float CellWidth = 9.35f / 5f;
         private const float CellHeight = 20.0f / 5f;
 
         //TextFormat textFormat;
