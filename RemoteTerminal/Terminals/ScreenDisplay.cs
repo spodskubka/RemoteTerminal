@@ -60,15 +60,72 @@ namespace RemoteTerminal.Terminals
             this.ManipulationMode = ManipulationModes.TranslateY | ManipulationModes.TranslateInertia;
 
             this.ColorTheme = ColorThemeData.CreateDefault();
+            this.screenFontFamily = "Consolas";
+            this.screenFontSize = 0;
+            this.RecalculateFontMetrics();
 
             this.deviceManager = new DeviceManager();
         }
 
-        public static double TerminalCellFontSize { get { return 17.0d; } }
-        public static double TerminalCellWidth { get { return 9.35d; } }
-        public static double TerminalCellHeight { get { return 20.0d; } }
-
         public ColorThemeData ColorTheme { get; set; }
+
+        private const float FontSizeScalingFactor = 0.1f;
+
+        public const int MaxScreenFontSize = +5;
+        public const int MinScreenFontSize = -5;
+
+        private int screenFontSize;
+        public int ScreenFontSize
+        {
+            get
+            {
+                return this.screenFontSize;
+            }
+
+            set
+            {
+                if (value > MaxScreenFontSize || value < MinScreenFontSize)
+                {
+                    throw new ArgumentOutOfRangeException("ScreenFontSize");
+                }
+
+                this.screenFontSize = value;
+                this.RecalculateFontMetrics();
+
+                // This will result in ArrangeOverride being called, where the new renderer is attached.
+                this.InvalidateArrange();
+            }
+        }
+
+        private string screenFontFamily;
+        public string FontFamily
+        {
+            get
+            {
+                return this.screenFontFamily;
+            }
+
+            set
+            {
+                this.screenFontFamily = value;
+                this.RecalculateFontMetrics();
+
+                // This will result in ArrangeOverride being called, where the new renderer is attached.
+                this.InvalidateArrange();
+            }
+        }
+
+        private readonly Dictionary<string, ScreenFontMetrics> BaseLogicalFontMetrics = new Dictionary<string, ScreenFontMetrics>()
+        {
+          { "Consolas", new ScreenFontMetrics(fontSize: 17.0f, cellWidth: 9.35f, cellHeight: 20.0f) },
+        };
+
+        public ScreenFontMetrics FontMetrics { get; private set; }
+
+        private void RecalculateFontMetrics()
+        {
+            this.FontMetrics = BaseLogicalFontMetrics[this.screenFontFamily] * (1 + (FontSizeScalingFactor * (float)this.ScreenFontSize));
+        }
 
         private double scroller = 0d;
 
@@ -119,8 +176,8 @@ namespace RemoteTerminal.Terminals
             int pixelWidth = (int)(terminalRectangleWidth * DisplayProperties.LogicalDpi / 96.0);
             int pixelHeight = (int)(terminalRectangleHeight * DisplayProperties.LogicalDpi / 96.0);
 
-            int rows = (int)(pixelHeight / (ScreenDisplay.TerminalCellHeight * DisplayProperties.LogicalDpi / 96.0));
-            int columns = (int)(pixelWidth / (ScreenDisplay.TerminalCellWidth * DisplayProperties.LogicalDpi / 96.0));
+            int rows = (int)(pixelHeight / (this.FontMetrics.CellHeight * DisplayProperties.LogicalDpi / 96.0));
+            int columns = (int)(pixelWidth / (this.FontMetrics.CellWidth * DisplayProperties.LogicalDpi / 96.0));
             this.terminal.ResizeScreen(rows, columns);
 
             this.AttachRenderer(pixelWidth, pixelHeight);
@@ -244,7 +301,7 @@ namespace RemoteTerminal.Terminals
             {
                 if (e.Key == VirtualKey.PageUp || e.Key == VirtualKey.PageDown)
                 {
-                    this.scroller = TerminalCellHeight * (this.terminal.RenderableScreen.RowCount / 2);
+                    this.scroller = this.FontMetrics.CellHeight * (this.terminal.RenderableScreen.RowCount / 2);
                     this.scroller *= e.Key == VirtualKey.PageUp ? 1d : -1d;
                     ProcessScroller();
                     this.scroller = 0d;
@@ -336,10 +393,10 @@ namespace RemoteTerminal.Terminals
         // returns true if a scrolling boundary was reached.
         private bool ProcessScroller()
         {
-            if (Math.Abs(this.scroller) > TerminalCellHeight)
+            if (Math.Abs(this.scroller) > this.FontMetrics.CellHeight)
             {
-                int scrollRows = (int)(this.scroller / TerminalCellHeight);
-                this.scroller -= scrollRows * TerminalCellHeight;
+                int scrollRows = (int)(this.scroller / this.FontMetrics.CellHeight);
+                this.scroller -= scrollRows * this.FontMetrics.CellHeight;
 
                 IRenderableScreen screen = this.terminal.RenderableScreen;
                 int scrollRowsCalculated = scrollRows;

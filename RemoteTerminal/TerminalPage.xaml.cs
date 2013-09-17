@@ -497,5 +497,21 @@ namespace RemoteTerminal
         {
             this.HideCopyMode();
         }
+
+        private void fontDecreaseAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.screenDisplay.ScreenFontSize > ScreenDisplay.MinScreenFontSize)
+            {
+                this.screenDisplay.ScreenFontSize--;
+            }
+        }
+
+        private void fontIncreaseAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (this.screenDisplay.ScreenFontSize < ScreenDisplay.MaxScreenFontSize)
+            {
+                this.screenDisplay.ScreenFontSize++;
+            }
+        }
     }
 }

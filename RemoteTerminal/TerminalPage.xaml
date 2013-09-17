@@ -47,14 +47,16 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
-                    <!--<ColumnDefinition/>-->
+                    <ColumnDefinition/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
                     <Button Style="{StaticResource PasteAppBarButtonStyle}" Click="pasteAppBarButton_Click"/>
                     <Button Style="{StaticResource CopyModeAppBarButtonStyle}" Click="copyModeAppBarButton_Click"/>
                 </StackPanel>
-                <!--<StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
-                </StackPanel>-->
+                <StackPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
+                    <Button Style="{StaticResource FontDecreaseAppBarButtonStyle}" Click="fontDecreaseAppBarButton_Click"/>
+                    <Button Style="{StaticResource FontIncreaseAppBarButtonStyle}" Click="fontIncreaseAppBarButton_Click"/>
+                </StackPanel>
             </Grid>
         </AppBar>
     </common:LayoutAwarePage.BottomAppBar>

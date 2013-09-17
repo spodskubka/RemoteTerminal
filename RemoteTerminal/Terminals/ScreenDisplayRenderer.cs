@@ -25,18 +25,10 @@ namespace RemoteTerminal.Terminals
         private readonly ScreenDisplay screenDisplay;
         private readonly IRenderableScreen screen;
 
-        private const string TerminalFontFamily = "Consolas";
-
         TextFormat textFormatNormal;
         TextFormat textFormatBold;
 
-        private const float LogicalCellFontSize = 17.0f;
-        private const float LogicalCellWidth = 9.35f;
-        private const float LogicalCellHeight = 20.0f;
-
-        private float CellFontSize;
-        private float CellWidth;
-        private float CellHeight;
+        private ScreenFontMetrics physicalFontMetrics;
 
         //TextFormat textFormat;
 
@@ -51,14 +43,12 @@ namespace RemoteTerminal.Terminals
 
         public virtual void Initialize(DeviceManager deviceManager)
         {
-            this.CellFontSize = LogicalCellFontSize * DisplayProperties.LogicalDpi / 96.0f;
-            this.CellWidth = LogicalCellWidth * DisplayProperties.LogicalDpi / 96.0f;
-            this.CellHeight = LogicalCellHeight * DisplayProperties.LogicalDpi / 96.0f;
+            this.physicalFontMetrics = this.screenDisplay.FontMetrics * (DisplayProperties.LogicalDpi / 96.0f);
 
             //deviceManager.ContextDirect2D.TextAntialiasMode = TextAntialiasMode.Grayscale;
             deviceManager.ContextDirect2D.AntialiasMode = AntialiasMode.Aliased;
-            this.textFormatNormal = new TextFormat(deviceManager.FactoryDirectWrite, TerminalFontFamily, FontWeight.Normal, FontStyle.Normal, CellFontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center };
-            this.textFormatBold = new TextFormat(deviceManager.FactoryDirectWrite, TerminalFontFamily, FontWeight.Bold, FontStyle.Normal, CellFontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center };
+            this.textFormatNormal = new TextFormat(deviceManager.FactoryDirectWrite, this.screenDisplay.FontFamily, FontWeight.Normal, FontStyle.Normal, this.physicalFontMetrics.FontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center };
+            this.textFormatBold = new TextFormat(deviceManager.FactoryDirectWrite, this.screenDisplay.FontFamily, FontWeight.Bold, FontStyle.Normal, this.physicalFontMetrics.FontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Center };
         }
 
         public virtual void Render(TargetBase target)
@@ -79,8 +69,8 @@ namespace RemoteTerminal.Terminals
                 {
                     var cols = lines[y];
 
-                    rect.Top = y * CellHeight;
-                    rect.Bottom = rect.Top + CellHeight;
+                    rect.Top = y * this.physicalFontMetrics.CellHeight;
+                    rect.Bottom = rect.Top + this.physicalFontMetrics.CellHeight;
 
                     ScreenColor currentBackgroundColor = cols.Length > 0 ? cols[0].BackgroundColor : ScreenColor.DefaultBackground;
                     ScreenColor cellBackgroundColor;
@@ -93,8 +83,8 @@ namespace RemoteTerminal.Terminals
                         cellBackgroundColor = isCursor ? ScreenColor.CursorBackground : cell.BackgroundColor;
                         if (cellBackgroundColor != currentBackgroundColor || x == cols.Length)
                         {
-                            rect.Left = blockStart * CellWidth;
-                            rect.Right = x * CellWidth;
+                            rect.Left = blockStart * this.physicalFontMetrics.CellWidth;
+                            rect.Right = x * this.physicalFontMetrics.CellWidth;
 
                             Brush backgroundBrush = this.GetBrush(context2D, this.GetColor(currentBackgroundColor));
                             if (currentBackgroundColor == ScreenColor.CursorBackground && !screenCopy.HasFocus)
@@ -123,8 +113,8 @@ namespace RemoteTerminal.Terminals
                 {
                     var cols = lines[y];
 
-                    rect.Top = y * CellHeight;
-                    rect.Bottom = rect.Top + CellHeight;
+                    rect.Top = y * this.physicalFontMetrics.CellHeight;
+                    rect.Bottom = rect.Top + this.physicalFontMetrics.CellHeight;
 
                     ScreenColor currentForegroundColor = cols.Length > 0 ? cols[0].ForegroundColor : ScreenColor.DefaultForeground;
                     ScreenCellModifications currentCellModifications = cols.Length > 0 ? cols[0].Modifications : ScreenCellModifications.None;
@@ -138,8 +128,8 @@ namespace RemoteTerminal.Terminals
                         cellForegroundColor = isCursor && screenCopy.HasFocus ? ScreenColor.CursorForeground : cell.ForegroundColor;
                         if (cellForegroundColor != currentForegroundColor || cell.Modifications != currentCellModifications || x == cols.Length)
                         {
-                            rect.Left = blockStart * CellWidth;
-                            rect.Right = x * CellWidth;
+                            rect.Left = blockStart * this.physicalFontMetrics.CellWidth;
+                            rect.Right = x * this.physicalFontMetrics.CellWidth;
 
                             Brush foregroundBrush = this.GetBrush(context2D, this.GetColor(currentForegroundColor));
                             TextFormat textFormat = this.textFormatNormal;
