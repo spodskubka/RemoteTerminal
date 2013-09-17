@@ -215,9 +215,16 @@ namespace RemoteTerminal.Screens
             public void InsertCells(int cells)
             {
                 var line = this.screen.CurrentBuffer[this.screen.CursorRow];
-                cells = Math.Max(cells, line.Count - this.screen.CursorColumn);
+                cells = Math.Min(cells, line.Count - this.screen.CursorColumn);
+
+                var movedCells = line.GetRange(line.Count - cells, cells);
                 line.RemoveRange(line.Count - cells, cells);
-                line.InsertRange(this.screen.CursorColumn, ScreenCell.GetFreshCells(cells));
+                foreach (var movedCell in movedCells)
+                {
+                    movedCell.Reset();
+                }
+                line.InsertRange(this.screen.CursorColumn, movedCells);
+
                 this.changed = true;
                 this.contentChanged = true;
             }
@@ -225,9 +232,16 @@ namespace RemoteTerminal.Screens
             public void DeleteCells(int cells)
             {
                 var line = this.screen.CurrentBuffer[this.screen.CursorRow];
-                cells = Math.Max(cells, line.Count - this.screen.CursorColumn);
+                cells = Math.Min(cells, line.Count - this.screen.CursorColumn);
+
+                var movedCells = line.GetRange(this.screen.CursorColumn, cells);
                 line.RemoveRange(this.screen.CursorColumn, cells);
-                line.AddRange(ScreenCell.GetFreshCells(cells));
+                foreach (var movedCell in movedCells)
+                {
+                    movedCell.Reset();
+                }
+                line.AddRange(movedCells);
+
                 this.changed = true;
                 this.contentChanged = true;
             }
@@ -287,11 +301,13 @@ namespace RemoteTerminal.Screens
                 {
                     if (line.Count > columns)
                     {
+                        var cells = line.GetRange(line.Count - (line.Count - columns), line.Count - columns);
                         line.RemoveRange(line.Count - (line.Count - columns), line.Count - columns);
+                        ScreenCell.RecycleCells(cells);
                     }
                     else if (line.Count < columns)
                     {
-                        line.AddRange(ScreenCell.GetFreshCells(line.Count - columns));
+                        line.AddRange(ScreenCell.GetFreshCells(columns - line.Count));
                     }
                 }
 
