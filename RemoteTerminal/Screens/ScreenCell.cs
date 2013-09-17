@@ -60,9 +60,9 @@ namespace RemoteTerminal.Screens
         public void Reset()
         {
             this.Character = ' ';
-            /*this.Modifications = ScreenCellModifications.None;
+            this.Modifications = ScreenCellModifications.None;
             this.ForegroundColor = ScreenColor.DefaultForeground;
-            this.BackgroundColor = ScreenColor.DefaultBackground;*/
+            this.BackgroundColor = ScreenColor.DefaultBackground;
         }
 
         public override string ToString()
