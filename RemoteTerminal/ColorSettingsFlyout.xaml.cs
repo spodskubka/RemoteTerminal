@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using RemoteTerminal.Model;
 using RemoteTerminal.Screens;
+using RemoteTerminal.Terminals;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI;
@@ -34,6 +35,11 @@ namespace RemoteTerminal
 
             this.customTheme = ColorThemesDataSource.GetCustomTheme();
             this.ScreenColorListBox.SelectedIndex = 0;
+
+            this.FontFamilyListBox.Items.Clear();
+            this.FontFamilyListBox.ItemsSource = ScreenDisplay.BaseLogicalFontMetrics.Keys;
+            this.FontFamilyListBox.SelectedItem = this.customTheme.FontFamily;
+            this.FontSizeSlider.Value = this.customTheme.FontSize;
         }
 
         /// <summary>
@@ -57,7 +63,22 @@ namespace RemoteTerminal
             }
         }
 
-        private void ResetClicked(object sender, RoutedEventArgs e)
+        private void ResetFontClicked(object sender, RoutedEventArgs e)
+        {
+            var defaultTheme = ColorThemeData.CreateDefault();
+            this.customTheme.FontFamily = defaultTheme.FontFamily;
+            this.customTheme.FontSize = defaultTheme.FontSize;
+
+            var colorThemesDataSource = App.Current.Resources["colorThemesDataSource"] as ColorThemesDataSource;
+            colorThemesDataSource.AddOrUpdate(this.customTheme);
+
+            this.FontFamilyListBox.SelectedItem = this.customTheme.FontFamily;
+            this.FontSizeSlider.Value = this.customTheme.FontSize;
+
+            TerminalPageForceRender(fontChanged: true);
+        }
+
+        private void ResetColorsClicked(object sender, RoutedEventArgs e)
         {
             var defaultTheme = ColorThemeData.CreateDefault();
             for (int i = -4; i < 16; i++)
@@ -70,7 +91,21 @@ namespace RemoteTerminal
 
             this.ScreenColorListBox_SelectionChanged(sender, null);
 
-            TerminalPageForceRender();
+            TerminalPageForceRender(fontChanged: false);
+        }
+
+        private void FontFamilyListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            this.FontPreviewTextBlock.FontFamily = new FontFamily((string)this.FontFamilyListBox.SelectedItem);
+
+            if (this.customTheme.FontFamily == this.FontFamilyListBox.SelectedItem)
+            {
+                return;
+            }
+
+            this.customTheme.FontFamily = (string)this.FontFamilyListBox.SelectedItem;
+
+            TerminalPageForceRender(fontChanged: true);
         }
 
         private void ScreenColorListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -84,6 +119,20 @@ namespace RemoteTerminal
             this.BlueSlider.Value = color.B;
             this.ignoreScreenColorListBoxSelectionChanging = false;
             this.ColorSlider_ValueChanged(sender, null);
+        }
+
+        private void FontSizeSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
+        {
+            this.FontPreviewTextBlock.FontSize = ScreenDisplay.BaseLogicalFontMetrics[this.customTheme.FontFamily].FontSize * (1 + (ScreenDisplay.FontSizeScalingFactor * (float)this.FontSizeSlider.Value));
+
+            if (this.customTheme.FontSize == this.FontSizeSlider.Value)
+            {
+                return;
+            }
+
+            this.customTheme.FontSize = (int)this.FontSizeSlider.Value;
+
+            TerminalPageForceRender(fontChanged: true);
         }
 
         private void ColorSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
@@ -101,7 +150,7 @@ namespace RemoteTerminal
                 A = 255,
             };
 
-            ((SolidColorBrush)this.PreviewRectangle.Fill).Color = color;
+            ((SolidColorBrush)this.ColorPreviewRectangle.Fill).Color = color;
 
             int screenColor = this.ScreenColorListBox.SelectedIndex - 4;
 
@@ -111,10 +160,10 @@ namespace RemoteTerminal
             }
             this.customTheme.ColorTable[(ScreenColor)screenColor] = color;
 
-            TerminalPageForceRender();
+            TerminalPageForceRender(fontChanged: false);
         }
 
-        private static void TerminalPageForceRender()
+        private static void TerminalPageForceRender(bool fontChanged)
         {
             var frame = Window.Current.Content as Frame;
             if (frame != null)
@@ -122,7 +171,7 @@ namespace RemoteTerminal
                 var terminalPage = frame.Content as TerminalPage;
                 if (terminalPage != null)
                 {
-                    terminalPage.ForceRender();
+                    terminalPage.ForceRender(fontChanged);
                 }
             }
         }

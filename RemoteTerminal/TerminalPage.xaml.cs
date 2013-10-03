@@ -480,11 +480,11 @@ namespace RemoteTerminal
             return str;
         }
 
-        public void ForceRender()
+        public void ForceRender(bool fontChanged)
         {
             if (this.screenDisplay != null)
             {
-                this.screenDisplay.ForceRender();
+                this.screenDisplay.ForceRender(fontChanged);
             }
         }
 
@@ -496,22 +496,6 @@ namespace RemoteTerminal
         private void copyContainer_Tapped(object sender, TappedRoutedEventArgs e)
         {
             this.HideCopyMode();
-        }
-
-        private void fontDecreaseAppBarButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (this.screenDisplay.ScreenFontSize > ScreenDisplay.MinScreenFontSize)
-            {
-                this.screenDisplay.ScreenFontSize--;
-            }
-        }
-
-        private void fontIncreaseAppBarButton_Click(object sender, RoutedEventArgs e)
-        {
-            if (this.screenDisplay.ScreenFontSize < ScreenDisplay.MaxScreenFontSize)
-            {
-                this.screenDisplay.ScreenFontSize++;
-            }
         }
     }
 }

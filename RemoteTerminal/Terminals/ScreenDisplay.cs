@@ -60,71 +60,41 @@ namespace RemoteTerminal.Terminals
             this.ManipulationMode = ManipulationModes.TranslateY | ManipulationModes.TranslateInertia;
 
             this.ColorTheme = ColorThemeData.CreateDefault();
-            this.screenFontFamily = "Consolas";
-            this.screenFontSize = 0;
             this.RecalculateFontMetrics();
 
             this.deviceManager = new DeviceManager();
         }
 
-        public ColorThemeData ColorTheme { get; set; }
-
-        private const float FontSizeScalingFactor = 0.1f;
-
-        public const int MaxScreenFontSize = +5;
-        public const int MinScreenFontSize = -5;
-
-        private int screenFontSize;
-        public int ScreenFontSize
+        private ColorThemeData colorTheme;
+        public ColorThemeData ColorTheme
         {
             get
             {
-                return this.screenFontSize;
+                return this.colorTheme;
             }
-
             set
             {
-                if (value > MaxScreenFontSize || value < MinScreenFontSize)
-                {
-                    throw new ArgumentOutOfRangeException("ScreenFontSize");
-                }
-
-                this.screenFontSize = value;
-                this.RecalculateFontMetrics();
-
-                // This will result in ArrangeOverride being called, where the new renderer is attached.
-                this.InvalidateArrange();
+                this.colorTheme = value; ForceRender(true);
             }
         }
 
-        private string screenFontFamily;
-        public string FontFamily
-        {
-            get
-            {
-                return this.screenFontFamily;
-            }
+        public const float FontSizeScalingFactor = 0.1f;
 
-            set
-            {
-                this.screenFontFamily = value;
-                this.RecalculateFontMetrics();
-
-                // This will result in ArrangeOverride being called, where the new renderer is attached.
-                this.InvalidateArrange();
-            }
-        }
-
-        private readonly Dictionary<string, ScreenFontMetrics> BaseLogicalFontMetrics = new Dictionary<string, ScreenFontMetrics>()
+        public static readonly IReadOnlyDictionary<string, ScreenFontMetrics> BaseLogicalFontMetrics = new Dictionary<string, ScreenFontMetrics>()
         {
           { "Consolas", new ScreenFontMetrics(fontSize: 17.0f, cellWidth: 9.35f, cellHeight: 20.0f) },
+          { "Courier New", new ScreenFontMetrics(fontSize: 17.0f, cellWidth: 10.21f, cellHeight: 20.0f) },
+          //{ "Courier", new ScreenFontMetrics(fontSize: 17.0f, cellWidth: 9.45f, cellHeight: 20.0f) },
+          //{ "Fixedsys", new ScreenFontMetrics(fontSize: 17.0f, cellWidth: 9.35f, cellHeight: 20.0f) },
+          //{ "Lucida Console", new ScreenFontMetrics(fontSize: 17.0f, cellWidth: 10.26f, cellHeight: 20.0f) },
+          //{ "Terminal", new ScreenFontMetrics(fontSize: 17.0f, cellWidth: 9.35f, cellHeight: 20.0f) },
         };
 
         public ScreenFontMetrics FontMetrics { get; private set; }
 
         private void RecalculateFontMetrics()
         {
-            this.FontMetrics = BaseLogicalFontMetrics[this.screenFontFamily] * (1 + (FontSizeScalingFactor * (float)this.ScreenFontSize));
+            this.FontMetrics = BaseLogicalFontMetrics[this.ColorTheme.FontFamily] * (1 + (FontSizeScalingFactor * (float)this.ColorTheme.FontSize));
         }
 
         private double scroller = 0d;
@@ -209,9 +179,17 @@ namespace RemoteTerminal.Terminals
             }
         }
 
-        public void ForceRender()
+        public void ForceRender(bool fontChanged)
         {
-            this.forceRender = true;
+            if (fontChanged)
+            {
+                this.RecalculateFontMetrics();
+                this.InvalidateArrange();
+            }
+            else
+            {
+                this.forceRender = true;
+            }
         }
 
         /// <summary>

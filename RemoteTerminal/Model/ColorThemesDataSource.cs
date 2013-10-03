@@ -34,6 +34,9 @@ namespace RemoteTerminal.Model
                 string colorThemeJsonString = (string)colorThemes["CustomTheme"];
                 JsonObject jsonObject = JsonObject.Parse(colorThemeJsonString);
 
+                colorThemeData.FontFamily = jsonObject.ContainsKey("FontFamily") ? jsonObject.GetNamedString("FontFamily") : colorThemeData.FontFamily;
+                colorThemeData.FontSize = jsonObject.ContainsKey("FontSize") ? (int)jsonObject.GetNamedNumber("FontSize") : colorThemeData.FontSize;
+
                 JsonObject jsonColorTable = jsonObject.GetNamedObject("ColorTable");
                 foreach (var jsonColorTableEntry in jsonColorTable)
                 {
@@ -89,6 +92,10 @@ namespace RemoteTerminal.Model
             //}
 
             JsonObject jsonObject = new JsonObject();
+
+            jsonObject.Add("FontFamily", JsonValue.CreateStringValue(colorThemeData.FontFamily));
+            jsonObject.Add("FontSize", JsonValue.CreateNumberValue(colorThemeData.FontSize));
+
             JsonObject jsonColorTable = new JsonObject();
             foreach (var colorTableEntry in colorThemeData.ColorTable.Where(c => (int)c.Key < 16))
             {

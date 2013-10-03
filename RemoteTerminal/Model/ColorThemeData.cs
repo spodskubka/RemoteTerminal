@@ -4,16 +4,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using RemoteTerminal.Screens;
+using RemoteTerminal.Terminals;
 using Windows.UI;
 
 namespace RemoteTerminal.Model
 {
     public class ColorThemeData
     {
+        public string FontFamily { get; set; }
+        public int FontSize { get; set; }
+        
         public Dictionary<ScreenColor, Color> ColorTable { get; private set; }
 
         private ColorThemeData()
         {
+            this.FontFamily = ScreenDisplay.BaseLogicalFontMetrics.Keys.First();
+            this.FontSize = 0;
+
             this.ColorTable = new Dictionary<ScreenColor, Color>(260);
 
             // colors -4 to -1 are default fore-/background and cursor fore-/background

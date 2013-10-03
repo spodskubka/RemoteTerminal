@@ -88,7 +88,7 @@ namespace RemoteTerminal
 
         void App_CommandsRequested(SettingsPane sender, SettingsPaneCommandsRequestedEventArgs args)
         {
-            SettingsCommand colorsCommand = new SettingsCommand("colors", "Colors", OnColorsCommand);
+            SettingsCommand colorsCommand = new SettingsCommand("colors", "Font and Colors", OnColorsCommand);
 
             SettingsCommand privacyPolicyCommand = new SettingsCommand("privacyPolicy", "Privacy Policy", async (x) =>
             {

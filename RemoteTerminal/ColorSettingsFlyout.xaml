@@ -125,7 +125,7 @@
 
                 <StackPanel Orientation="Horizontal" Grid.Column="0" Margin="40,32,17,13">
                     <Button Click="SettingsBackClicked" Margin="0,3,0,0" Style="{StaticResource SettingsBackButtonStyle}"/>
-                    <TextBlock Margin="10,0,0,0" FontFamily="Segoe UI" FontWeight="SemiLight" FontSize="24.6667" Text="Colors" Foreground="White"/>
+                    <TextBlock Margin="10,0,0,0" FontFamily="Segoe UI" FontWeight="SemiLight" FontSize="24.6667" Text="Font and Colors" Foreground="White"/>
                     <Image Source="Assets/StoreLogo.png" Stretch="None" Margin="400,-5,6,0"/>
                 </StackPanel>
             </Grid>
@@ -147,6 +147,31 @@
 
                         <StackPanel Margin="0,39,0,0">
                             -->
+                            <TextBlock FontWeight="Bold" Text="Theme Font" Style="{StaticResource BasicTextStyle}"/>
+                            <Grid Margin="0,7,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="4*"/>
+                                    <ColumnDefinition Width="5*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <ListBox x:Name="FontFamilyListBox" SelectionChanged="FontFamilyListBox_SelectionChanged">
+                                    <ListBoxItem Content="Consolas"/>
+                                    <ListBoxItem Content="Courier New"/>
+                                </ListBox>
+                                <StackPanel Grid.Column="1" Margin="30,0,0,0">
+                                    <TextBlock Text="Size" Style="{StaticResource BasicTextStyle}"/>
+                                    <Slider x:Name="FontSizeSlider" Minimum="-5" Maximum="5" ValueChanged="FontSizeSlider_ValueChanged"/>
+                                    <TextBlock Text="Preview" Style="{StaticResource BasicTextStyle}"/>
+                                    <Border Background="Black" Height="50">
+                                      <TextBlock x:Name="FontPreviewTextBlock" Text="AaBbCcDd" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas" FontSize="17.0" />
+                                    </Border>
+                                </StackPanel>
+                            </Grid>
+
+                            <Button Content="Reset to default font" Click="ResetFontClicked" Margin="0,7,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Margin="0,20,0,0">
                             <TextBlock FontWeight="Bold" Text="Theme Colors" Style="{StaticResource BasicTextStyle}"/>
                             <Grid Margin="0,7,0,0">
                                 <Grid.ColumnDefinitions>
@@ -176,10 +201,10 @@
                                     <TextBlock Text="Blue" Style="{StaticResource BasicTextStyle}"/>
                                     <Slider x:Name="BlueSlider" Minimum="0" Maximum="255" ValueChanged="ColorSlider_ValueChanged"/>
                                     <TextBlock Text="Preview" Style="{StaticResource BasicTextStyle}"/>
-                                    <Rectangle x:Name="PreviewRectangle" Height="50" Fill="Black"/>
+                                    <Rectangle x:Name="ColorPreviewRectangle" Height="50" Fill="Black"/>
                                 </StackPanel>
                             </Grid>
-                            <Button Content="Reset to default colors" Click="ResetClicked" Margin="0,7,0,0"/>
+                            <Button Content="Reset to default colors" Click="ResetColorsClicked" Margin="0,7,0,0"/>
                         </StackPanel>
                     </StackPanel>
                 </Grid>
