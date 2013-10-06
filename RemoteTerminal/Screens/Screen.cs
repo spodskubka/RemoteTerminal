@@ -36,7 +36,7 @@ namespace RemoteTerminal.Screens
                     {
                         if (value >= this.screen.RowCount)
                         {
-                            throw new ArgumentOutOfRangeException();
+                            return;
                         }
 
                         this.screen.CursorRow = value;
