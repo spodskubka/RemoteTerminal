@@ -308,13 +308,9 @@ namespace RemoteTerminal
 
             var screenCopy = this.Terminal.RenderableScreen.GetScreenCopy();
 
-            // First we generate an RTF document that has every cell set to X.
-            // The reason for this is that we need to determine the final size of the RichEditBox
-            // to resize it correctly. But if the text contains spaces somewhere the ExtentWidth/Height
-            // of the ScrollViewer, which is used to resize the RichEditBox, is off.
             this.screenDisplayCopyBoxScroll.HorizontalScrollMode = ScrollMode.Enabled;
             this.screenDisplayCopyBoxScroll.VerticalScrollMode = ScrollMode.Enabled;
-            using (InMemoryRandomAccessStream rtfStream = await this.GenerateRtf(screenCopy, fake: true))
+            using (InMemoryRandomAccessStream rtfStream = await this.GenerateRtf(screenCopy))
             {
                 this.screenDisplayCopyBox.Document.LoadFromStream(TextSetOptions.ApplyRtfDocumentDefaults | TextSetOptions.FormatRtf | TextSetOptions.Unhide, rtfStream);
             }
@@ -324,18 +320,13 @@ namespace RemoteTerminal
             this.screenDisplayCopyBoxScroll.HorizontalScrollMode = ScrollMode.Disabled;
             this.screenDisplayCopyBoxScroll.VerticalScrollMode = ScrollMode.Disabled;
 
-            using (InMemoryRandomAccessStream rtfStream = await this.GenerateRtf(screenCopy, fake: false))
-            {
-                this.screenDisplayCopyBox.Document.LoadFromStream(TextSetOptions.ApplyRtfDocumentDefaults | TextSetOptions.FormatRtf | TextSetOptions.Unhide, rtfStream);
-            }
-
             this.screenDisplayCopyBox.IsReadOnly = true;
             this.screenDisplayCopyBox.Focus(FocusState.Programmatic);
             this.BottomAppBar.IsOpen = false;
             this.TopAppBar.IsOpen = false;
         }
 
-        private async Task<InMemoryRandomAccessStream> GenerateRtf(IRenderableScreenCopy screenCopy, bool fake)
+        private async Task<InMemoryRandomAccessStream> GenerateRtf(IRenderableScreenCopy screenCopy)
         {
             Encoding codepage1252 = Encoding.GetEncoding("Windows-1252");
             var rtfStream = new InMemoryRandomAccessStream();
@@ -345,105 +336,61 @@ namespace RemoteTerminal
                 rtf.WriteString(@"\rtf1");
                 rtf.WriteString(@"\ansi");
                 rtf.WriteString(@"\ansicpg1252");
-                rtf.WriteString(@"{\fonttbl{\f0\fmodern Consolas;}}");
+                rtf.WriteString(@"{\fonttbl{\f0\fmodern " + this.screenDisplay.ColorTheme.FontFamily + ";}}");
                 rtf.WriteString(Environment.NewLine);
-                if (!fake)
+                rtf.WriteString(@"{\colortbl ;");
+                var colorTable = this.screenDisplay.ColorTheme.ColorTable;
+                for (ScreenColor screenColor = ScreenColor.DefaultBackground; screenColor <= ScreenColor.WhiteBright; screenColor++)
                 {
-                    rtf.WriteString(@"{\colortbl ;");
-                    var colorTable = this.screenDisplay.ColorTheme.ColorTable;
-                    for (ScreenColor screenColor = ScreenColor.DefaultBackground; screenColor <= ScreenColor.WhiteBright; screenColor++)
-                    {
-                        var color = colorTable[screenColor];
-                        rtf.WriteString(@"\red" + color.R + @"\green" + color.G + @"\blue" + color.B + ";");
-                    }
-                    rtf.WriteString(@"}");
-                    rtf.WriteString(Environment.NewLine);
+                    var color = colorTable[screenColor];
+                    rtf.WriteString(@"\red" + color.R + @"\green" + color.G + @"\blue" + color.B + ";");
                 }
-                rtf.WriteString(@"\pard\ltrpar\f0\fs17");
+                rtf.WriteString(@"}");
+                rtf.WriteString(Environment.NewLine);
+                int fontSize = (int)(ScreenDisplay.BaseLogicalFontMetrics[this.screenDisplay.ColorTheme.FontFamily].FontSize * (1 + (ScreenDisplay.FontSizeScalingFactor * (float)this.screenDisplay.ColorTheme.FontSize)));
+                rtf.WriteString(@"\pard\ltrpar\f0\fs" + fontSize);
                 rtf.WriteString(Environment.NewLine);
 
                 StringBuilder formatCodes = new StringBuilder();
-                string fakeLineText = fake && screenCopy.Cells.Length > 0 ? new string('X', screenCopy.Cells[0].Length) : null;
                 for (int y = 0; y < screenCopy.Cells.Length; y++)
                 {
-                    if (fake)
-                    {
-                        rtf.WriteString(fakeLineText);
-                    }
-                    else
-                    {
-                        var line = screenCopy.Cells[y];
-                        string lineString = new string(line.Select(c => c.Character).ToArray());
-                        var hyperlinkMatches = hyperlinkRegex.Value.Matches(lineString).Cast<Match>();
+                    var line = screenCopy.Cells[y];
+                    string lineString = new string(line.Select(c => c.Character).ToArray());
+                    var hyperlinkMatches = hyperlinkRegex.Value.Matches(lineString).Cast<Match>();
 
-                        for (int x = 0; x < line.Length; x++)
+                    for (int x = 0; x < line.Length; x++)
+                    {
+                        Match startingMatch = hyperlinkMatches.Where(m => m.Index == x).SingleOrDefault();
+                        if (startingMatch != null)
                         {
-                            Match startingMatch = hyperlinkMatches.Where(m => m.Index == x).SingleOrDefault();
-                            if (startingMatch != null)
-                            {
-                                rtf.WriteString(@"{\field{\*\fldinst HYPERLINK """ + RtfEscape(startingMatch.Value) + @"""}{\fldrslt ");
-                            }
+                            rtf.WriteString(@"{\field{\*\fldinst HYPERLINK """ + RtfEscape(startingMatch.Value) + @"""}{\fldrslt ");
+                        }
 
-                            if (x == 0 || line[x - 1].BackgroundColor != line[x].BackgroundColor)
-                            {
-                                formatCodes.Append(@"\chshdng0\chcbpat" + (line[x].BackgroundColor - ScreenColor.DefaultBackground + 1));
-                            }
+                        if (x == 0 || line[x - 1].BackgroundColor != line[x].BackgroundColor)
+                        {
+                            formatCodes.Append(@"\chshdng0\chcbpat" + (line[x].BackgroundColor - ScreenColor.DefaultBackground + 1));
+                        }
 
-                            if (x == 0 || line[x - 1].ForegroundColor != line[x].ForegroundColor)
-                            {
-                                formatCodes.Append(@"\cf" + (line[x].ForegroundColor - ScreenColor.DefaultBackground + 1));
-                            }
+                        if (x == 0 || line[x - 1].ForegroundColor != line[x].ForegroundColor)
+                        {
+                            formatCodes.Append(@"\cf" + (line[x].ForegroundColor - ScreenColor.DefaultBackground + 1));
+                        }
 
-                            if (x == 0 || line[x - 1].Modifications.HasFlag(ScreenCellModifications.Bold) != line[x].Modifications.HasFlag(ScreenCellModifications.Bold))
+                        if (x == 0 || line[x - 1].Modifications.HasFlag(ScreenCellModifications.Bold) != line[x].Modifications.HasFlag(ScreenCellModifications.Bold))
+                        {
+                            formatCodes.Append(@"\b");
+                            if (!line[x].Modifications.HasFlag(ScreenCellModifications.Bold))
                             {
-                                formatCodes.Append(@"\b");
-                                if (!line[x].Modifications.HasFlag(ScreenCellModifications.Bold))
-                                {
-                                    formatCodes.Append("0");
-                                }
+                                formatCodes.Append("0");
                             }
+                        }
 
-                            if (x == 0 || line[x - 1].Modifications.HasFlag(ScreenCellModifications.Underline) != line[x].Modifications.HasFlag(ScreenCellModifications.Underline))
+                        if (x == 0 || line[x - 1].Modifications.HasFlag(ScreenCellModifications.Underline) != line[x].Modifications.HasFlag(ScreenCellModifications.Underline))
+                        {
+                            formatCodes.Append(@"\ul");
+                            if (!line[x].Modifications.HasFlag(ScreenCellModifications.Underline))
                             {
-                                formatCodes.Append(@"\ul");
-                                if (!line[x].Modifications.HasFlag(ScreenCellModifications.Underline))
-                                {
-                                    formatCodes.Append("0");
-                                }
-                            }
-
-                            if (formatCodes.Length > 0)
-                            {
-                                rtf.WriteString(formatCodes.ToString());
-                                formatCodes.Clear();
-                                rtf.WriteString(" ");
-                            }
-
-                            if (line[x].Character == codepage1252.GetChars(codepage1252.GetBytes(new[] { line[x].Character }))[0])
-                            {
-                                rtf.WriteBytes(codepage1252.GetBytes(RtfEscape(line[x].Character.ToString())));
-                            }
-                            else
-                            {
-                                rtf.WriteString(@"\u" + ((int)line[x].Character).ToString() + "?");
-                            }
-
-                            Match endingMatch = hyperlinkMatches.Where(m => m.Index + m.Length == x + 1).SingleOrDefault();
-                            if (endingMatch != null)
-                            {
-                                rtf.WriteString("}}");
-                            }
-
-                            if (x + 1 >= screenCopy.Cells.Length)
-                            {
-                                if (line[x].Modifications.HasFlag(ScreenCellModifications.Bold))
-                                {
-                                    formatCodes.Append(@"\b0");
-                                }
-                                if (line[x].Modifications.HasFlag(ScreenCellModifications.Underline))
-                                {
-                                    formatCodes.Append(@"\ul0");
-                                }
+                                formatCodes.Append("0");
                             }
                         }
 
@@ -451,7 +398,46 @@ namespace RemoteTerminal
                         {
                             rtf.WriteString(formatCodes.ToString());
                             formatCodes.Clear();
+                            rtf.WriteString(" ");
                         }
+
+                        if (line[x].Character == 0x0020)
+                        {
+                            // space characters are replaced with no-break spaces
+                            rtf.WriteString(@"\u" + ((int)((char)0x00a0)).ToString() + "?");
+                        }
+                        else if (line[x].Character == codepage1252.GetChars(codepage1252.GetBytes(new[] { line[x].Character }))[0])
+                        {
+                            rtf.WriteBytes(codepage1252.GetBytes(RtfEscape(line[x].Character.ToString())));
+                        }
+                        else
+                        {
+                            rtf.WriteString(@"\u" + ((int)line[x].Character).ToString() + "?");
+                        }
+
+                        Match endingMatch = hyperlinkMatches.Where(m => m.Index + m.Length == x + 1).SingleOrDefault();
+                        if (endingMatch != null)
+                        {
+                            rtf.WriteString("}}");
+                        }
+
+                        if (x + 1 >= screenCopy.Cells.Length)
+                        {
+                            if (line[x].Modifications.HasFlag(ScreenCellModifications.Bold))
+                            {
+                                formatCodes.Append(@"\b0");
+                            }
+                            if (line[x].Modifications.HasFlag(ScreenCellModifications.Underline))
+                            {
+                                formatCodes.Append(@"\ul0");
+                            }
+                        }
+                    }
+
+                    if (formatCodes.Length > 0)
+                    {
+                        rtf.WriteString(formatCodes.ToString());
+                        formatCodes.Clear();
                     }
 
                     if (y + 1 < screenCopy.Cells.Length)
