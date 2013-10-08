@@ -201,7 +201,51 @@ namespace RemoteTerminal.Connections
                     };
 
                     this.client = new SshClient(connectionInfo);
+                    this.client.HostKeyReceived += (s, e) =>
+                    {
+                        string fingerprint = string.Join(":", e.FingerPrint.Select(b => b.ToString("x2")));
+
+                        bool trustHostKey = true;
+                        bool storeHostKey = false;
+
+                        string oldHostKey = "a"+HostKeysDataSource.GetHostKey(this.connectionData.Host, this.connectionData.Port);
+                        string newHostKey = string.Join(null, e.HostKey.Select(b => b.ToString("x2")));
+                        if (oldHostKey == null)
+                        {
+                            terminal.WriteLine("Remote Terminal has not yet cached a host key for this server.");
+                            terminal.WriteLine("Host key's fingerprint: " + fingerprint);
+                            terminal.WriteLine("Please make sure the fingerprint matches the server's actual host key.");
+                            trustHostKey = QueryYesNo(terminal, "Do you want to continue connecting to the host?");
+                            if (trustHostKey)
+                            {
+                                storeHostKey = QueryYesNo(terminal, "Do you want to store this host key in the cache?");
+                            }
+                        }
+                        else if (oldHostKey != newHostKey)
+                        {
+                            terminal.WriteLine("POSSIBLE SECURITY BREACH DETECTED!");
+                            terminal.WriteLine("Remote Terminal has cached another host key for this server.");
+                            terminal.WriteLine("This could mean one of two things:");
+                            terminal.WriteLine(" * the server's host key was changed by an administrator");
+                            terminal.WriteLine(" * another computer is trying to intercept your connection");
+                            terminal.WriteLine("Host key's new fingerprint: " + fingerprint);
+                            trustHostKey = QueryYesNo(terminal, "Do you want to continue connecting to the host?");
+                            if (trustHostKey)
+                            {
+                                storeHostKey = QueryYesNo(terminal, "Do you want to update the cache with the new host key?");
+                            }
+                        }
+
+                        e.CanTrust = trustHostKey;
+                        if (storeHostKey)
+                        {
+                            HostKeysDataSource.AddOrUpdate(this.connectionData.Host, this.connectionData.Port, newHostKey);
+                        }
+                    };
+
+                    this.client.ConnectionInfo.Timeout = new TimeSpan(0, 5, 0);
                     await Task.Run(() => { this.client.Connect(); });
+                    this.client.ConnectionInfo.Timeout = new TimeSpan(0, 1, 0);
 
                     var terminalModes = new Dictionary<TerminalModes, uint>();
                     terminalModes[TerminalModes.TTY_OP_ISPEED] = 0x00009600;
@@ -240,6 +284,28 @@ namespace RemoteTerminal.Connections
                 if (!retry || numRetries++ > 5)
                 {
                     return false;
+                }
+            }
+            while (true);
+        }
+
+        private static bool QueryYesNo(IConnectionInitializingTerminal terminal, string prompt)
+        {
+            do
+            {
+                var readLineTask = terminal.ReadLineAsync(prompt + " [Y/n] ", echo: true);
+                readLineTask.Wait();
+                string keyConfirmationResult = readLineTask.Result.ToLowerInvariant();
+                switch (keyConfirmationResult)
+                {
+                    case "":
+                    case "y":
+                        return true;
+                    case "n":
+                        return false;
+                    default:
+                        terminal.WriteLine("Invalid response.");
+                        break;
                 }
             }
             while (true);

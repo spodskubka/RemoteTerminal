@@ -124,6 +124,7 @@
     <Compile Include="Connections\SshConnection.cs" />
     <Compile Include="InputPaneHelper.cs" />
     <Compile Include="Model\ColorThemesDataSource.cs" />
+    <Compile Include="Model\HostKeysDataSource.cs" />
     <Compile Include="PrivateKeyAgentManager.cs" />
     <Compile Include="PrivateKeyAgentPage.xaml.cs">
       <DependentUpon>PrivateKeyAgentPage.xaml</DependentUpon>
