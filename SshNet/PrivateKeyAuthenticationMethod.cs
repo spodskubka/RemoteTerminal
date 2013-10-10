@@ -32,7 +32,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets the private key agent used for authentication.
         /// </summary>
-        public PrivateKeyAgent PrivateKeyAgent { get; private set; }
+        public Lazy<PrivateKeyAgent> PrivateKeyAgent { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PrivateKeyAuthenticationMethod"/> class.
@@ -40,7 +40,7 @@ namespace Renci.SshNet
         /// <param name="username">The username.</param>
         /// <param name="keyFiles">The key files.</param>
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
-        public PrivateKeyAuthenticationMethod(string username, PrivateKeyAgent privateKeyAgent)
+        public PrivateKeyAuthenticationMethod(Lazy<string> username, Lazy<PrivateKeyAgent> privateKeyAgent)
             : base(username)
         {
             this.PrivateKeyAgent = privateKeyAgent;
@@ -53,7 +53,7 @@ namespace Renci.SshNet
         /// <returns></returns>
         public override AuthenticationResult Authenticate(Session session)
         {
-            if (this.PrivateKeyAgent == null)
+            if (this.PrivateKeyAgent.Value == null)
                 return AuthenticationResult.Failure;
 
             session.UserAuthenticationSuccessReceived += Session_UserAuthenticationSuccessReceived;
@@ -62,7 +62,7 @@ namespace Renci.SshNet
 
             session.RegisterMessage("SSH_MSG_USERAUTH_PK_OK");
 
-            foreach (var keyInfo in this.PrivateKeyAgent.ListSsh2())
+            foreach (var keyInfo in this.PrivateKeyAgent.Value.ListSsh2())
             {
                 var key = keyInfo.Key;
 
@@ -84,7 +84,7 @@ namespace Renci.SshNet
 
                     var signatureData = new SignatureData(message, session.SessionId).GetBytes();
 
-                    var signature = this.PrivateKeyAgent.SignSsh2(key.Data, signatureData);
+                    var signature = this.PrivateKeyAgent.Value.SignSsh2(key.Data, signatureData);
 
                     if (signature != null)
                     {
@@ -222,7 +222,7 @@ namespace Renci.SshNet
             {
                 this.WriteBinaryString(this._sessionId);
                 this.Write((byte)50);
-                this.Write(this._message.Username);
+                this.Write(this._message.Username.Value);
                 this.WriteAscii("ssh-connection");
                 this.WriteAscii("publickey");
                 this.Write((byte)1);

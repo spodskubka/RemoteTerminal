@@ -46,7 +46,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="System.Net.IPEndPoint.MinPort"/> and <see cref="System.Net.IPEndPoint.MaxPort"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:DisposeObjectsBeforeLosingScope", Justification = "Disposed in Dispose(bool) method.")]
-        public SshClient(string host, int port, string username, string password)
+        public SshClient(string host, int port, Lazy<string> username, Lazy<string> password)
             : this(new PasswordConnectionInfo(host, port, username, password))
         {
             this._disposeConnectionInfo = true;
@@ -60,7 +60,7 @@ namespace Renci.SshNet
         /// <param name="password">Authentication password.</param>
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
-        public SshClient(string host, string username, string password)
+        public SshClient(string host, Lazy<string> username, Lazy<string> password)
             : this(host, 22, username, password)
         {
         }

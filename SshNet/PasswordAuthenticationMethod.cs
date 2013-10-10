@@ -24,7 +24,7 @@ namespace Renci.SshNet
 
         private RequestMessage _requestMessage;
 
-        private string _password;
+        private Lazy<string> _password;
 
         /// <summary>
         /// Gets authentication method name
@@ -46,7 +46,7 @@ namespace Renci.SshNet
         /// <param name="password">The password.</param>
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
         /// <exception cref="ArgumentException"><paramref name="password"/> is null.</exception>
-        public PasswordAuthenticationMethod(string username, string password)
+        public PasswordAuthenticationMethod(Lazy<string> username, Lazy<string> password)
             : base(username)
         {
             if (password == null)
@@ -119,7 +119,7 @@ namespace Renci.SshNet
                 {
                     try
                     {
-                        var eventArgs = new AuthenticationPasswordChangeEventArgs(this.Username);
+                        var eventArgs = new AuthenticationPasswordChangeEventArgs(this.Username.Value);
 
                         //  Raise an event to allow user to supply a new password
                         if (this.PasswordExpired != null)

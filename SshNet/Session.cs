@@ -527,11 +527,6 @@ namespace Renci.SshNet
                     //  Wait for service to be accepted
                     this.WaitHandle(this._serviceAccepted);
 
-                    if (string.IsNullOrEmpty(this.ConnectionInfo.Username))
-                    {
-                        throw new SshException("Username is not specified.");
-                    }
-
                     this._isAuthenticated = this.ConnectionInfo.Authenticate(this);
 
                     if (!this._isAuthenticated)

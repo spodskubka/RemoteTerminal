@@ -12,7 +12,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// <summary>
         /// Gets authentication username.
         /// </summary>
-        public string Username { get; private set; }
+        public Lazy<string> Username { get; private set; }
 
         /// <summary>
         /// Gets the name of the service.
@@ -35,7 +35,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         /// <param name="serviceName">Name of the service.</param>
         /// <param name="username">Authentication username.</param>
-        public RequestMessage(ServiceName serviceName, string username)
+        public RequestMessage(ServiceName serviceName, Lazy<string> username)
         {
             this.ServiceName = serviceName;
             this.Username = username;
@@ -54,7 +54,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         protected override void SaveData()
         {
-            this.Write(this.Username);
+            this.Write(this.Username.Value);
             switch (this.ServiceName)
             {
                 case ServiceName.UserAuthentication:

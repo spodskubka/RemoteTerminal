@@ -77,7 +77,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets connection username.
         /// </summary>
-        public string Username { get; private set; }
+        public Lazy<string> Username { get; private set; }
 
         /// <summary>
         /// Gets or sets connection timeout.
@@ -164,7 +164,7 @@ namespace Renci.SshNet
         /// <param name="host">The host.</param>
         /// <param name="username">The username.</param>
         /// <param name="authenticationMethods">The authentication methods.</param>
-        public ConnectionInfo(string host, string username, params AuthenticationMethod[] authenticationMethods)
+        public ConnectionInfo(string host, Lazy<string> username, params AuthenticationMethod[] authenticationMethods)
             : this(host, 22, username, authenticationMethods)
         {
         }
@@ -181,7 +181,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="IPEndPoint.MinPort"/> and <see cref="IPEndPoint.MaxPort"/>.</exception>
         ///   
         /// <exception cref="ArgumentException"><paramref name="username"/> is null or empty.</exception>
-        public ConnectionInfo(string host, int port, string username, params AuthenticationMethod[] authenticationMethods)
+        public ConnectionInfo(string host, int port, Lazy<string> username, params AuthenticationMethod[] authenticationMethods)
         {
             if (!host.IsValidHost())
                 throw new ArgumentException("host");
@@ -189,8 +189,8 @@ namespace Renci.SshNet
             if (!port.IsValidPort())
                 throw new ArgumentOutOfRangeException("port");
 
-            if (username.IsNullOrWhiteSpace())
-                throw new ArgumentException("username");
+            if (username == null)
+                throw new ArgumentNullException("username");
 
             //  Set default connection values
             this.Timeout = TimeSpan.FromSeconds(30);
@@ -349,7 +349,7 @@ namespace Renci.SshNet
         {
             if (this.AuthenticationBanner != null)
             {
-                this.AuthenticationBanner(this, new AuthenticationBannerEventArgs(this.Username, e.Message.Message, e.Message.Language));
+                this.AuthenticationBanner(this, new AuthenticationBannerEventArgs(this.Username.Value, e.Message.Message, e.Message.Language));
             }
         }
     }

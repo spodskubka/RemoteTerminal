@@ -23,7 +23,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="host">The host.</param>
         /// <param name="username">The username.</param>
-        public KeyboardInteractiveConnectionInfo(string host, string username)
+        public KeyboardInteractiveConnectionInfo(string host, Lazy<string> username)
             : this(host, 22, username)
         {
 
@@ -35,7 +35,7 @@ namespace Renci.SshNet
         /// <param name="host">The host.</param>
         /// <param name="port">The port.</param>
         /// <param name="username">The username.</param>
-        public KeyboardInteractiveConnectionInfo(string host, int port, string username)
+        public KeyboardInteractiveConnectionInfo(string host, int port, Lazy<string> username)
             : base(host, port, username, new KeyboardInteractiveAuthenticationMethod(username))
         {
             foreach (var authenticationMethod in this.AuthenticationMethods.OfType<KeyboardInteractiveAuthenticationMethod>())

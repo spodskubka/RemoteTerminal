@@ -62,28 +62,36 @@ namespace RemoteTerminal.Connections
             this.CheckDisposed();
             this.MustBeConnected(false);
 
-            string username = this.connectionData.Username;
-            if (string.IsNullOrEmpty(username))
+            Lazy<string> username = new Lazy<string>(() =>
             {
-                username = await terminal.ReadLineAsync("Username: ", echo: true);
-            }
-            else
-            {
-                terminal.WriteLine("Username: " + username);
-            }
+                if (string.IsNullOrEmpty(this.connectionData.Username))
+                {
+                    return terminal.ReadLineAsync("Username: ", echo: true).Result;
+                }
+                else
+                {
+                    terminal.WriteLine("Username: " + this.connectionData.Username);
+                    return this.connectionData.Username;
+                }
+            });
 
             int numRetries = 0;
+            string oldHostKey = "a" + HostKeysDataSource.GetHostKey(this.connectionData.Host, this.connectionData.Port);
             do
             {
                 bool retry = true;
                 try
                 {
                     ConnectionInfo connectionInfo;
-                    PrivateKeyAgent forwardedPrivateKeyAgent = null;
+                    Lazy<PrivateKeyAgent> forwardedPrivateKeyAgent = new Lazy<PrivateKeyAgent>(() => { return null; });
                     switch (this.connectionData.Authentication)
                     {
                         case RemoteTerminal.Model.AuthenticationType.Password:
-                            string password = await terminal.ReadLineAsync("Password: ", echo: false);
+                            Lazy<string> password = new Lazy<string>(() =>
+                            {
+                                return terminal.ReadLineAsync("Password: ", echo: false).Result;
+                            });
+
                             var passwordConnectionInfo = new PasswordConnectionInfo(this.connectionData.Host, this.connectionData.Port, username, password);
                             passwordConnectionInfo.PasswordExpired += (sender, e) =>
                             {
@@ -131,12 +139,12 @@ namespace RemoteTerminal.Connections
                             connectionInfo = keyboardInteractiveConnectionInfo;
                             break;
                         case Model.AuthenticationType.PrivateKey:
-                            PrivateKeyFile privateKey;
-
                             if (this.privateKeyData == null)
                             {
                                 throw new Exception("Private Key '" + connectionData.PrivateKeyName + "' not found. Please correct the authentication details of the connection.");
                             }
+
+                            PrivateKeyFile privateKey;
 
                             try
                             {
@@ -150,37 +158,48 @@ namespace RemoteTerminal.Connections
                                 privateKey = null;
                             }
 
-                            if (privateKey == null)
+                            // In the normal PrivateKey authentication there is only a connection-local PrivateKeyAgent.
+                            var localPprivateKeyAgent = new Lazy<PrivateKeyAgent>(() =>
                             {
-                                string privateKeyPassword = await terminal.ReadLineAsync("Private Key password: ", echo: false);
-                                using (var privateKeyStream = new MemoryStream(privateKeyData.Data))
+                                terminal.WriteLine("Performing authentication with Private Key '" + connectionData.PrivateKeyName + "'.");
+
+                                if (privateKey == null)
                                 {
-                                    try
+                                    string privateKeyPassword = terminal.ReadLineAsync("Private Key password: ", echo: false).Result;
+                                    using (var privateKeyStream = new MemoryStream(privateKeyData.Data))
                                     {
-                                        privateKey = new PrivateKeyFile(privateKeyStream, privateKeyPassword);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        throw new SshAuthenticationException("Wrong Private Key password, please try again.", ex);
+                                        try
+                                        {
+                                            privateKey = new PrivateKeyFile(privateKeyStream, privateKeyPassword);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            throw new SshAuthenticationException("Wrong Private Key password, please try again.", ex);
+                                        }
                                     }
                                 }
-                            }
 
-                            // In the normal PrivateKey authentication there is only a connection-local PrivateKeyAgent.
-                            var localPprivateKeyAgent = new PrivateKeyAgent();
-                            localPprivateKeyAgent.AddSsh2(privateKey.HostKey, connectionData.PrivateKeyName);
+                                var pka = new PrivateKeyAgent();
+                                pka.AddSsh2(privateKey.HostKey, connectionData.PrivateKeyName);
+                                return pka;
+                            });
+
                             var privateKeyConnectionInfo = new PrivateKeyConnectionInfo(this.connectionData.Host, this.connectionData.Port, username, localPprivateKeyAgent);
                             connectionInfo = privateKeyConnectionInfo;
 
                             break;
                         case AuthenticationType.PrivateKeyAgent:
-                            var globalPrivateKeyAgent = PrivateKeyAgentManager.PrivateKeyAgent;
-                            if (globalPrivateKeyAgent.ListSsh2().Count == 0)
+                            if (PrivateKeyAgentManager.PrivateKeyAgent.ListSsh2().Count == 0)
                             {
                                 throw new SshAuthenticationException("The private key agent doesn't contain any private keys.");
                             }
 
-                            terminal.WriteLine("Performing private key agent authentication.");
+                            var globalPrivateKeyAgent = new Lazy<PrivateKeyAgent>(() =>
+                            {
+                                var pka = PrivateKeyAgentManager.PrivateKeyAgent;
+                                terminal.WriteLine("Performing private key agent authentication.");
+                                return pka;
+                            });
 
                             var privateKeyAgentConnectionInfo = new PrivateKeyConnectionInfo(this.connectionData.Host, this.connectionData.Port, username, globalPrivateKeyAgent);
                             connectionInfo = privateKeyAgentConnectionInfo;
@@ -208,7 +227,6 @@ namespace RemoteTerminal.Connections
                         bool trustHostKey = true;
                         bool storeHostKey = false;
 
-                        string oldHostKey = "a"+HostKeysDataSource.GetHostKey(this.connectionData.Host, this.connectionData.Port);
                         string newHostKey = string.Join(null, e.HostKey.Select(b => b.ToString("x2")));
                         if (oldHostKey == null)
                         {
@@ -237,20 +255,25 @@ namespace RemoteTerminal.Connections
                         }
 
                         e.CanTrust = trustHostKey;
+                        if (trustHostKey)
+                        {
+                            oldHostKey = newHostKey;
+                        }
+
                         if (storeHostKey)
                         {
                             HostKeysDataSource.AddOrUpdate(this.connectionData.Host, this.connectionData.Port, newHostKey);
                         }
                     };
 
-                    this.client.ConnectionInfo.Timeout = new TimeSpan(0, 5, 0);
+                    this.client.ConnectionInfo.Timeout = new TimeSpan(0, 15, 0);
                     await Task.Run(() => { this.client.Connect(); });
                     this.client.ConnectionInfo.Timeout = new TimeSpan(0, 1, 0);
 
                     var terminalModes = new Dictionary<TerminalModes, uint>();
                     terminalModes[TerminalModes.TTY_OP_ISPEED] = 0x00009600;
                     terminalModes[TerminalModes.TTY_OP_OSPEED] = 0x00009600;
-                    this.stream = this.client.CreateShellStream(terminal.TerminalName, (uint)terminal.Columns, (uint)terminal.Rows, 0, 0, 1024, forwardedPrivateKeyAgent, terminalModes.ToArray());
+                    this.stream = this.client.CreateShellStream(terminal.TerminalName, (uint)terminal.Columns, (uint)terminal.Rows, 0, 0, 1024, forwardedPrivateKeyAgent.Value, terminalModes.ToArray());
 
                     this.reader = new StreamReader(this.stream);
                     this.writer = new StreamWriter(this.stream);

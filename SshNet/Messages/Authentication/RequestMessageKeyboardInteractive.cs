@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System;
+using System.Text;
 
 namespace Renci.SshNet.Messages.Authentication
 {
@@ -36,7 +37,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         /// <param name="serviceName">Name of the service.</param>
         /// <param name="username">Authentication username.</param>
-        public RequestMessageKeyboardInteractive(ServiceName serviceName, string username)
+        public RequestMessageKeyboardInteractive(ServiceName serviceName, Lazy<string> username)
             : base(serviceName, username)
         {
             this.Language = string.Empty;

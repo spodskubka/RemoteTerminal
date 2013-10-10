@@ -30,7 +30,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="username">The username.</param>
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
-        public NoneAuthenticationMethod(string username)
+        public NoneAuthenticationMethod(Lazy<string> username)
             : base(username)
         {
 

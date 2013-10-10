@@ -42,7 +42,7 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="username">The username.</param>
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
-        public KeyboardInteractiveAuthenticationMethod(string username)
+        public KeyboardInteractiveAuthenticationMethod(Lazy<string> username)
             : base(username)
         {
             this._requestMessage = new RequestMessageKeyboardInteractive(ServiceName.Connection, username);
@@ -108,7 +108,7 @@ namespace Renci.SshNet
             var informationRequestMessage = e.Message as InformationRequestMessage;
             if (informationRequestMessage != null)
             {
-                var eventArgs = new AuthenticationPromptEventArgs(this.Username, informationRequestMessage.Instruction, informationRequestMessage.Language, informationRequestMessage.Prompts);
+                var eventArgs = new AuthenticationPromptEventArgs(this.Username.Value, informationRequestMessage.Instruction, informationRequestMessage.Language, informationRequestMessage.Prompts);
 
                 this.ExecuteThread(() =>
                 {

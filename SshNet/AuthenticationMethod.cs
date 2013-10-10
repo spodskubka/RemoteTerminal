@@ -19,7 +19,7 @@ namespace Renci.SshNet
         /// <summary>
         /// Gets connection username.
         /// </summary>
-        public string Username { get; private set; }
+        public Lazy<string> Username { get; private set; }
 
         /// <summary>
         /// Gets the authentication error message.
@@ -36,10 +36,10 @@ namespace Renci.SshNet
         /// </summary>
         /// <param name="username">The username.</param>
         /// <exception cref="ArgumentException"><paramref name="username"/> is whitespace or null.</exception>
-        protected AuthenticationMethod(string username)
+        protected AuthenticationMethod(Lazy<string> username)
         {
-            if (username.IsNullOrWhiteSpace())
-                throw new ArgumentException("username");
+            if (username == null)
+                throw new ArgumentNullException("username");
 
             this.Username = username;
         }

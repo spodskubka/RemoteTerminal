@@ -22,7 +22,7 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="username">Connection username.</param>
         /// <param name="password">Connection password.</param>
-        public PasswordConnectionInfo(string host, string username, string password)
+        public PasswordConnectionInfo(string host, Lazy<string> username, Lazy<string> password)
             : this(host, 22, username, password)
         {
 
@@ -38,7 +38,7 @@ namespace Renci.SshNet
         /// <exception cref="ArgumentNullException"><paramref name="password"/> is null.</exception>
         /// <exception cref="ArgumentException"><paramref name="host"/> is invalid, or <paramref name="username"/> is null or contains whitespace characters.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="port"/> is not within <see cref="f:IPEndPoint.MinPort"/> and <see cref="f:IPEndPoint.MaxPort"/>.</exception>
-        public PasswordConnectionInfo(string host, int port, string username, string password)
+        public PasswordConnectionInfo(string host, int port, Lazy<string> username, Lazy<string> password)
             : base(host, port, username, new PasswordAuthenticationMethod(username, password))
         {
             foreach (var authenticationMethod in this.AuthenticationMethods.OfType<PasswordAuthenticationMethod>())

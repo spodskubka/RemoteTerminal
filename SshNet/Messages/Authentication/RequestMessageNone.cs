@@ -29,7 +29,7 @@ namespace Renci.SshNet.Messages.Authentication
         /// </summary>
         /// <param name="serviceName">Name of the service.</param>
         /// <param name="username">Authentication username.</param>
-        public RequestMessageNone(ServiceName serviceName, string username)
+        public RequestMessageNone(ServiceName serviceName, Lazy<string> username)
             : base(serviceName, username)
         {
         }

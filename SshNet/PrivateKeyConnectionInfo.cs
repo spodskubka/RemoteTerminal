@@ -17,7 +17,7 @@ namespace Renci.SshNet
         /// <param name="host">Connection host.</param>
         /// <param name="username">Connection username.</param>
         /// <param name="keyFiles">Connection key files.</param>
-        public PrivateKeyConnectionInfo(string host, string username, PrivateKeyAgent privateKeyAgent)
+        public PrivateKeyConnectionInfo(string host, Lazy<string> username, Lazy<PrivateKeyAgent> privateKeyAgent)
             : this(host, 22, username, privateKeyAgent)
         {
 
@@ -30,7 +30,7 @@ namespace Renci.SshNet
         /// <param name="port">Connection port.</param>
         /// <param name="username">Connection username.</param>
         /// <param name="keyFiles">Connection key files.</param>
-        public PrivateKeyConnectionInfo(string host, int port, string username, PrivateKeyAgent privateKeyAgent)
+        public PrivateKeyConnectionInfo(string host, int port, Lazy<string> username, Lazy<PrivateKeyAgent> privateKeyAgent)
             : base(host, port, username, new PrivateKeyAuthenticationMethod(username, privateKeyAgent))
         {
         }
