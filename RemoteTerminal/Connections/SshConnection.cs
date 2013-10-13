@@ -76,7 +76,7 @@ namespace RemoteTerminal.Connections
             });
 
             int numRetries = 0;
-            string oldHostKey = "a" + HostKeysDataSource.GetHostKey(this.connectionData.Host, this.connectionData.Port);
+            string oldHostKey = HostKeysDataSource.GetHostKey(this.connectionData.Host, this.connectionData.Port);
             do
             {
                 bool retry = true;
