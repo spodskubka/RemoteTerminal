@@ -203,6 +203,10 @@ namespace RemoteTerminal.Terminals
                 {
                     return false;
                 }
+                else if (key == (VirtualKey)191) // Ctrl + / (US keyboard)
+                {
+                    input = "\x1f";
+                }
                 else
                 {
                     return false;
