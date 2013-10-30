@@ -189,7 +189,7 @@ namespace RemoteTerminal
             }
 
             var clickedItem = ((ListViewBase)sender).ItemContainerGenerator.ContainerFromItem(e.ClickedItem);
-            Flyout menuFlyout = new Flyout()
+            Callisto.Controls.Flyout menuFlyout = new Callisto.Controls.Flyout()
             {
                 PlacementTarget = clickedItem as UIElement,
                 Placement = PlacementMode.Bottom,
