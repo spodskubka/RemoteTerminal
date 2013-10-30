@@ -53,6 +53,13 @@ namespace RemoteTerminal.Terminals
 
         public virtual void Render(TargetBase target)
         {
+            Point drawingPosition = new Point(0, 0);
+            SurfaceImageSourceTarget surfaceImageSourceTarget = target as SurfaceImageSourceTarget;
+            if (surfaceImageSourceTarget != null)
+            {
+                drawingPosition = surfaceImageSourceTarget.DrawingPosition;
+            }
+
             IRenderableScreenCopy screenCopy = this.screen.GetScreenCopy();
 
             var context2D = target.DeviceManager.ContextDirect2D;
@@ -69,8 +76,8 @@ namespace RemoteTerminal.Terminals
                 {
                     var cols = lines[y];
 
-                    rect.Top = y * this.physicalFontMetrics.CellHeight;
-                    rect.Bottom = rect.Top + this.physicalFontMetrics.CellHeight;
+                    rect.Top = drawingPosition.Y + (y * this.physicalFontMetrics.CellHeight);
+                    rect.Bottom = drawingPosition.Y + (rect.Top + this.physicalFontMetrics.CellHeight);
 
                     ScreenColor currentBackgroundColor = cols.Length > 0 ? cols[0].BackgroundColor : ScreenColor.DefaultBackground;
                     ScreenColor cellBackgroundColor;
@@ -83,8 +90,8 @@ namespace RemoteTerminal.Terminals
                         cellBackgroundColor = isCursor ? ScreenColor.CursorBackground : cell.BackgroundColor;
                         if (cellBackgroundColor != currentBackgroundColor || x == cols.Length)
                         {
-                            rect.Left = blockStart * this.physicalFontMetrics.CellWidth;
-                            rect.Right = x * this.physicalFontMetrics.CellWidth;
+                            rect.Left = drawingPosition.X + (blockStart * this.physicalFontMetrics.CellWidth);
+                            rect.Right = drawingPosition.X + (x * this.physicalFontMetrics.CellWidth);
 
                             Brush backgroundBrush = this.GetBrush(context2D, this.GetColor(currentBackgroundColor));
                             if (currentBackgroundColor == ScreenColor.CursorBackground && !screenCopy.HasFocus)
@@ -113,8 +120,8 @@ namespace RemoteTerminal.Terminals
                 {
                     var cols = lines[y];
 
-                    rect.Top = y * this.physicalFontMetrics.CellHeight;
-                    rect.Bottom = rect.Top + this.physicalFontMetrics.CellHeight;
+                    rect.Top = drawingPosition.Y + (y * this.physicalFontMetrics.CellHeight);
+                    rect.Bottom = drawingPosition.Y + (rect.Top + this.physicalFontMetrics.CellHeight);
 
                     ScreenColor currentForegroundColor = cols.Length > 0 ? cols[0].ForegroundColor : ScreenColor.DefaultForeground;
                     ScreenCellModifications currentCellModifications = cols.Length > 0 ? cols[0].Modifications : ScreenCellModifications.None;
@@ -128,8 +135,8 @@ namespace RemoteTerminal.Terminals
                         cellForegroundColor = isCursor && screenCopy.HasFocus ? ScreenColor.CursorForeground : cell.ForegroundColor;
                         if (cellForegroundColor != currentForegroundColor || cell.Modifications != currentCellModifications || x == cols.Length)
                         {
-                            rect.Left = blockStart * this.physicalFontMetrics.CellWidth;
-                            rect.Right = x * this.physicalFontMetrics.CellWidth;
+                            rect.Left = drawingPosition.X + (blockStart * this.physicalFontMetrics.CellWidth);
+                            rect.Right = drawingPosition.X + (x * this.physicalFontMetrics.CellWidth);
 
                             Brush foregroundBrush = this.GetBrush(context2D, this.GetColor(currentForegroundColor));
                             TextFormat textFormat = this.textFormatNormal;
@@ -143,8 +150,8 @@ namespace RemoteTerminal.Terminals
 
                             if (currentCellModifications.HasFlag(ScreenCellModifications.Underline))
                             {
-                                var point1 = new Vector2(rect.Left, rect.Bottom - 1.0f);
-                                var point2 = new Vector2(rect.Right, rect.Bottom - 1.0f);
+                                var point1 = new Vector2(rect.Left, rect.Bottom - 1.0f) + drawingPosition;
+                                var point2 = new Vector2(rect.Right, rect.Bottom - 1.0f) + drawingPosition;
                                 context2D.DrawLine(point1, point2, foregroundBrush);
                             }
 
