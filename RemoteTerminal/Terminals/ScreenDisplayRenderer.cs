@@ -143,8 +143,8 @@ namespace RemoteTerminal.Terminals
 
                             if (currentCellModifications.HasFlag(ScreenCellModifications.Underline))
                             {
-                                var point1 = new DrawingPointF(rect.Left, rect.Bottom - 1.0f);
-                                var point2 = new DrawingPointF(rect.Right, rect.Bottom - 1.0f);
+                                var point1 = new Vector2(rect.Left, rect.Bottom - 1.0f);
+                                var point2 = new Vector2(rect.Right, rect.Bottom - 1.0f);
                                 context2D.DrawLine(point1, point2, foregroundBrush);
                             }
 
