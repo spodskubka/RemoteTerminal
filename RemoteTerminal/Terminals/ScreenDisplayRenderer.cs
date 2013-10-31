@@ -43,7 +43,7 @@ namespace RemoteTerminal.Terminals
 
         public virtual void Initialize(DeviceManager deviceManager)
         {
-            this.physicalFontMetrics = this.screenDisplay.FontMetrics * (DisplayProperties.LogicalDpi / 96.0f);
+            this.physicalFontMetrics = this.screenDisplay.FontMetrics * (DisplayInformation.GetForCurrentView().LogicalDpi / 96.0f);
 
             //deviceManager.ContextDirect2D.TextAntialiasMode = TextAntialiasMode.Grayscale;
             deviceManager.ContextDirect2D.AntialiasMode = AntialiasMode.Aliased;

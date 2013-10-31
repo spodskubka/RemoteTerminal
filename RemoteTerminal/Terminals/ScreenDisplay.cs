@@ -143,11 +143,13 @@ namespace RemoteTerminal.Terminals
 
             this.DetachRenderer();
 
-            int pixelWidth = (int)(terminalRectangleWidth * DisplayProperties.LogicalDpi / 96.0);
-            int pixelHeight = (int)(terminalRectangleHeight * DisplayProperties.LogicalDpi / 96.0);
+            float logicalDpi = DisplayInformation.GetForCurrentView().LogicalDpi;
 
-            int rows = (int)(pixelHeight / (this.FontMetrics.CellHeight * DisplayProperties.LogicalDpi / 96.0));
-            int columns = (int)(pixelWidth / (this.FontMetrics.CellWidth * DisplayProperties.LogicalDpi / 96.0));
+            int pixelWidth = (int)(terminalRectangleWidth * logicalDpi / 96.0);
+            int pixelHeight = (int)(terminalRectangleHeight * logicalDpi / 96.0);
+
+            int rows = (int)(pixelHeight / (this.FontMetrics.CellHeight * logicalDpi / 96.0));
+            int columns = (int)(pixelWidth / (this.FontMetrics.CellWidth * logicalDpi / 96.0));
             this.terminal.ResizeScreen(rows, columns);
 
             this.AttachRenderer(pixelWidth, pixelHeight);
@@ -403,7 +405,7 @@ namespace RemoteTerminal.Terminals
 
                 this.deviceManager.OnInitialize += this.d2dTarget.Initialize;
                 this.deviceManager.OnInitialize += this.terminalRenderer.Initialize;
-                this.deviceManager.Initialize(DisplayProperties.LogicalDpi);
+                this.deviceManager.Initialize(DisplayInformation.GetForCurrentView().LogicalDpi);
 
                 this.rectangle.Fill = new ImageBrush() { ImageSource = this.d2dTarget.ImageSource };
                 this.d2dTarget.OnRender += terminalRenderer.Render;

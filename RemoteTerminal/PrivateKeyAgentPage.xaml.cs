@@ -107,7 +107,7 @@ namespace RemoteTerminal
             {
                 var coreWindow = Windows.UI.Core.CoreWindow.GetForCurrentThread();
 
-                var clickedItem = ((ListViewBase)sender).ItemContainerGenerator.ContainerFromItem(e.ClickedItem);
+                var clickedItem = ((ListViewBase)sender).ContainerFromItem(e.ClickedItem);
                 this.loadKeyPasswordErrorTextBlock.Visibility = Visibility.Collapsed;
                 this.loadKeyFileName.Text = privateKeyData.FileName;
                 this.loadKeyPasswordContainer.Tag = e.ClickedItem;
@@ -188,7 +188,7 @@ namespace RemoteTerminal
                 return;
             }
 
-            var clickedItem = ((ListViewBase)sender).ItemContainerGenerator.ContainerFromItem(e.ClickedItem);
+            var clickedItem = ((ListViewBase)sender).ContainerFromItem(e.ClickedItem);
             Callisto.Controls.Flyout menuFlyout = new Callisto.Controls.Flyout()
             {
                 PlacementTarget = clickedItem as UIElement,
