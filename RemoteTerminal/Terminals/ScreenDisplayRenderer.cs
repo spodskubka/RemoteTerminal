@@ -47,8 +47,8 @@ namespace RemoteTerminal.Terminals
 
             //deviceManager.ContextDirect2D.TextAntialiasMode = TextAntialiasMode.Grayscale;
             deviceManager.ContextDirect2D.AntialiasMode = AntialiasMode.Aliased;
-            this.textFormatNormal = new TextFormat(deviceManager.FactoryDirectWrite, this.screenDisplay.ColorTheme.FontFamily, FontWeight.Normal, FontStyle.Normal, this.physicalFontMetrics.FontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Near };
-            this.textFormatBold = new TextFormat(deviceManager.FactoryDirectWrite, this.screenDisplay.ColorTheme.FontFamily, FontWeight.Bold, FontStyle.Normal, this.physicalFontMetrics.FontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Near };
+            this.textFormatNormal = new TextFormat(deviceManager.FactoryDirectWrite, this.screenDisplay.ColorTheme.FontFamily, FontWeight.Normal, FontStyle.Normal, this.physicalFontMetrics.FontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Near, WordWrapping = WordWrapping.NoWrap };
+            this.textFormatBold = new TextFormat(deviceManager.FactoryDirectWrite, this.screenDisplay.ColorTheme.FontFamily, FontWeight.Bold, FontStyle.Normal, this.physicalFontMetrics.FontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Near, WordWrapping = WordWrapping.NoWrap };
         }
 
         public virtual void Render(TargetBase target)

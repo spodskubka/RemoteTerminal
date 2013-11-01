@@ -157,6 +157,8 @@
                                 <ListBox x:Name="FontFamilyListBox" SelectionChanged="FontFamilyListBox_SelectionChanged">
                                     <ListBoxItem Content="Consolas"/>
                                     <ListBoxItem Content="Courier New"/>
+                                    <ListBoxItem Content="KaiTi"/>
+                                    <ListBoxItem Content="SimSun"/>
                                 </ListBox>
                                 <StackPanel Grid.Column="1" Margin="30,0,0,0">
                                     <TextBlock Text="Size" Style="{StaticResource BasicTextStyle}"/>

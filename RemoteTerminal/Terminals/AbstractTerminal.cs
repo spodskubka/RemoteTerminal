@@ -356,7 +356,7 @@ namespace RemoteTerminal.Terminals
                     modifier.CursorRowIncreaseWithScroll(null, null);
                     break;
                 default:
-                    modifier.CursorCharacter = echo ? ch : '●';
+                    modifier.CursorCharacter = echo ? ch : '*';
                     modifier.ApplyFormatToCursor(defaultFormat);
                     if (modifier.CursorColumn + 1 >= this.Screen.ColumnCount)
                     {
