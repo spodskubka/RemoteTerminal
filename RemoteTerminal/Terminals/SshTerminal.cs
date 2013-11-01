@@ -118,6 +118,8 @@ namespace RemoteTerminal.Terminals
 
                             break;
                         default:
+                            int width = CjkWidth.CharWidth(ch);
+
                             if (this.autoWrapMode && this.wrapNextChar)
                             {
                                 modifier.CursorColumn = 0;
@@ -127,11 +129,18 @@ namespace RemoteTerminal.Terminals
 
                             if (this.insertMode)
                             {
-                                modifier.InsertCells(1);
+                                modifier.InsertCells(width);
                             }
 
                             modifier.CursorCharacter = ch;
                             modifier.ApplyFormatToCursor(this.currentFormat);
+
+                            if (width > 1)
+                            {
+                                modifier.CursorColumn++;
+                                modifier.CursorCharacter = CjkWidth.UCSWIDE;
+                                modifier.ApplyFormatToCursor(this.currentFormat);
+                            }
 
                             if (modifier.CursorColumn + 1 >= this.Screen.ColumnCount)
                             {

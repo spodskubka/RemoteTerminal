@@ -137,6 +137,7 @@
     <Compile Include="Screens\ScreenScrollbackBuffer.cs" />
     <Compile Include="TerminalManager.cs" />
     <Compile Include="Connections\IConnection.cs" />
+    <Compile Include="Terminals\CjkWidth.cs" />
     <Compile Include="Terminals\ScreenFontMetrics.cs" />
     <Compile Include="Terminals\ScreenPreview.cs" />
     <Compile Include="Terminals\ScreenPreviewRenderer.cs" />

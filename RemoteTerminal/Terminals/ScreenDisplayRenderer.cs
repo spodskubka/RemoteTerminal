@@ -125,6 +125,7 @@ namespace RemoteTerminal.Terminals
 
                     ScreenColor currentForegroundColor = cols.Length > 0 ? cols[0].ForegroundColor : ScreenColor.DefaultForeground;
                     ScreenCellModifications currentCellModifications = cols.Length > 0 ? cols[0].Modifications : ScreenCellModifications.None;
+                    bool currentCellUCSWIDE = cols.Length > 0 ? cols[0].Character == CjkWidth.UCSWIDE : false;
                     ScreenColor cellForegroundColor;
                     int blockStart = 0;
                     for (int x = 0; x <= cols.Length; x++) // loop once above the upper bound
@@ -133,7 +134,7 @@ namespace RemoteTerminal.Terminals
 
                         bool isCursor = !screenCopy.CursorHidden && y == screenCopy.CursorRow && x == screenCopy.CursorColumn;
                         cellForegroundColor = isCursor && screenCopy.HasFocus ? ScreenColor.CursorForeground : cell.ForegroundColor;
-                        if (cellForegroundColor != currentForegroundColor || cell.Modifications != currentCellModifications || x == cols.Length)
+                        if (currentCellUCSWIDE || cellForegroundColor != currentForegroundColor || cell.Modifications != currentCellModifications || x == cols.Length)
                         {
                             rect.Left = drawingPosition.X + (blockStart * this.physicalFontMetrics.CellWidth);
                             rect.Right = drawingPosition.X + (x * this.physicalFontMetrics.CellWidth);
@@ -145,8 +146,12 @@ namespace RemoteTerminal.Terminals
                                 textFormat = this.textFormatBold;
                             }
 
-                            string text = new string(cols.Skip(blockStart).Take(x - blockStart).Select(c => char.IsWhiteSpace(c.Character) ? ' ' : c.Character).ToArray()).TrimEnd();
-                            context2D.DrawText(text, textFormat, rect, foregroundBrush, DrawTextOptions.Clip);
+                            string text = new string(cols.Skip(blockStart).Take(x - blockStart).Select(c => char.IsWhiteSpace(c.Character) ? ' ' : c.Character).Where(ch => ch != CjkWidth.UCSWIDE).ToArray()).TrimEnd();
+
+                            if (text.Length > 0)
+                            {
+                                context2D.DrawText(text, textFormat, rect, foregroundBrush, DrawTextOptions.Clip);
+                            }
 
                             if (currentCellModifications.HasFlag(ScreenCellModifications.Underline))
                             {
@@ -159,6 +164,7 @@ namespace RemoteTerminal.Terminals
 
                             currentForegroundColor = cellForegroundColor;
                         }
+                        currentCellUCSWIDE = cell.Character == CjkWidth.UCSWIDE;
                     }
                 }
             }

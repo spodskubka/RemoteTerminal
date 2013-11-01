@@ -58,7 +58,7 @@ namespace RemoteTerminal.Screens
                     {
                         if (value >= this.screen.ColumnCount)
                         {
-                            throw new ArgumentOutOfRangeException();
+                            return;
                         }
 
                         this.screen.CursorColumn = value;
