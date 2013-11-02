@@ -150,7 +150,7 @@ namespace RemoteTerminal.Terminals
 
                             if (text.Length > 0)
                             {
-                            context2D.DrawText(text, textFormat, rect, foregroundBrush, DrawTextOptions.Clip);
+                                context2D.DrawText(text, textFormat, rect, foregroundBrush, DrawTextOptions.Clip);
                             }
 
                             if (currentCellModifications.HasFlag(ScreenCellModifications.Underline))
