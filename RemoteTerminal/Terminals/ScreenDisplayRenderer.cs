@@ -53,11 +53,11 @@ namespace RemoteTerminal.Terminals
 
         public virtual void Render(TargetBase target)
         {
-            Point drawingPosition = new Point(0, 0);
+            Vector2 drawingPosition = new Vector2(0, 0);
             SurfaceImageSourceTarget surfaceImageSourceTarget = target as SurfaceImageSourceTarget;
             if (surfaceImageSourceTarget != null)
             {
-                drawingPosition = surfaceImageSourceTarget.DrawingPosition;
+                drawingPosition = new Vector2(surfaceImageSourceTarget.DrawingPosition.X, surfaceImageSourceTarget.DrawingPosition.Y);
             }
 
             IRenderableScreenCopy screenCopy = this.screen.GetScreenCopy();
