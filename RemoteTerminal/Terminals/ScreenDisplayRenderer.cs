@@ -47,8 +47,8 @@ namespace RemoteTerminal.Terminals
 
             //deviceManager.ContextDirect2D.TextAntialiasMode = TextAntialiasMode.Grayscale;
             deviceManager.ContextDirect2D.AntialiasMode = AntialiasMode.Aliased;
-            this.textFormatNormal = new TextFormat(deviceManager.FactoryDirectWrite, this.screenDisplay.ColorTheme.FontFamily, FontWeight.Normal, FontStyle.Normal, this.physicalFontMetrics.FontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Near };
-            this.textFormatBold = new TextFormat(deviceManager.FactoryDirectWrite, this.screenDisplay.ColorTheme.FontFamily, FontWeight.Bold, FontStyle.Normal, this.physicalFontMetrics.FontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Near };
+            this.textFormatNormal = new TextFormat(deviceManager.FactoryDirectWrite, this.screenDisplay.ColorTheme.FontFamily, FontWeight.Normal, FontStyle.Normal, this.physicalFontMetrics.FontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Near, WordWrapping = WordWrapping.NoWrap };
+            this.textFormatBold = new TextFormat(deviceManager.FactoryDirectWrite, this.screenDisplay.ColorTheme.FontFamily, FontWeight.Bold, FontStyle.Normal, this.physicalFontMetrics.FontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Near, WordWrapping = WordWrapping.NoWrap };
         }
 
         public virtual void Render(TargetBase target)
@@ -77,7 +77,7 @@ namespace RemoteTerminal.Terminals
                     var cols = lines[y];
 
                     rect.Top = drawingPosition.Y + (y * this.physicalFontMetrics.CellHeight);
-                    rect.Bottom = drawingPosition.Y + (rect.Top + this.physicalFontMetrics.CellHeight);
+                    rect.Bottom = rect.Top + this.physicalFontMetrics.CellHeight;
 
                     ScreenColor currentBackgroundColor = cols.Length > 0 ? cols[0].BackgroundColor : ScreenColor.DefaultBackground;
                     ScreenColor cellBackgroundColor;
@@ -121,10 +121,11 @@ namespace RemoteTerminal.Terminals
                     var cols = lines[y];
 
                     rect.Top = drawingPosition.Y + (y * this.physicalFontMetrics.CellHeight);
-                    rect.Bottom = drawingPosition.Y + (rect.Top + this.physicalFontMetrics.CellHeight);
+                    rect.Bottom = rect.Top + this.physicalFontMetrics.CellHeight;
 
                     ScreenColor currentForegroundColor = cols.Length > 0 ? cols[0].ForegroundColor : ScreenColor.DefaultForeground;
                     ScreenCellModifications currentCellModifications = cols.Length > 0 ? cols[0].Modifications : ScreenCellModifications.None;
+                    bool currentCellUCSWIDE = cols.Length > 0 ? cols[0].Character == CjkWidth.UCSWIDE : false;
                     ScreenColor cellForegroundColor;
                     int blockStart = 0;
                     for (int x = 0; x <= cols.Length; x++) // loop once above the upper bound
@@ -133,7 +134,7 @@ namespace RemoteTerminal.Terminals
 
                         bool isCursor = !screenCopy.CursorHidden && y == screenCopy.CursorRow && x == screenCopy.CursorColumn;
                         cellForegroundColor = isCursor && screenCopy.HasFocus ? ScreenColor.CursorForeground : cell.ForegroundColor;
-                        if (cellForegroundColor != currentForegroundColor || cell.Modifications != currentCellModifications || x == cols.Length)
+                        if (currentCellUCSWIDE || cellForegroundColor != currentForegroundColor || cell.Modifications != currentCellModifications || x == cols.Length)
                         {
                             rect.Left = drawingPosition.X + (blockStart * this.physicalFontMetrics.CellWidth);
                             rect.Right = drawingPosition.X + (x * this.physicalFontMetrics.CellWidth);
@@ -145,8 +146,12 @@ namespace RemoteTerminal.Terminals
                                 textFormat = this.textFormatBold;
                             }
 
-                            string text = new string(cols.Skip(blockStart).Take(x - blockStart).Select(c => char.IsWhiteSpace(c.Character) ? ' ' : c.Character).ToArray()).TrimEnd();
-                            context2D.DrawText(text, textFormat, rect, foregroundBrush, DrawTextOptions.Clip);
+                            string text = new string(cols.Skip(blockStart).Take(x - blockStart).Select(c => char.IsWhiteSpace(c.Character) ? ' ' : c.Character).Where(ch => ch != CjkWidth.UCSWIDE).ToArray()).TrimEnd();
+
+                            if (text.Length > 0)
+                            {
+                                context2D.DrawText(text, textFormat, rect, foregroundBrush, DrawTextOptions.Clip);
+                            }
 
                             if (currentCellModifications.HasFlag(ScreenCellModifications.Underline))
                             {
@@ -159,6 +164,7 @@ namespace RemoteTerminal.Terminals
 
                             currentForegroundColor = cellForegroundColor;
                         }
+                        currentCellUCSWIDE = cell.Character == CjkWidth.UCSWIDE;
                     }
                 }
             }

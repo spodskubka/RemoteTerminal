@@ -157,13 +157,15 @@
                                 <ListBox x:Name="FontFamilyListBox" SelectionChanged="FontFamilyListBox_SelectionChanged">
                                     <ListBoxItem Content="Consolas"/>
                                     <ListBoxItem Content="Courier New"/>
+                                    <ListBoxItem Content="KaiTi"/>
+                                    <ListBoxItem Content="SimSun"/>
                                 </ListBox>
                                 <StackPanel Grid.Column="1" Margin="30,0,0,0">
                                     <TextBlock Text="Size" Style="{StaticResource BasicTextStyle}"/>
                                     <Slider x:Name="FontSizeSlider" Minimum="-5" Maximum="5" ValueChanged="FontSizeSlider_ValueChanged"/>
                                     <TextBlock Text="Preview" Style="{StaticResource BasicTextStyle}"/>
                                     <Border Background="Black" Height="50">
-                                      <TextBlock x:Name="FontPreviewTextBlock" Text="AaBbCcDd" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas" FontSize="17.0" />
+                                        <TextBlock x:Name="FontPreviewTextBlock" Text="AaBbCcDd中日한" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas" FontSize="17.0" />
                                     </Border>
                                 </StackPanel>
                             </Grid>

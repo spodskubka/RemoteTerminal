@@ -84,6 +84,8 @@ namespace RemoteTerminal.Terminals
         {
           { "Consolas", new ScreenFontMetrics(fontSize: 17.0f, cellWidth: 9.35f, cellHeight: 20.0f) },
           { "Courier New", new ScreenFontMetrics(fontSize: 17.0f, cellWidth: 10.21f, cellHeight: 20.0f) },
+          { "KaiTi", new ScreenFontMetrics(fontSize: 17.0f, cellWidth: 8.51f, cellHeight: 20.0f) },
+          { "SimSun", new ScreenFontMetrics(fontSize: 17.0f, cellWidth: 8.5f, cellHeight: 20.0f) },
           //{ "Courier", new ScreenFontMetrics(fontSize: 17.0f, cellWidth: 9.45f, cellHeight: 20.0f) },
           //{ "Fixedsys", new ScreenFontMetrics(fontSize: 17.0f, cellWidth: 9.35f, cellHeight: 20.0f) },
           //{ "Lucida Console", new ScreenFontMetrics(fontSize: 17.0f, cellWidth: 10.26f, cellHeight: 20.0f) },
