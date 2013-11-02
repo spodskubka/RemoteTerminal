@@ -55,16 +55,16 @@
                     <RadioButton x:Name="telnetRadioButton" Margin="0,5,10,5" Content="Telnet" Checked="telnetRadioButton_Checked" />
                 </StackPanel>
                 <TextBlock Text="Host" Style="{StaticResource SubtitleTextStyle}"/>
-                <TextBox x:Name="hostTextBox" Margin="0,10" TextChanged="requiredField_Changed"/>
+                <TextBox x:Name="hostTextBox" Margin="0,10" TextChanged="requiredField_Changed" IsTextPredictionEnabled="False"/>
                 <TextBlock Text="Port" Style="{StaticResource SubtitleTextStyle}"/>
-                <TextBox x:Name="portTextBox" Margin="0,10" HorizontalAlignment="Left" Width="100" TextChanged="requiredField_Changed"/>
+                <TextBox x:Name="portTextBox" Margin="0,10" HorizontalAlignment="Left" Width="100" TextChanged="requiredField_Changed" IsTextPredictionEnabled="False" InputScope="Number"/>
             </StackPanel>
 
             <StackPanel x:Name="sshOptions" Visibility="Visible" Width="300">
                 <TextBlock Text="Additional SSH options" Style="{StaticResource TitleTextStyle}" Margin="0,10"/>
 
                 <TextBlock Text="Auto-login username" Style="{StaticResource SubtitleTextStyle}"/>
-                <TextBox x:Name="usernameTextBox" Margin="0,10"/>
+                <TextBox x:Name="usernameTextBox" Margin="0,10" IsTextPredictionEnabled="False"/>
 
                 <TextBlock Text="Authentication method" Style="{StaticResource SubtitleTextStyle}"/>
                 <ComboBox x:Name="authenticationMethodComboBox" Margin="0,10" SelectionChanged="authenticationMethodComboBox_SelectionChanged">
