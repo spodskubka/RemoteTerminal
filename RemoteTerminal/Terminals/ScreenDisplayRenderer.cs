@@ -77,7 +77,7 @@ namespace RemoteTerminal.Terminals
                     var cols = lines[y];
 
                     rect.Top = drawingPosition.Y + (y * this.physicalFontMetrics.CellHeight);
-                    rect.Bottom = drawingPosition.Y + (rect.Top + this.physicalFontMetrics.CellHeight);
+                    rect.Bottom = rect.Top + this.physicalFontMetrics.CellHeight;
 
                     ScreenColor currentBackgroundColor = cols.Length > 0 ? cols[0].BackgroundColor : ScreenColor.DefaultBackground;
                     ScreenColor cellBackgroundColor;
@@ -121,7 +121,7 @@ namespace RemoteTerminal.Terminals
                     var cols = lines[y];
 
                     rect.Top = drawingPosition.Y + (y * this.physicalFontMetrics.CellHeight);
-                    rect.Bottom = drawingPosition.Y + (rect.Top + this.physicalFontMetrics.CellHeight);
+                    rect.Bottom = rect.Top + this.physicalFontMetrics.CellHeight;
 
                     ScreenColor currentForegroundColor = cols.Length > 0 ? cols[0].ForegroundColor : ScreenColor.DefaultForeground;
                     ScreenCellModifications currentCellModifications = cols.Length > 0 ? cols[0].Modifications : ScreenCellModifications.None;
