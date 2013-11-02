@@ -165,7 +165,7 @@
                                     <Slider x:Name="FontSizeSlider" Minimum="-5" Maximum="5" ValueChanged="FontSizeSlider_ValueChanged"/>
                                     <TextBlock Text="Preview" Style="{StaticResource BasicTextStyle}"/>
                                     <Border Background="Black" Height="50">
-                                      <TextBlock x:Name="FontPreviewTextBlock" Text="AaBbCcDd" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas" FontSize="17.0" />
+                                        <TextBlock x:Name="FontPreviewTextBlock" Text="AaBbCcDd中日한" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas" FontSize="17.0" />
                                     </Border>
                                 </StackPanel>
                             </Grid>

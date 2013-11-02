@@ -311,13 +311,21 @@ namespace RemoteTerminal
             // Activate scrolling for the RichEditBox, then load the generated RTF document.
             this.screenDisplayCopyBoxScroll.HorizontalScrollMode = ScrollMode.Auto;
             this.screenDisplayCopyBoxScroll.VerticalScrollMode = ScrollMode.Auto;
-            using (InMemoryRandomAccessStream rtfStream = await this.GenerateRtf(screenCopy))
+
+            var rtfData = await this.GenerateRtf(screenCopy);
+            float widthRatio = rtfData.Item2;
+            using (InMemoryRandomAccessStream rtfStream = rtfData.Item1)
             {
                 this.screenDisplayCopyBox.Document.LoadFromStream(TextSetOptions.ApplyRtfDocumentDefaults | TextSetOptions.FormatRtf | TextSetOptions.Unhide, rtfStream);
             }
 
             // Adjust the size of the RichEditBox, then deactivate scrolling.
-            this.screenDisplayCopyBoxScroll.Width = this.screenDisplayCopyBoxScroll.ExtentWidth;
+            this.screenDisplayCopyBoxScroll.Width = Window.Current.Bounds.Width / 2;
+            if (widthRatio >= 0f)
+            {
+                this.screenDisplayCopyBoxScroll.Width = (this.screenDisplayCopyBoxScroll.ExtentWidth - this.screenDisplayCopyBox.BorderThickness.Left - this.screenDisplayCopyBox.BorderThickness.Right) / widthRatio;
+                this.screenDisplayCopyBoxScroll.Width += 1 + this.screenDisplayCopyBox.BorderThickness.Left + this.screenDisplayCopyBox.BorderThickness.Right;
+            }
             this.screenDisplayCopyBoxScroll.Height = this.screenDisplayCopyBoxScroll.ExtentHeight;
             this.screenDisplayCopyBoxScroll.HorizontalScrollMode = ScrollMode.Disabled;
             this.screenDisplayCopyBoxScroll.VerticalScrollMode = ScrollMode.Disabled;
@@ -328,8 +336,10 @@ namespace RemoteTerminal
             this.TopAppBar.IsOpen = false;
         }
 
-        private async Task<InMemoryRandomAccessStream> GenerateRtf(IRenderableScreenCopy screenCopy)
+        private async Task<Tuple<InMemoryRandomAccessStream, float>> GenerateRtf(IRenderableScreenCopy screenCopy)
         {
+            int rightmostNonSpace = -1;
+            int columnCount = -1;
             Encoding codepage1252 = Encoding.GetEncoding("Windows-1252");
             var rtfStream = new InMemoryRandomAccessStream();
             using (DataWriter rtf = new DataWriter(rtfStream))
@@ -435,6 +445,11 @@ namespace RemoteTerminal
                                 formatCodes.Append(@"\ul0");
                             }
                         }
+
+                        if (line[x].Character != 0x0020)
+                        {
+                            rightmostNonSpace = Math.Max(rightmostNonSpace, x);
+                        }
                     }
 
                     if (formatCodes.Length > 0)
@@ -447,6 +462,8 @@ namespace RemoteTerminal
                     {
                         rtf.WriteString(@"\par" + Environment.NewLine);
                     }
+
+                    columnCount = Math.Max(columnCount, line.Length);
                 }
 
                 rtf.WriteString(@"}");
@@ -458,7 +475,9 @@ namespace RemoteTerminal
 
             rtfStream.Seek(0);
 
-            return rtfStream;
+            float widthRatio = rightmostNonSpace >= 0 ? (rightmostNonSpace + 1f) / columnCount : -1f;
+
+            return new Tuple<InMemoryRandomAccessStream, float>(rtfStream, widthRatio);
         }
 
         private static string RtfEscape(string str)

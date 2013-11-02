@@ -47,7 +47,7 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
-                    <ColumnDefinition/>
+                    <!--<ColumnDefinition/>-->
                 </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal">
                     <Button Style="{StaticResource PasteAppBarButtonStyle}" Click="pasteAppBarButton_Click"/>
