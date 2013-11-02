@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2010-2013 SharpDX - Alexandre Mutel
+﻿// Copyright (c) 2010-2012 SharpDX - Alexandre Mutel
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -42,7 +42,7 @@ namespace CommonDX
         private SurfaceImageSource surfaceImageSource;
         private ISurfaceImageSourceNative surfaceImageSourceNative;
         private readonly SurfaceViewData[] viewDatas = new SurfaceViewData[2];
-        private SharpDX.Point position;
+        private DrawingPoint position;
         private int nextViewDataIndex;
 
         /// <summary>
@@ -89,7 +89,7 @@ namespace CommonDX
         /// <summary>
         /// Gets the relative position to use to draw on the surface.
         /// </summary>
-        public SharpDX.Point DrawingPosition { get { return position; } }
+        public DrawingPoint DrawingPosition { get { return position; } }
 
         /// <inveritdoc/>
         public override void RenderAll()
@@ -175,7 +175,7 @@ namespace CommonDX
                 DeviceManager.ContextDirect2D.Target = viewData.BitmapTarget;
 
                 // Set the current viewport using the descriptor.
-                DeviceManager.ContextDirect3D.Rasterizer.SetViewport(viewData.Viewport);
+                DeviceManager.ContextDirect3D.Rasterizer.SetViewports(viewData.Viewport);
 
                 // Perform the actual rendering of this target
                 base.RenderAll();
@@ -199,10 +199,10 @@ namespace CommonDX
 
             public void Dispose()
             {
-                Utilities.Dispose(ref BitmapTarget);
-                Utilities.Dispose(ref RenderTargetView);
-                Utilities.Dispose(ref DepthStencilView);
-                Utilities.Dispose(ref BackBuffer);
+                ComObject.Dispose(ref BitmapTarget);
+                ComObject.Dispose(ref RenderTargetView);
+                ComObject.Dispose(ref DepthStencilView);
+                ComObject.Dispose(ref BackBuffer);
                 SurfacePointer = IntPtr.Zero;
             }
         }

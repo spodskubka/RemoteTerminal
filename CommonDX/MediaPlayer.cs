@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2010-2013 SharpDX - Alexandre Mutel
+﻿// Copyright (c) 2010-2012 SharpDX - Alexandre Mutel
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -76,10 +76,6 @@ namespace CommonDX
             {
                 // Startup MediaManager
                 MediaManager.Startup();
-
-                // Setup multithread on the Direct3D11 device
-                var multithread = deviceManager.DeviceDirect3D.QueryInterface<SharpDX.Direct3D.DeviceMultithread>();
-                multithread.SetMultithreadProtected(true);
 
                 // Create a DXGI Device Manager
                 dxgiDeviceManager = new DXGIDeviceManager();
