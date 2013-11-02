@@ -1,4 +1,4 @@
-﻿// Copyright (c) 2010-2013 SharpDX - Alexandre Mutel
+﻿// Copyright (c) 2010-2012 SharpDX - Alexandre Mutel
 // 
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -167,7 +167,7 @@ namespace CommonDX
                 // Try to create it with Video Support
                 // If it is not working, we just use BGRA
                 // Force to FeatureLevel.Level_9_1
-                using (var defaultDevice = new SharpDX.Direct3D11.Device(DriverType.Hardware, creationFlags))
+                using (var defaultDevice = new SharpDX.Direct3D11.Device(DriverType.Hardware, creationFlags, FeatureLevel.Level_9_1))
                     d3dDevice = defaultDevice.QueryInterface<SharpDX.Direct3D11.Device1>();
             } catch (Exception)
             {
@@ -206,7 +206,7 @@ namespace CommonDX
                 if (dpi != value)
                 {
                     dpi = value;
-                    d2dContext.DotsPerInch = new SharpDX.Size2F(dpi, dpi);
+                    d2dContext.DotsPerInch = new SharpDX.DrawingSizeF(dpi, dpi);
 
                     if (OnDpiChanged != null)
                         OnDpiChanged(this);
