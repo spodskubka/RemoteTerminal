@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
-using Callisto.Controls;
 using RemoteTerminal.Model;
 using Renci.SshNet;
 using Renci.SshNet.Common;
@@ -207,15 +206,12 @@ namespace RemoteTerminal
             }
 
             var clickedItem = ((ListViewBase)sender).ContainerFromItem(e.ClickedItem);
-            Callisto.Controls.Flyout menuFlyout = new Callisto.Controls.Flyout()
+            MenuFlyout menuFlyout = new MenuFlyout()
             {
-                PlacementTarget = clickedItem as UIElement,
-                Placement = PlacementMode.Bottom,
+                Placement = FlyoutPlacementMode.Bottom,
             };
 
-            Menu menu = new Menu();
-
-            MenuItem menuItemUnload = new MenuItem();
+            MenuFlyoutItem menuItemUnload = new MenuFlyoutItem();
             menuItemUnload.Text = "Unload";
             menuItemUnload.Tapped += (a, b) =>
             {
@@ -224,7 +220,7 @@ namespace RemoteTerminal
                 this.SetEmptyHintVisibilities();
             };
 
-            //MenuItem menuItemImport = new MenuItem();
+            //MenuFlyoutItem menuItemImport = new MenuFlyoutItem();
             //menuItemImport.Text = "Import";
             //menuItemImport.Tapped += (a, b) =>
             //{
@@ -261,12 +257,10 @@ namespace RemoteTerminal
             //    }
             //};
 
-            menu.Items.Add(menuItemUnload);
+            menuFlyout.Items.Add(menuItemUnload);
             //menu.Items.Add(menuItemImport);
 
-            menuFlyout.HostMargin = new Thickness(0);
-            menuFlyout.Content = menu;
-            menuFlyout.IsOpen = true;
+            menuFlyout.ShowAt((FrameworkElement)clickedItem);
 
             //PopupMenu menu = new PopupMenu();
             //menu.Commands.Add(new UICommand("Unload"));

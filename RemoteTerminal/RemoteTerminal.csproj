@@ -243,9 +243,6 @@
     <Folder Include="Themes\" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Callisto">
-      <HintPath>..\packages\Callisto.1.2.6\lib\winrt45\Callisto.dll</HintPath>
-    </Reference>
     <Reference Include="SharpDX">
       <HintPath>..\packages\SharpDX.2.5.0\lib\win8\SharpDX.dll</HintPath>
     </Reference>
