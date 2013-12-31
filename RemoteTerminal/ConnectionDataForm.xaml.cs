@@ -19,6 +19,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using RemoteTerminal.Common;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -27,8 +28,28 @@ namespace RemoteTerminal
     /// <summary>
     /// A basic page that provides characteristics common to most applications.
     /// </summary>
-    public sealed partial class ConnectionDataForm : RemoteTerminal.Common.LayoutAwarePage
+    public sealed partial class ConnectionDataForm : Page
     {
+        private NavigationHelper navigationHelper;
+        private ObservableDictionary defaultViewModel = new ObservableDictionary();
+
+        /// <summary>
+        /// This can be changed to a strongly typed view model.
+        /// </summary>
+        public ObservableDictionary DefaultViewModel
+        {
+            get { return this.defaultViewModel; }
+        }
+
+        /// <summary>
+        /// NavigationHelper is used on each page to aid in navigation and 
+        /// process lifetime management
+        /// </summary>
+        public NavigationHelper NavigationHelper
+        {
+            get { return this.navigationHelper; }
+        }
+
         private const int DefaultSshPort = 22;
         private const int DefaultTelnetPort = 23;
 
@@ -45,22 +66,26 @@ namespace RemoteTerminal
         public ConnectionDataForm()
         {
             this.InitializeComponent();
+            this.navigationHelper = new NavigationHelper(this);
+            this.navigationHelper.LoadState += this.navigationHelper_LoadState;
         }
 
         /// <summary>
-        /// Populates the page with content passed during navigation.  Any saved state is also
+        /// Populates the page with content passed during navigation. Any saved state is also
         /// provided when recreating a page from a prior session.
         /// </summary>
-        /// <param name="navigationParameter">The parameter value passed to
-        /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested.
+        /// <param name="sender">
+        /// The source of the event; typically <see cref="NavigationHelper"/>
         /// </param>
-        /// <param name="pageState">A dictionary of state preserved by this page during an earlier
-        /// session.  This will be null the first time a page is visited.</param>
-        protected override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
+        /// <param name="e">Event data that provides both the navigation parameter passed to
+        /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
+        /// a dictionary of state preserved by this page during an earlier
+        /// session. The state will be null the first time a page is visited.</param>
+        private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             this.mode = ConnectionDataMode.Edit;
 
-            string id = navigationParameter as string;
+            string id = e.NavigationParameter as string;
 
             this.sshRadioButton.IsChecked = true;
             this.authenticationMethodComboBox.SelectedIndex = 0;
@@ -114,16 +139,6 @@ namespace RemoteTerminal
 
             this.SetupPageTitle();
             this.SetupAppBar();
-        }
-
-        /// <summary>
-        /// Preserves state associated with this page in case the application is suspended or the
-        /// page is discarded from the navigation cache.  Values must conform to the serialization
-        /// requirements of <see cref="SuspensionManager.SessionState"/>.
-        /// </summary>
-        /// <param name="pageState">An empty dictionary to be populated with serializable state.</param>
-        protected override void SaveState(Dictionary<String, Object> pageState)
-        {
         }
 
         private void saveButton_Click(object sender, RoutedEventArgs e)
@@ -286,5 +301,33 @@ namespace RemoteTerminal
         {
             this.SetupAppBar();
         }
+
+        private void cancelAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.navigationHelper.GoBack();
+        }
+
+        #region NavigationHelper registration
+
+        /// The methods provided in this section are simply used to allow
+        /// NavigationHelper to respond to the page's navigation methods.
+        /// 
+        /// Page specific logic should be placed in event handlers for the  
+        /// <see cref="GridCS.Common.NavigationHelper.LoadState"/>
+        /// and <see cref="GridCS.Common.NavigationHelper.SaveState"/>.
+        /// The navigation parameter is available in the LoadState method 
+        /// in addition to page state preserved during an earlier session.
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            this.navigationHelper.OnNavigatedTo(e);
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            this.navigationHelper.OnNavigatedFrom(e);
+        }
+
+        #endregion
     }
 }

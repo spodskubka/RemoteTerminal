@@ -1,4 +1,4 @@
-﻿<common:LayoutAwarePage
+﻿<Page
     x:Name="pageRoot"
     x:Class="RemoteTerminal.ConnectionDataForm"
     DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
@@ -12,22 +12,27 @@
 
     <Page.Resources>
     </Page.Resources>
-    <common:LayoutAwarePage.BottomAppBar>
-        <AppBar x:Name="bottomAppBar" IsOpen="True" IsSticky="True" Padding="10,0,10,0">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Style="{StaticResource QuickConnectAppBarButtonStyle}" x:Name="connectButton" Click="connectButton_Click"/>
-                <Button Style="{StaticResource SaveAppBarButtonStyle}" x:Name="saveButton" Click="saveButton_Click"/>
-                <Button Style="{StaticResource CancelAppBarButtonStyle}" Click="GoBack"/>
-            </StackPanel>
-        </AppBar>
-    </common:LayoutAwarePage.BottomAppBar>
+    <Page.BottomAppBar>
+        <CommandBar IsOpen="True" IsSticky="True" Padding="10,0,10,0">
+            <CommandBar.PrimaryCommands>
+                <AppBarButton Icon="Go" Label="Connect" x:Name="connectButton" Click="connectButton_Click"/>
+                <AppBarButton Icon="Save" Label="Save" x:Name="saveButton" Click="saveButton_Click"/>
+                <AppBarButton Icon="Cancel" Label="Cancel" Click="cancelAppBarButton_Click"/>
+            </CommandBar.PrimaryCommands>
+        </CommandBar>
+    </Page.BottomAppBar>
 
     <!--
         This grid acts as a root panel for the page that defines two rows:
         * Row 0 contains the back button and page title
         * Row 1 contains the rest of the page layout
     -->
-    <Grid Style="{StaticResource LayoutRootStyle}">
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="140"/>
             <RowDefinition Height="*"/>
@@ -36,37 +41,50 @@
         <!-- Back button and page title -->
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="120"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}"/>
-            <TextBlock x:Name="pageTitle" Grid.Column="1" Text="{StaticResource AppName}" Style="{StaticResource PageHeaderTextStyle}"/>
+            <Button x:Name="backButton" Margin="39,59,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
+                        Style="{StaticResource NavigationBackButtonNormalStyle}"
+                        VerticalAlignment="Top"
+                        AutomationProperties.Name="Back"
+                        AutomationProperties.AutomationId="BackButton"
+                        AutomationProperties.ItemType="Navigation Button"/>
+            <TextBlock x:Name="pageTitle" Text="{StaticResource AppName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
+                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
         </Grid>
 
-        <StackPanel x:Name="stackPanel" Orientation="Horizontal" Margin="120,0,0,0" Grid.Row="1" HorizontalAlignment="Left" Width="Auto">
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" HorizontalScrollMode="Auto" VerticalScrollMode="Disabled" ZoomMode="Disabled" Margin="0,0,0,92">
+        <StackPanel x:Name="stackPanel" Orientation="Horizontal" Margin="120,0" HorizontalAlignment="Left" Width="Auto">
             <StackPanel Width="300" Margin="0,0,20,0">
                 <StackPanel x:Name="nameOptions">
-                    <TextBlock Text="Name" Style="{StaticResource SubtitleTextStyle}"/>
+                    <TextBlock Text="Name" Style="{StaticResource SubtitleTextBlockStyle}"/>
                     <TextBox x:Name="nameTextBox" Margin="0,10" TextChanged="requiredField_Changed"/>
                 </StackPanel>
-                <TextBlock Text="Type" Style="{StaticResource SubtitleTextStyle}"/>
+                <TextBlock Text="Type" Style="{StaticResource SubtitleTextBlockStyle}"/>
                 <StackPanel Orientation="Horizontal" Margin="0,5">
                     <RadioButton x:Name="sshRadioButton" Margin="0,5,10,5" Content="SSH" Checked="sshRadioButton_Checked" Unchecked="sshRadioButton_Unchecked" />
                     <RadioButton x:Name="telnetRadioButton" Margin="0,5,10,5" Content="Telnet" Checked="telnetRadioButton_Checked" />
                 </StackPanel>
-                <TextBlock Text="Host" Style="{StaticResource SubtitleTextStyle}"/>
-                <TextBox x:Name="hostTextBox" Margin="0,10" TextChanged="requiredField_Changed" IsTextPredictionEnabled="False"/>
-                <TextBlock Text="Port" Style="{StaticResource SubtitleTextStyle}"/>
-                <TextBox x:Name="portTextBox" Margin="0,10" HorizontalAlignment="Left" Width="100" TextChanged="requiredField_Changed" IsTextPredictionEnabled="False" InputScope="Number"/>
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Orientation="Vertical" Width="210" Margin="0,0,10,0">
+                        <TextBlock Text="Host" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                        <TextBox x:Name="hostTextBox" Margin="0,10" TextChanged="requiredField_Changed" IsTextPredictionEnabled="False"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical">
+                        <TextBlock Text="Port" Style="{StaticResource SubtitleTextBlockStyle}"/>
+                        <TextBox x:Name="portTextBox" Margin="0,10" HorizontalAlignment="Left" Width="80" TextChanged="requiredField_Changed" IsTextPredictionEnabled="False" InputScope="Number"/>
+                    </StackPanel>
+                </StackPanel>
             </StackPanel>
 
             <StackPanel x:Name="sshOptions" Visibility="Visible" Width="300">
-                <TextBlock Text="Additional SSH options" Style="{StaticResource TitleTextStyle}" Margin="0,10"/>
+                <TextBlock Text="Additional SSH options" Style="{StaticResource TitleTextBlockStyle}" Margin="0,10"/>
 
-                <TextBlock Text="Auto-login username" Style="{StaticResource SubtitleTextStyle}"/>
+                <TextBlock Text="Auto-login username" Style="{StaticResource SubtitleTextBlockStyle}"/>
                 <TextBox x:Name="usernameTextBox" Margin="0,10" IsTextPredictionEnabled="False"/>
 
-                <TextBlock Text="Authentication method" Style="{StaticResource SubtitleTextStyle}"/>
+                <TextBlock Text="Authentication method" Style="{StaticResource SubtitleTextBlockStyle}"/>
                 <ComboBox x:Name="authenticationMethodComboBox" Margin="0,10" SelectionChanged="authenticationMethodComboBox_SelectionChanged">
                     <ComboBox.Items>
                         <x:String>Password</x:String>
@@ -78,7 +96,7 @@
                 </ComboBox>
 
                 <StackPanel x:Name="privateKeyOptions" Visibility="Visible" Width="300">
-                    <TextBlock Text="Private key" Style="{StaticResource SubtitleTextStyle}"/>
+                    <TextBlock Text="Private key" Style="{StaticResource SubtitleTextBlockStyle}"/>
                     <ComboBox x:Name="privateKeyComboBox" Margin="0,10" SelectionChanged="privateKeyComboBox_SelectionChanged"/>
                 </StackPanel>
                 <StackPanel x:Name="privateKeyAgentOptions" Visibility="Visible" Width="300">
@@ -86,49 +104,6 @@
                 </StackPanel>
             </StackPanel>
         </StackPanel>
-
-        <VisualStateManager.VisualStateGroups>
-
-            <!-- Visual states reflect the application's view state -->
-            <VisualStateGroup x:Name="ApplicationViewStates">
-                <VisualState x:Name="FullScreenLandscape"/>
-                <VisualState x:Name="Filled"/>
-
-                <!-- The entire page respects the narrower 100-pixel margin convention for portrait -->
-                <VisualState x:Name="FullScreenPortrait">
-                    <Storyboard>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="backButton" Storyboard.TargetProperty="Style">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PortraitBackButtonStyle}"/>
-                        </ObjectAnimationUsingKeyFrames>
-                    </Storyboard>
-                </VisualState>
-
-                <!-- The back button and title have different styles when snapped -->
-                <VisualState x:Name="Snapped">
-                    <Storyboard>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="backButton" Storyboard.TargetProperty="Style">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SnappedBackButtonStyle}"/>
-                        </ObjectAnimationUsingKeyFrames>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageTitle" Storyboard.TargetProperty="Style">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SnappedPageHeaderTextStyle}"/>
-                        </ObjectAnimationUsingKeyFrames>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="stackPanel">
-                            <DiscreteObjectKeyFrame KeyTime="0">
-                                <DiscreteObjectKeyFrame.Value>
-                                    <Thickness>10,-10,0,0</Thickness>
-                                </DiscreteObjectKeyFrame.Value>
-                            </DiscreteObjectKeyFrame>
-                        </ObjectAnimationUsingKeyFrames>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(StackPanel.Orientation)" Storyboard.TargetName="stackPanel">
-                            <DiscreteObjectKeyFrame KeyTime="0">
-                                <DiscreteObjectKeyFrame.Value>
-                                    <Orientation>Vertical</Orientation>
-                                </DiscreteObjectKeyFrame.Value>
-                            </DiscreteObjectKeyFrame>
-                        </ObjectAnimationUsingKeyFrames>
-                    </Storyboard>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
+        </ScrollViewer>
     </Grid>
-</common:LayoutAwarePage>
+</Page>

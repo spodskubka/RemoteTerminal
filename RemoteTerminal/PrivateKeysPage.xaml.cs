@@ -19,6 +19,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Renci.SshNet;
+using RemoteTerminal.Common;
 
 // The Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234233
 
@@ -28,23 +29,47 @@ namespace RemoteTerminal
     /// A page that displays a collection of item previews.  In the Split Application this page
     /// is used to display and select one of the available groups.
     /// </summary>
-    public sealed partial class PrivateKeysPage : RemoteTerminal.Common.LayoutAwarePage
+    public sealed partial class PrivateKeysPage : Page
     {
-        public PrivateKeysPage()
+        private NavigationHelper navigationHelper;
+        private ObservableDictionary defaultViewModel = new ObservableDictionary();
+
+        /// <summary>
+        /// This can be changed to a strongly typed view model.
+        /// </summary>
+        public ObservableDictionary DefaultViewModel
         {
-            this.InitializeComponent();
+            get { return this.defaultViewModel; }
         }
 
         /// <summary>
-        /// Populates the page with content passed during navigation.  Any saved state is also
+        /// NavigationHelper is used on each page to aid in navigation and 
+        /// process lifetime management
+        /// </summary>
+        public NavigationHelper NavigationHelper
+        {
+            get { return this.navigationHelper; }
+        }
+
+        public PrivateKeysPage()
+        {
+            this.InitializeComponent();
+            this.navigationHelper = new NavigationHelper(this);
+            this.navigationHelper.LoadState += this.navigationHelper_LoadState;
+        }
+
+        /// <summary>
+        /// Populates the page with content passed during navigation. Any saved state is also
         /// provided when recreating a page from a prior session.
         /// </summary>
-        /// <param name="navigationParameter">The parameter value passed to
-        /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested.
+        /// <param name="sender">
+        /// The source of the event; typically <see cref="NavigationHelper"/>
         /// </param>
-        /// <param name="pageState">A dictionary of state preserved by this page during an earlier
-        /// session.  This will be null the first time a page is visited.</param>
-        protected override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
+        /// <param name="e">Event data that provides both the navigation parameter passed to
+        /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
+        /// a dictionary of state preserved by this page during an earlier
+        /// session. The state will be null the first time a page is visited.</param>
+        private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
             PrivateKeysDataSource privateKeysDataSource = (PrivateKeysDataSource)App.Current.Resources["privateKeysDataSource"];
             if (privateKeysDataSource != null)
@@ -59,13 +84,6 @@ namespace RemoteTerminal
 
         private async void importButton_Click(object sender, RoutedEventArgs e)
         {
-            // File picker APIs don't work if the app is in a snapped state.
-            // If the app is snapped, try to unsnap it first. Only show the picker if it unsnaps.
-            if (ApplicationView.Value == ApplicationViewState.Snapped && ApplicationView.TryUnsnap() == false)
-            {
-                return;
-            }
-
             FileOpenPicker openPicker = new FileOpenPicker();
             openPicker.SuggestedStartLocation = PickerLocationId.DocumentsLibrary;
             openPicker.ViewMode = PickerViewMode.List;
@@ -119,7 +137,7 @@ namespace RemoteTerminal
             this.emptyHint.Visibility = this.itemGridView.Items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        private async void discardButton_Click(object sender, RoutedEventArgs e)
+        private async void deleteButton_Click(object sender, RoutedEventArgs e)
         {
             PrivateKeysDataSource privateKeysDataSource = (PrivateKeysDataSource)App.Current.Resources["privateKeysDataSource"];
             if (privateKeysDataSource != null)
@@ -137,40 +155,36 @@ namespace RemoteTerminal
 
         private void ItemView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            ListViewBase otherList;
-
-            if (sender == this.itemGridView)
-            {
-                otherList = this.itemListView;
-            }
-            else
-            {
-                otherList = this.itemGridView;
-            }
-
-            foreach (var added in e.AddedItems)
-            {
-                if (!otherList.SelectedItems.Contains(added))
-                {
-                    otherList.SelectedItems.Add(added);
-                }
-            }
-
-            foreach (var removed in e.RemovedItems)
-            {
-                if (otherList.SelectedItems.Contains(removed))
-                {
-                    otherList.SelectedItems.Remove(removed);
-                }
-            }
-
             SetupAppBar();
         }
 
         private void SetupAppBar()
         {
-            this.bottomAppBar.IsOpen = this.itemGridView.SelectedItems.Count > 0 || this.itemGridView.Items.Count == 0;
-            this.discardButton.IsEnabled = this.itemGridView.SelectedItems.Count > 0;
+            this.BottomAppBar.IsOpen = this.itemGridView.SelectedItems.Count > 0 || this.itemGridView.Items.Count == 0;
+            this.deleteButton.IsEnabled = this.itemGridView.SelectedItems.Count > 0;
         }
+
+        #region NavigationHelper registration
+
+        /// The methods provided in this section are simply used to allow
+        /// NavigationHelper to respond to the page's navigation methods.
+        /// 
+        /// Page specific logic should be placed in event handlers for the  
+        /// <see cref="GridCS.Common.NavigationHelper.LoadState"/>
+        /// and <see cref="GridCS.Common.NavigationHelper.SaveState"/>.
+        /// The navigation parameter is available in the LoadState method 
+        /// in addition to page state preserved during an earlier session.
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            this.navigationHelper.OnNavigatedTo(e);
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            this.navigationHelper.OnNavigatedFrom(e);
+        }
+
+        #endregion
     }
 }

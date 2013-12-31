@@ -1,4 +1,4 @@
-﻿<common:LayoutAwarePage
+﻿<Page
     x:Name="pageRoot"
     x:Class="RemoteTerminal.PrivateKeyAgentPage"
     DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
@@ -29,7 +29,7 @@
                     <TextBlock Text="&#xE192;" FontFamily="Segoe UI Symbol" FontSize="30" Margin="7,4,0,0"/>
                 </Canvas>
                 <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="10,0,0,0">
-                    <TextBlock Text="{Binding FileName}" Style="{StaticResource ItemTextStyle}"/>
+                    <TextBlock Text="{Binding FileName}" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                 </StackPanel>
             </Grid>
         </DataTemplate>
@@ -43,10 +43,10 @@
                     <TextBlock Text="&#xE192;" FontFamily="Segoe UI Symbol" FontSize="30" Margin="7,4,0,0"/>
                 </Canvas>
                 <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="10,0,0,0">
-                    <TextBlock Text="{Binding Comment}" Style="{StaticResource ItemTextStyle}"/>
+                    <TextBlock Text="{Binding Comment}" Style="{StaticResource BodyTextBlockStyle}" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis"/>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Key length:" Style="{StaticResource CaptionTextStyle}" Margin="0,0,5,0"/>
-                        <TextBlock Text="{Binding Key.Key.KeyLength}" Style="{StaticResource CaptionTextStyle}"/>
+                        <TextBlock Text="Key length:" Style="{StaticResource CaptionTextBlockStyle}" Margin="0,0,5,0"/>
+                        <TextBlock Text="{Binding Key.Key.KeyLength}" Style="{StaticResource CaptionTextBlockStyle}"/>
                     </StackPanel>
                 </StackPanel>
             </Grid>
@@ -58,147 +58,120 @@
         * Row 0 contains the back button and page title
         * Row 1 contains the rest of the page layout
     -->
-    <Grid x:Name="rootGrid" Style="{StaticResource LayoutRootStyle}">
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="140"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Horizontal scrolling grids used in most view states -->
-        <Grid x:Name="gridContainer" Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition/>
-                <ColumnDefinition/>
-            </Grid.ColumnDefinitions>
-
-            <Grid x:Name="keysGridEmptyHint">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="3*"/>
-                    <RowDefinition Height="3*"/>
-                    <RowDefinition Height="5*"/>
-                </Grid.RowDefinitions>
-                <Border Grid.Row="1" Background="#3FFFFFFF">
-                    <TextBlock Text="You don't have any imported private keys. Please use the Private Key page to import private keys." HorizontalAlignment="Left" VerticalAlignment="Center" Margin="116,0" Style="{StaticResource SubheaderTextStyle}"/>
-                </Border>
-            </Grid>
-
-            <TextBlock Text="Available Private Keys" Padding="40,0" Style="{StaticResource GroupHeaderTextStyle}"/>
-            <ListView
-                x:Name="keysGridView"
-                AutomationProperties.AutomationId="KeysGridView"
-                AutomationProperties.Name="Keys"
-                TabIndex="1"
-                Margin="40"
-                ItemsSource="{Binding Source={StaticResource keysViewSource}}"
-                ItemTemplate="{StaticResource KeyListItemTemplate}"
-                SelectionMode="None"
-                IsSwipeEnabled="false"
-                IsItemClickEnabled="True"
-                ItemClick="Keys_ItemClick"/>
-
-            <Grid x:Name="agentKeysGridEmptyHint" Grid.Column="1">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="3*"/>
-                    <RowDefinition Height="3*"/>
-                    <RowDefinition Height="5*"/>
-                </Grid.RowDefinitions>
-                <Border Grid.Row="1" Background="#3FFFFFFF">
-                    <TextBlock Text="You don't have any loaded private keys. Please click/touch a private key to the left to load it." HorizontalAlignment="Left" VerticalAlignment="Center" Margin="116,0" Style="{StaticResource SubheaderTextStyle}"/>
-                </Border>
-            </Grid>
-
-            <TextBlock Text="Loaded Private Keys" Grid.Column="1" Padding="40,0" Style="{StaticResource GroupHeaderTextStyle}"/>
-            <ListView
-                x:Name="agentKeysGridView"
-                Grid.Column="1"
-                AutomationProperties.AutomationId="AgentKeysGridView"
-                AutomationProperties.Name="AgentKeys"
-                TabIndex="1"
-                Margin="40"
-                ItemsSource="{Binding Source={StaticResource agentKeysViewSource}}"
-                ItemTemplate="{StaticResource AgentKeyListItemTemplate}"
-                SelectionMode="None"
-                IsSwipeEnabled="false"
-                IsItemClickEnabled="True"
-                ItemClick="AgentKeys_ItemClick"/>
-        </Grid>
-
-        <!-- Vertical scrolling lists only used when snapped -->
-        <Grid x:Name="listContainer" Visibility="Collapsed" Grid.Row="1">
+        <!-- Horizontal scrolling grids -->
+        <Grid x:Name="gridContainer" Grid.Row="1" Margin="0,0,0,50">
             <Grid.RowDefinitions>
                 <RowDefinition/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
-            <Grid x:Name="keysListEmptyHint">
+            <Grid>
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="4*"/>
-                    <RowDefinition Height="10*"/>
-                    <RowDefinition Height="4*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <Border Grid.Row="1" Background="#3FFFFFFF">
-                    <TextBlock Text="You don't have any imported private keys. Please use the Private Key page to import private keys." HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0" Style="{StaticResource SubheaderTextStyle}"/>
-                </Border>
+
+                <TextBlock Text="Available Private Keys" Padding="116,0,116,10" Style="{StaticResource SubheaderTextBlockStyle}"/>
+
+                <Grid x:Name="keysGridEmptyHint" Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*"/>
+                        <RowDefinition Height="3*"/>
+                        <RowDefinition Height="2*"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="1" Background="#3FFFFFFF">
+                        <TextBlock Text="You don't have any imported private keys. Please use the Private Key page to import private keys." HorizontalAlignment="Left" VerticalAlignment="Center" Margin="116,0" Style="{StaticResource SubheaderTextBlockStyle}"/>
+                    </Border>
+                </Grid>
+
+                <GridView
+                    x:Name="keysGridView"
+                    AutomationProperties.AutomationId="KeysGridView"
+                    AutomationProperties.Name="Keys"
+                    TabIndex="1"
+                    Grid.Row="1"
+                    Padding="116,0,116,0"
+                    Margin="0,0,0,20"
+                    ItemsSource="{Binding Source={StaticResource keysViewSource}}"
+                    ItemTemplate="{StaticResource KeyListItemTemplate}"
+                    SelectionMode="None"
+                    IsSwipeEnabled="false"
+                    IsItemClickEnabled="True"
+                    ItemClick="Keys_ItemClick"/>
             </Grid>
 
-            <TextBlock Text="Available Private Keys" Padding="40,0" Style="{StaticResource GroupHeaderTextStyle}"/>
-            <ListView
-                AutomationProperties.AutomationId="KeysListView"
-                AutomationProperties.Name="Keys"
-                TabIndex="1"
-                Margin="10,40,0,0"
-                ItemsSource="{Binding Source={StaticResource keysViewSource}}"
-                ItemTemplate="{StaticResource KeyListItemTemplate}"
-                SelectionMode="None"
-                IsSwipeEnabled="false"
-                IsItemClickEnabled="True"
-                ItemClick="Keys_ItemClick"/>
-
-            <Grid x:Name="agentKeysListEmptyHint" Grid.Row="1">
+            <Grid Grid.Row="1">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="4*"/>
-                    <RowDefinition Height="10*"/>
-                    <RowDefinition Height="4*"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <Border Grid.Row="1" Background="#3FFFFFFF">
-                    <TextBlock Text="You don't have any loaded private keys. Please click/touch a private key above to load it." HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0" Style="{StaticResource SubheaderTextStyle}"/>
-                </Border>
-            </Grid>
 
-            <TextBlock Text="Loaded Private Keys" Padding="40,0" Grid.Row="1" Style="{StaticResource GroupHeaderTextStyle}"/>
-            <ListView
-                Grid.Row="1"
-                AutomationProperties.AutomationId="AgentKeysListView"
-                AutomationProperties.Name="AgentKeys"
-                TabIndex="1"
-                Margin="10,40,0,0"
-                ItemsSource="{Binding Source={StaticResource agentKeysViewSource}}"
-                ItemTemplate="{StaticResource AgentKeyListItemTemplate}"
-                SelectionMode="None"
-                IsSwipeEnabled="false"
-                IsItemClickEnabled="True"
-                ItemClick="AgentKeys_ItemClick"/>
+                <TextBlock Text="Loaded Private Keys" Padding="116,0,116,10" Style="{StaticResource SubheaderTextBlockStyle}"/>
+
+                <Grid x:Name="agentKeysGridEmptyHint" Grid.Row="1">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="2*"/>
+                        <RowDefinition Height="3*"/>
+                        <RowDefinition Height="2*"/>
+                    </Grid.RowDefinitions>
+                    <Border Grid.Row="1" Background="#3FFFFFFF">
+                        <TextBlock Text="You don't have any loaded private keys. Please click/touch a private key above to load it." HorizontalAlignment="Left" VerticalAlignment="Center" Margin="116,0" Style="{StaticResource SubheaderTextBlockStyle}"/>
+                    </Border>
+                </Grid>
+
+                <GridView
+                    x:Name="agentKeysGridView"
+                    AutomationProperties.AutomationId="AgentKeysGridView"
+                    AutomationProperties.Name="AgentKeys"
+                    TabIndex="1"
+                    Grid.Row="1"
+                    Padding="116,0,116,0"
+                    Margin="0,0,0,20"
+                    ItemsSource="{Binding Source={StaticResource agentKeysViewSource}}"
+                    ItemTemplate="{StaticResource AgentKeyListItemTemplate}"
+                    SelectionMode="None"
+                    IsSwipeEnabled="false"
+                    IsItemClickEnabled="True"
+                    ItemClick="AgentKeys_ItemClick"/>
+            </Grid>
         </Grid>
 
         <!-- Back button and page title -->
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="120"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}"/>
-            <TextBlock x:Name="pageTitle" Grid.Column="1" Text="Private Key Agent" IsHitTestVisible="false" Style="{StaticResource PageHeaderTextStyle}"/>
+            <Button x:Name="backButton" Margin="39,59,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
+                        Style="{StaticResource NavigationBackButtonNormalStyle}"
+                        VerticalAlignment="Top"
+                        AutomationProperties.Name="Back"
+                        AutomationProperties.AutomationId="BackButton"
+                        AutomationProperties.ItemType="Navigation Button"/>
+            <TextBlock x:Name="pageTitle" Text="Private Key Agent" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
+                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
         </Grid>
 
         <Border x:Name="loadKeyPasswordContainer" Visibility="Collapsed" Background="Transparent" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Tapped="loadKeyPasswordContainer_Tapped">
             <Border BorderBrush="{StaticResource ApplicationForegroundThemeBrush}" BorderThickness="2" Background="{StaticResource ApplicationPageBackgroundThemeBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10" Tapped="loadKeyPasswordContainerChild_Tapped">
                 <StackPanel>
-                    <TextBlock x:Name="loadKeyPasswordErrorTextBlock" Style="{StaticResource BasicTextStyle}" Foreground="Red"/>
+                    <TextBlock x:Name="loadKeyPasswordErrorTextBlock" Style="{StaticResource BaseTextBlockStyle}" Foreground="Red"/>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Private Key:" Margin="0,0,5,0"  Style="{StaticResource BasicTextStyle}"/>
-                        <TextBlock x:Name="loadKeyFileName" Style="{StaticResource BasicTextStyle}"/>
+                        <TextBlock Text="Private Key:" Margin="0,0,5,0"  Style="{StaticResource BaseTextBlockStyle}"/>
+                        <TextBlock x:Name="loadKeyFileName" Style="{StaticResource BaseTextBlockStyle}"/>
                     </StackPanel>
-                    <TextBlock Text="Password:" Style="{StaticResource BasicTextStyle}"/>
+                    <TextBlock Text="Password:" Style="{StaticResource BaseTextBlockStyle}"/>
                     <PasswordBox x:Name="loadKeyPasswordBox" Margin="0,10" Width="280" KeyDown="loadKeyPasswordBox_KeyDown"/>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                         <Button Content="Load" Click="keyLoadButton_Click" x:Name="loadKeyLoadButton" />
@@ -206,48 +179,5 @@
                 </StackPanel>
             </Border>
         </Border>
-
-        <VisualStateManager.VisualStateGroups>
-
-            <!-- Visual states reflect the application's view state -->
-            <VisualStateGroup x:Name="ApplicationViewStates">
-                <VisualState x:Name="FullScreenLandscape"/>
-                <VisualState x:Name="Filled"/>
-
-                <!-- The entire page respects the narrower 100-pixel margin convention for portrait -->
-                <VisualState x:Name="FullScreenPortrait">
-                    <Storyboard>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="backButton" Storyboard.TargetProperty="Style">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PortraitBackButtonStyle}"/>
-                        </ObjectAnimationUsingKeyFrames>
-                        <!--<ObjectAnimationUsingKeyFrames Storyboard.TargetName="gridContainer" Storyboard.TargetProperty="Padding">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="96,136,86,56"/>
-                        </ObjectAnimationUsingKeyFrames>-->
-                    </Storyboard>
-                </VisualState>
-
-                <!--
-                    The back button and title have different styles when snapped, and the list representation is substituted
-                    for the grid displayed in all other view states
-                -->
-                <VisualState x:Name="Snapped">
-                    <Storyboard>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="backButton" Storyboard.TargetProperty="Style">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SnappedBackButtonStyle}"/>
-                        </ObjectAnimationUsingKeyFrames>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageTitle" Storyboard.TargetProperty="Style">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SnappedPageHeaderTextStyle}"/>
-                        </ObjectAnimationUsingKeyFrames>
-
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="listContainer" Storyboard.TargetProperty="Visibility">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
-                        </ObjectAnimationUsingKeyFrames>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="gridContainer" Storyboard.TargetProperty="Visibility">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
-                        </ObjectAnimationUsingKeyFrames>
-                    </Storyboard>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
     </Grid>
-</common:LayoutAwarePage>
+</Page>

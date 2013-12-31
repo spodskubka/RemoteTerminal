@@ -81,7 +81,6 @@ namespace RemoteTerminal.Common
                 {
                     sessionData.Seek(0, SeekOrigin.Begin);
                     await sessionData.CopyToAsync(fileStream);
-                    await fileStream.FlushAsync();
                 }
             }
             catch (Exception e)
@@ -197,7 +196,7 @@ namespace RemoteTerminal.Common
         /// that can still be useful when restoring pages that have been discarded from the
         /// navigation cache.
         /// </summary>
-        /// <remarks>Apps may choose to rely on <see cref="LayoutAwarePage"/> to manage
+        /// <remarks>Apps may choose to rely on <see cref="NavigationHelper"/> to manage
         /// page-specific state instead of working with frame session state directly.</remarks>
         /// <param name="frame">The instance for which session state is desired.</param>
         /// <returns>A collection of state subject to the same serialization mechanism as

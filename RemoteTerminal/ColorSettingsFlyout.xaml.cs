@@ -17,14 +17,11 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
+// The Settings Flyout item template is documented at http://go.microsoft.com/fwlink/?LinkId=273769
 
 namespace RemoteTerminal
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public sealed partial class ColorSettingsFlyout : Page
+    public sealed partial class ColorSettingsFlyout : SettingsFlyout
     {
         private ColorThemeData customTheme;
         private bool ignoreScreenColorListBoxSelectionChanging = false;
@@ -34,33 +31,21 @@ namespace RemoteTerminal
             this.InitializeComponent();
 
             this.customTheme = ColorThemesDataSource.GetCustomTheme();
+            for (int i = 0; i < this.ScreenColorListBox.Items.Count; i++)
+            {
+                ListBoxItem item = (ListBoxItem)this.ScreenColorListBox.Items[i];
+
+                int screenColor = i - 4;
+                Color color = this.customTheme.ColorTable[(ScreenColor)screenColor];
+                item.BorderBrush = new SolidColorBrush(color);
+                item.BorderThickness = new Thickness(50.0d, 0.0d, 0.0d, 0.0d);
+            }
             this.ScreenColorListBox.SelectedIndex = 0;
 
             this.FontFamilyListBox.Items.Clear();
             this.FontFamilyListBox.ItemsSource = ScreenDisplay.BaseLogicalFontMetrics.Keys;
             this.FontFamilyListBox.SelectedItem = this.customTheme.FontFamily;
             this.FontSizeSlider.Value = this.customTheme.FontSize;
-        }
-
-        /// <summary>
-        /// This is the click handler for the back button on the Flyout.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void SettingsBackClicked(object sender, RoutedEventArgs e)
-        {
-            // First close our Flyout.
-            Popup parent = this.Parent as Popup;
-            if (parent != null)
-            {
-                parent.IsOpen = false;
-            }
-
-            // If the app is not snapped, then the back button shows the Settings pane again.
-            if (Windows.UI.ViewManagement.ApplicationView.Value != Windows.UI.ViewManagement.ApplicationViewState.Snapped)
-            {
-                SettingsPane.Show();
-            }
         }
 
         private void ResetFontClicked(object sender, RoutedEventArgs e)
@@ -98,7 +83,7 @@ namespace RemoteTerminal
         {
             this.FontPreviewTextBlock.FontFamily = new FontFamily((string)this.FontFamilyListBox.SelectedItem);
 
-            if (this.customTheme.FontFamily == this.FontFamilyListBox.SelectedItem)
+            if (this.customTheme.FontFamily == (string)this.FontFamilyListBox.SelectedItem)
             {
                 return;
             }
@@ -150,6 +135,8 @@ namespace RemoteTerminal
                 A = 255,
             };
 
+            ListBoxItem item = (ListBoxItem)this.ScreenColorListBox.SelectedItem;
+            ((SolidColorBrush)item.BorderBrush).Color = color;
             ((SolidColorBrush)this.ColorPreviewRectangle.Fill).Color = color;
 
             int screenColor = this.ScreenColorListBox.SelectedIndex - 4;
@@ -174,6 +161,13 @@ namespace RemoteTerminal
                     terminalPage.ForceRender(fontChanged);
                 }
             }
+        }
+
+        private void SettingsFlyout_LostFocus(object sender, RoutedEventArgs e)
+        {
+            // Save the color theme settings
+            var colorThemesDataSource = App.Current.Resources["colorThemesDataSource"] as ColorThemesDataSource;
+            colorThemesDataSource.AddOrUpdate(colorThemesDataSource.CustomTheme);
         }
     }
 }

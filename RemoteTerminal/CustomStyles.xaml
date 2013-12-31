@@ -8,7 +8,7 @@
             Styles that define common aspects of the platform look and feel
             Required by Visual Studio project and item templates
         -->
-        <ResourceDictionary Source="Common/StandardStyles.xaml"/>
+        <!--<ResourceDictionary Source="Common/StandardStyles.xaml"/>-->
     </ResourceDictionary.MergedDictionaries>
 
     <Color x:Key="AppColor">#001E4E</Color>
@@ -19,31 +19,15 @@
         <Setter Property="Background" Value="{StaticResource AppColorBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource AppColorBrush}"/>
     </Style>
-    
+
+    <Style TargetType="CommandBar">
+        <Setter Property="Background" Value="{StaticResource AppColorBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource AppColorBrush}"/>
+    </Style>
+
     <Style x:Key="SemiTransparentAppBarStyle" TargetType="AppBar">
         <Setter Property="Background" Value="{StaticResource SemiTransparentAppColorBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource SemiTransparentAppColorBrush}"/>
-    </Style>
-
-    <Style x:Key="AppBarSpacerBorderStyle" TargetType="Border">
-        <Setter Property="Width" Value="30"/>
-    </Style>
-    <Style x:Key="PrivateKeysAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource PermissionsAppBarButtonStyle}">
-        <Setter Property="AutomationProperties.AutomationId" Value="PrivateKeysAppBarButton"/>
-        <Setter Property="AutomationProperties.Name" Value="Private Keys"/>
-    </Style>
-    <Style x:Key="PrivateKeyAgentAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource PermissionsAppBarButtonStyle}">
-        <Setter Property="AutomationProperties.AutomationId" Value="PrivateKeyAgentAppBarButton"/>
-        <Setter Property="AutomationProperties.Name" Value="Private Key Agent"/>
-    </Style>
-    <Style x:Key="QuickConnectAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource GoAppBarButtonStyle}">
-        <Setter Property="AutomationProperties.AutomationId" Value="QuickConnectAppBarButton"/>
-        <Setter Property="AutomationProperties.Name" Value="Quick Connect"/>
-    </Style>
-    <Style x:Key="BackAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
-        <Setter Property="AutomationProperties.AutomationId" Value="BackAppBarButtonStyle"/>
-        <Setter Property="AutomationProperties.Name" Value="Back"/>
-        <Setter Property="Content" Value="&#xE112;"/>
     </Style>
 
     <Style x:Key="CloseTerminalButtonStyle" TargetType="ButtonBase">
@@ -136,11 +120,6 @@
         </Setter>
     </Style>
 
-    <Style x:Key="CopyModeAppBarButtonStyle" TargetType="ButtonBase" BasedOn="{StaticResource AppBarButtonStyle}">
-        <Setter Property="AutomationProperties.AutomationId" Value="CopyModeAppBarButton"/>
-        <Setter Property="AutomationProperties.Name" Value="Copy/URL Mode"/>
-        <Setter Property="Content" Value="&#xE16F;"/>
-    </Style>
     <Style x:Key="RichEditBoxCopyModeStyle" TargetType="RichEditBox">
         <Setter Property="MinWidth" Value="{StaticResource TextControlThemeMinWidth}"/>
         <Setter Property="MinHeight" Value="{StaticResource TextControlThemeMinHeight}"/>

@@ -1,4 +1,4 @@
-﻿<common:LayoutAwarePage xmlns:Terminals="using:RemoteTerminal.Terminals" 
+﻿<Page xmlns:Terminals="using:RemoteTerminal.Terminals" 
     x:Name="pageRoot"
     x:Class="RemoteTerminal.FavoritesPage"
     DataContext="{Binding DefaultViewModel, RelativeSource={RelativeSource Self}}"
@@ -26,8 +26,8 @@
                     <TextBlock Text="{Binding ImageChar}" FontFamily="Segoe UI Symbol" FontSize="30" Margin="7,4,0,0"/>
                 </Border>
                 <StackPanel Grid.Column="1" VerticalAlignment="Top" Margin="10,0,0,0">
-                    <TextBlock Text="{Binding Name}" Style="{StaticResource ItemTextStyle}"/>
-                    <TextBlock Text="{Binding HostAndPort}" Style="{StaticResource CaptionTextStyle}"/>
+                    <TextBlock Text="{Binding Name}" Style="{StaticResource BaseTextBlockStyle}"/>
+                    <TextBlock Text="{Binding HostAndPort}" Style="{StaticResource CaptionTextBlockStyle}"/>
                 </StackPanel>
             </Grid>
         </DataTemplate>
@@ -42,7 +42,7 @@
             </Grid>
         </DataTemplate>
     </Page.Resources>
-    <common:LayoutAwarePage.TopAppBar>
+    <Page.TopAppBar>
         <AppBar Style="{StaticResource SemiTransparentAppBarStyle}">
             <GridView x:Name="previewGrid" ItemTemplate="{StaticResource TerminalPreviewItemTemplate}" Margin="30,15,15,15" ItemClick="PreviewGrid_ItemClick" SelectionMode="None" IsItemClickEnabled="True">
                 <GridView.ItemsPanel>
@@ -52,35 +52,35 @@
                 </GridView.ItemsPanel>
             </GridView>
         </AppBar>
-    </common:LayoutAwarePage.TopAppBar>
+    </Page.TopAppBar>
 
-    <common:LayoutAwarePage.BottomAppBar>
-        <AppBar x:Name="bottomAppBar" IsSticky="True">
-            <StackPanel x:Name="appBarStackPanel" Orientation="Horizontal" HorizontalAlignment="Right">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Style="{StaticResource PrivateKeyAgentAppBarButtonStyle}" Click="privateKeyAgentButton_Click"/>
-                    <Button Style="{StaticResource PrivateKeysAppBarButtonStyle}" Click="privateKeysButton_Click"/>
-                </StackPanel>
-                <Border Style="{StaticResource AppBarSpacerBorderStyle}"/>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Style="{StaticResource QuickConnectAppBarButtonStyle}" Click="quickConnectButton_Click"/>
-                </StackPanel>
-                <Border Style="{StaticResource AppBarSpacerBorderStyle}"/>
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Style="{StaticResource EditAppBarButtonStyle}" x:Name="editButton" Click="editButton_Click"/>
-                    <Button Style="{StaticResource RemoveAppBarButtonStyle}" x:Name="removeButton" Click="removeButton_Click"/>
-                    <Button Style="{StaticResource AddAppBarButtonStyle}" Click="addButton_Click"/>
-                </StackPanel>
-            </StackPanel>
-        </AppBar>
-    </common:LayoutAwarePage.BottomAppBar>
+    <Page.BottomAppBar>
+        <CommandBar IsSticky="True">
+            <CommandBar.PrimaryCommands>
+                <AppBarButton Icon="Go" Label="Quick Connect" Click="quickConnectButton_Click"/>
+                <AppBarSeparator/>
+                <AppBarButton Icon="Edit" Label="Edit" x:Name="editButton" Click="editButton_Click"/>
+                <AppBarButton Icon="Remove" Label="Remove" x:Name="removeButton" Click="removeButton_Click"/>
+                <AppBarButton Icon="Add" Label="Add" Click="addButton_Click"/>
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Icon="ContactPresence" Label="Private Key Agent" Click="privateKeyAgentButton_Click"/>
+                <AppBarButton Icon="Permissions" Label="Private Keys" Click="privateKeysButton_Click"/>
+            </CommandBar.SecondaryCommands>
+        </CommandBar>
+    </Page.BottomAppBar>
 
     <!--
         This grid acts as a root panel for the page that defines two rows:
         * Row 0 contains the back button and page title
         * Row 1 contains the rest of the page layout
     -->
-    <Grid Style="{StaticResource LayoutRootStyle}">
+    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <Grid.ChildrenTransitions>
+            <TransitionCollection>
+                <EntranceThemeTransition/>
+            </TransitionCollection>
+        </Grid.ChildrenTransitions>
         <Grid.RowDefinitions>
             <RowDefinition Height="140"/>
             <RowDefinition Height="*"/>
@@ -93,11 +93,11 @@
                 <RowDefinition Height="5*"/>
             </Grid.RowDefinitions>
             <Border Grid.Row="1" Background="#3FFFFFFF">
-                <TextBlock x:Name="emptyHintTextBlock" Text="You don't have any saved connections. Please use the bottom app bar to create new connections or to use Quick Connect." HorizontalAlignment="Left" VerticalAlignment="Center" Margin="116,0" Style="{StaticResource SubheaderTextStyle}"/>
+                <TextBlock x:Name="emptyHintTextBlock" Text="You don't have any saved connections. Please use the bottom app bar to create new connections or to use Quick Connect." HorizontalAlignment="Left" VerticalAlignment="Center" Margin="20,0" Style="{StaticResource SubheaderTextBlockStyle}"/>
             </Border>
         </Grid>
 
-        <!-- Horizontal scrolling grid used in most view states -->
+        <!-- Horizontal scrolling grid -->
         <GridView
             x:Name="itemGridView"
             AutomationProperties.AutomationId="ItemsGridView"
@@ -110,27 +110,11 @@
             SelectionMode="Multiple"
             IsSwipeEnabled="True" IsItemClickEnabled="True" ItemClick="ItemView_ItemClick" SelectionChanged="ItemView_SelectionChanged"/>
 
-        <!-- Vertical scrolling list only used when snapped -->
-        <ListView
-            x:Name="itemListView"
-            AutomationProperties.AutomationId="ItemsListView"
-            AutomationProperties.Name="Items"
-            TabIndex="1"
-            Grid.Row="1"
-            Visibility="Collapsed"
-            Margin="0,-10,0,0"
-            Padding="10,0,0,60"
-            ItemsSource="{Binding Source={StaticResource itemsViewSource}}"
-            ItemTemplate="{StaticResource FavoriteListItemTemplate}"
-            SelectionMode="Multiple"
-            IsSwipeEnabled="True" IsItemClickEnabled="True" ItemClick="ItemView_ItemClick" SelectionChanged="ItemView_SelectionChanged"/>
-        <!-- Back button and page title -->
-
         <Border x:Name="trialPeriodDisplay" Grid.Row="1" Height="60" Width="320" Background="#3FFFFFFF" HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Collapsed">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                    <TextBlock Text="Trial period left:" Margin="10,10,5,10" Style="{StaticResource BasicTextStyle}"/>
-                    <TextBlock x:Name="trialPeriodDuration" Margin="0,10" Text="20/30 days" Style="{StaticResource BasicTextStyle}"/>
+                    <TextBlock Text="Trial period left:" Margin="10,10,5,10" Style="{StaticResource BaseTextBlockStyle}"/>
+                    <TextBlock x:Name="trialPeriodDuration" Margin="0,10" Text="20/30 days" Style="{StaticResource BaseTextBlockStyle}"/>
                     <Button x:Name="purchaseButton" Content="Purchase" Margin="10,0" Click="purchaseButton_Click"/>
                 </StackPanel>
                 <Grid Margin="10,5">
@@ -140,73 +124,23 @@
         </Border>
 
         <Border x:Name="purchaseThanksDisplay" Grid.Row="1" Height="60" Width="320" Background="#3FFFFFFF" HorizontalAlignment="Right" VerticalAlignment="Bottom" Visibility="Collapsed">
-            <TextBlock Text="Thank you!" Margin="10" HorizontalAlignment="Center" Style="{StaticResource SubheaderTextStyle}"/>
+            <TextBlock Text="Thank you!" Margin="10" HorizontalAlignment="Center" Style="{StaticResource SubheaderTextBlockStyle}"/>
         </Border>
 
+        <!-- Back button and page title -->
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="120"/>
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackButtonStyle}"/>
-            <TextBlock x:Name="pageTitle" Grid.Column="1" Text="{StaticResource AppName}" IsHitTestVisible="false" Style="{StaticResource PageHeaderTextStyle}"/>
+            <Button x:Name="backButton" Margin="39,59,39,0" Command="{Binding NavigationHelper.GoBackCommand, ElementName=pageRoot}"
+                        Style="{StaticResource NavigationBackButtonNormalStyle}"
+                        VerticalAlignment="Top"
+                        AutomationProperties.Name="Back"
+                        AutomationProperties.AutomationId="BackButton"
+                        AutomationProperties.ItemType="Navigation Button"/>
+            <TextBlock x:Name="pageTitle" Text="{StaticResource AppName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
+                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
         </Grid>
-
-        <VisualStateManager.VisualStateGroups>
-
-            <!-- Visual states reflect the application's view state -->
-            <VisualStateGroup x:Name="ApplicationViewStates">
-                <VisualState x:Name="FullScreenLandscape"/>
-                <VisualState x:Name="Filled"/>
-
-                <!-- The entire page respects the narrower 100-pixel margin convention for portrait -->
-                <VisualState x:Name="FullScreenPortrait">
-                    <Storyboard>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="backButton" Storyboard.TargetProperty="Style">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource PortraitBackButtonStyle}"/>
-                        </ObjectAnimationUsingKeyFrames>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="itemGridView" Storyboard.TargetProperty="Padding">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="96,136,86,56"/>
-                        </ObjectAnimationUsingKeyFrames>
-                    </Storyboard>
-                </VisualState>
-
-                <!--
-                    The back button and title have different styles when snapped, and the list representation is substituted
-                    for the grid displayed in all other view states
-                -->
-                <VisualState x:Name="Snapped">
-                    <Storyboard>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="backButton" Storyboard.TargetProperty="Style">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SnappedBackButtonStyle}"/>
-                        </ObjectAnimationUsingKeyFrames>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="pageTitle" Storyboard.TargetProperty="Style">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SnappedPageHeaderTextStyle}"/>
-                        </ObjectAnimationUsingKeyFrames>
-
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="itemListView" Storyboard.TargetProperty="Visibility">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="Visible"/>
-                        </ObjectAnimationUsingKeyFrames>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="itemGridView" Storyboard.TargetProperty="Visibility">
-                            <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
-                        </ObjectAnimationUsingKeyFrames>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(StackPanel.Orientation)" Storyboard.TargetName="appBarStackPanel">
-                            <DiscreteObjectKeyFrame KeyTime="0">
-                                <DiscreteObjectKeyFrame.Value>
-                                    <Orientation>Vertical</Orientation>
-                                </DiscreteObjectKeyFrame.Value>
-                            </DiscreteObjectKeyFrame>
-                        </ObjectAnimationUsingKeyFrames>
-                        <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(FrameworkElement.Margin)" Storyboard.TargetName="emptyHintTextBlock">
-                            <DiscreteObjectKeyFrame KeyTime="0">
-                                <DiscreteObjectKeyFrame.Value>
-                                    <Thickness>10,0</Thickness>
-                                </DiscreteObjectKeyFrame.Value>
-                            </DiscreteObjectKeyFrame>
-                        </ObjectAnimationUsingKeyFrames>
-                    </Storyboard>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
     </Grid>
-</common:LayoutAwarePage>
+</Page>

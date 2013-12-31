@@ -17,6 +17,7 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using RemoteTerminal.Common;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -25,8 +26,28 @@ namespace RemoteTerminal
     /// <summary>
     /// A basic page that provides characteristics common to most applications.
     /// </summary>
-    public sealed partial class TerminalPage : RemoteTerminal.Common.LayoutAwarePage
+    public sealed partial class TerminalPage : Page
     {
+        private NavigationHelper navigationHelper;
+        private ObservableDictionary defaultViewModel = new ObservableDictionary();
+
+        /// <summary>
+        /// This can be changed to a strongly typed view model.
+        /// </summary>
+        public ObservableDictionary DefaultViewModel
+        {
+            get { return this.defaultViewModel; }
+        }
+
+        /// <summary>
+        /// NavigationHelper is used on each page to aid in navigation and 
+        /// process lifetime management
+        /// </summary>
+        public NavigationHelper NavigationHelper
+        {
+            get { return this.navigationHelper; }
+        }
+
         private ManualResetEventSlim screenDisplayCopyBoxLoaded = new ManualResetEventSlim();
         private InputPaneHelper inputPaneHelper;
 
@@ -82,6 +103,9 @@ namespace RemoteTerminal
         public TerminalPage()
         {
             this.InitializeComponent();
+            this.navigationHelper = new NavigationHelper(this);
+            this.navigationHelper.LoadState += this.navigationHelper_LoadState;
+            this.navigationHelper.SaveState += this.navigationHelper_SaveState;
 
             // InputPaneHelper is a custom class that allows keyboard event listeners to
             // be attached to individual elements
@@ -94,25 +118,27 @@ namespace RemoteTerminal
         }
 
         /// <summary>
-        /// Populates the page with content passed during navigation.  Any saved state is also
+        /// Populates the page with content passed during navigation. Any saved state is also
         /// provided when recreating a page from a prior session.
         /// </summary>
-        /// <param name="navigationParameter">The parameter value passed to
-        /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested.
+        /// <param name="sender">
+        /// The source of the event; typically <see cref="NavigationHelper"/>
         /// </param>
-        /// <param name="pageState">A dictionary of state preserved by this page during an earlier
-        /// session.  This will be null the first time a page is visited.</param>
-        protected async override void LoadState(Object navigationParameter, Dictionary<String, Object> pageState)
+        /// <param name="e">Event data that provides both the navigation parameter passed to
+        /// <see cref="Frame.Navigate(Type, Object)"/> when this page was initially requested and
+        /// a dictionary of state preserved by this page during an earlier
+        /// session. The state will be null the first time a page is visited.</param>
+        private void navigationHelper_LoadState(object sender, LoadStateEventArgs e)
         {
-            if (navigationParameter == null)
+            if (e.NavigationParameter == null)
             {
                 this.Frame.GoBack();
             }
 
             ConnectionData connectionData;
-            if (navigationParameter is string)
+            if (e.NavigationParameter is string)
             {
-                connectionData = FavoritesDataSource.GetFavorite((string)navigationParameter);
+                connectionData = FavoritesDataSource.GetFavorite((string)e.NavigationParameter);
                 if (connectionData == null)
                 {
                     this.Frame.GoBack();
@@ -121,14 +147,14 @@ namespace RemoteTerminal
 
                 this.Terminal = TerminalManager.Create(connectionData);
             }
-            else if (navigationParameter is ConnectionData)
+            else if (e.NavigationParameter is ConnectionData)
             {
-                connectionData = navigationParameter as ConnectionData;
+                connectionData = e.NavigationParameter as ConnectionData;
                 this.Terminal = TerminalManager.Create(connectionData);
             }
-            else if (navigationParameter is ITerminal)
+            else if (e.NavigationParameter is ITerminal)
             {
-                this.Terminal = navigationParameter as ITerminal;
+                this.Terminal = e.NavigationParameter as ITerminal;
             }
             else
             {
@@ -144,17 +170,10 @@ namespace RemoteTerminal
         /// page is discarded from the navigation cache.  Values must conform to the serialization
         /// requirements of <see cref="SuspensionManager.SessionState"/>.
         /// </summary>
-        /// <param name="pageState">An empty dictionary to be populated with serializable state.</param>
-        protected override void SaveState(Dictionary<String, Object> pageState)
-        {
-        }
-
-        protected override void GoBack(object sender, RoutedEventArgs e)
-        {
-            base.GoBack(sender, e);
-        }
-
-        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        /// <param name="sender">The source of the event; typically <see cref="NavigationHelper"/></param>
+        /// <param name="e">Event data that provides an empty dictionary to be populated with
+        /// serializable state.</param>
+        private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
             if (this.inputPaneHelper != null)
             {
@@ -176,8 +195,11 @@ namespace RemoteTerminal
                     TerminalManager.Remove(this.Terminal);
                 }
             }
+        }
 
-            base.OnNavigatedFrom(e);
+        private void backAppBarButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.navigationHelper.GoBack();
         }
 
         private void PreviewGrid_ItemClick(object sender, ItemClickEventArgs e)
@@ -202,7 +224,7 @@ namespace RemoteTerminal
                 var switchToTerminal = TerminalManager.Terminals.Where(t => t != terminal).FirstOrDefault();
                 if (switchToTerminal == null)
                 {
-                    GoBack(sender, e);
+                    this.NavigationHelper.GoBack();
                 }
                 else
                 {
@@ -505,5 +527,28 @@ namespace RemoteTerminal
         {
             this.HideCopyMode();
         }
+
+        #region NavigationHelper registration
+
+        /// The methods provided in this section are simply used to allow
+        /// NavigationHelper to respond to the page's navigation methods.
+        /// 
+        /// Page specific logic should be placed in event handlers for the  
+        /// <see cref="GridCS.Common.NavigationHelper.LoadState"/>
+        /// and <see cref="GridCS.Common.NavigationHelper.SaveState"/>.
+        /// The navigation parameter is available in the LoadState method 
+        /// in addition to page state preserved during an earlier session.
+
+        protected override void OnNavigatedTo(NavigationEventArgs e)
+        {
+            this.navigationHelper.OnNavigatedTo(e);
+        }
+
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            this.navigationHelper.OnNavigatedFrom(e);
+        }
+
+        #endregion
     }
 }

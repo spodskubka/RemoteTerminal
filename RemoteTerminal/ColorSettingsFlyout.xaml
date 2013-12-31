@@ -1,4 +1,4 @@
-﻿<Page
+﻿<SettingsFlyout
     x:Class="RemoteTerminal.ColorSettingsFlyout"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,212 +6,83 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d"
-    d:DesignHeight="768"
-    d:DesignWidth="646">
+    IconSource="Assets/SmallLogo.png"
+    Title="Font and Colors"
+    HeaderBackground="{StaticResource AppColorBrush}"
+    d:DesignWidth="346"
+    LostFocus="SettingsFlyout_LostFocus">
 
-    <UserControl.Resources>
-        <Style x:Key="SettingsBackButtonStyle" TargetType="Button">
-            <Setter Property="MinWidth" Value="0"/>
-            <Setter Property="FontFamily" Value="Segoe UI Symbol"/>
-            <Setter Property="FontWeight" Value="Normal"/>
-            <Setter Property="FontSize" Value="26.66667"/>
-            <Setter Property="AutomationProperties.AutomationId" Value="BackButton"/>
-            <Setter Property="AutomationProperties.Name" Value="Back"/>
-            <Setter Property="AutomationProperties.ItemType" Value="Navigation Button"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Grid x:Name="RootGrid" Width="30" Height="30">
-                            <Grid Margin="-6,-6,0,0">
-                                <TextBlock x:Name="BackgroundGlyph" Text="&#xE0D4;" Foreground="Transparent"/>
-                                <TextBlock x:Name="NormalGlyph" Text="{StaticResource BackButtonSnappedGlyph}" Foreground="White"/>
-                                <TextBlock x:Name="ArrowGlyph" Text="&#xE0C4;" Foreground="#00b2f0" Opacity="0"/>
-                            </Grid>
-                            <Rectangle
-                                x:Name="FocusVisualWhite"
-                                IsHitTestVisible="False"
-                                Stroke="{StaticResource FocusVisualWhiteStrokeThemeBrush}" 
-                                StrokeEndLineCap="Square"
-                                StrokeDashArray="1,1"
-                                Opacity="0"
-                                StrokeDashOffset="1.5"
-                                />
+    <!-- This StackPanel acts as a root panel for vertical layout of the content sections -->
+    <StackPanel>
 
-                            <Rectangle
-                                x:Name="FocusVisualBlack"
-                                IsHitTestVisible="False"
-                                Stroke="{StaticResource FocusVisualBlackStrokeThemeBrush}" 
-                                StrokeEndLineCap="Square"
-                                StrokeDashArray="1,1"
-                                Opacity="0"
-                                StrokeDashOffset="0.5"
-                                />
+        <!-- The StackPanel(s) below define individual content sections -->
 
-                            <VisualStateManager.VisualStateGroups>
-                                <VisualStateGroup x:Name="CommonStates">
-                                    <VisualState x:Name="Normal" />
-                                    <VisualState x:Name="PointerOver">
-                                        <Storyboard>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGlyph" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource BackButtonPointerOverBackgroundThemeBrush}"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                        </Storyboard>
-                                    </VisualState>
-                                    <VisualState x:Name="Pressed">
-                                        <Storyboard>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGlyph" Storyboard.TargetProperty="Foreground">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="White"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                            <DoubleAnimation
-                                            Storyboard.TargetName="ArrowGlyph"
-                                            Storyboard.TargetProperty="Opacity"
-                                            To="1"
-                                            Duration="0"/>
-                                            <DoubleAnimation
-                                            Storyboard.TargetName="NormalGlyph"
-                                            Storyboard.TargetProperty="Opacity"
-                                            To="0"
-                                            Duration="0"/>
-                                        </Storyboard>
-                                    </VisualState>
-                                    <VisualState x:Name="Disabled">
-                                        <Storyboard>
-                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetName="RootGrid" Storyboard.TargetProperty="Visibility">
-                                                <DiscreteObjectKeyFrame KeyTime="0" Value="Collapsed"/>
-                                            </ObjectAnimationUsingKeyFrames>
-                                        </Storyboard>
-                                    </VisualState>
-                                </VisualStateGroup>
-                                <VisualStateGroup x:Name="FocusStates">
-                                    <VisualState x:Name="Focused">
-                                        <Storyboard>
-                                            <DoubleAnimation
-                                            Storyboard.TargetName="FocusVisualWhite"
-                                            Storyboard.TargetProperty="Opacity"
-                                            To="1"
-                                            Duration="0"/>
-                                            <DoubleAnimation
-                                            Storyboard.TargetName="FocusVisualBlack"
-                                            Storyboard.TargetProperty="Opacity"
-                                            To="1"
-                                            Duration="0"/>
-                                        </Storyboard>
-                                    </VisualState>
-                                    <VisualState x:Name="Unfocused" />
-                                    <VisualState x:Name="PointerFocused" />
-                                </VisualStateGroup>
-                            </VisualStateManager.VisualStateGroups>
-                        </Grid>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-    </UserControl.Resources>
+        <!-- Content Section 1 -->
+        <!--<StackPanel Style="{StaticResource SettingsFlyoutSectionStyle}">
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Theme" />
+        
+            <TextBlock Text="You can create and switch between different color themes." Style="{StaticResource BodyTextBlockStyle}"/>
+            <TextBlock Margin="0,25,0,0" Text="Current theme:" Style="{StaticResource BodyTextBlockStyle}"/>
+            <ComboBox Margin="0,7,0,0" SelectedIndex="0" HorizontalAlignment="Left">
+                <ComboBoxItem Content="Default"/>
+            </ComboBox>
+        </StackPanel>-->
+        
+        <!-- Content Section 2 -->
+        <StackPanel Style="{StaticResource SettingsFlyoutSectionStyle}">
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Theme Font" Margin="0,0,0,15" />
 
-    <Border BorderBrush="{StaticResource AppColorBrush}" BorderThickness="1,0,0,0">
-        <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}" VerticalAlignment="Stretch">
+            <StackPanel>
+                <ListBox x:Name="FontFamilyListBox" SelectionChanged="FontFamilyListBox_SelectionChanged" Margin="0,0,0,15">
+                    <ListBoxItem Content="Consolas"/>
+                    <ListBoxItem Content="Courier New"/>
+                    <ListBoxItem Content="KaiTi"/>
+                    <ListBoxItem Content="SimSun"/>
+                </ListBox>
+                <TextBlock Text="Size" Style="{StaticResource BodyTextBlockStyle}"/>
+                <Slider x:Name="FontSizeSlider" Minimum="-5" Maximum="5" ValueChanged="FontSizeSlider_ValueChanged"/>
+                <TextBlock Text="Preview" Style="{StaticResource BodyTextBlockStyle}"/>
+                <Border Background="Black" Height="50" Margin="0,10,0,0">
+                    <TextBlock x:Name="FontPreviewTextBlock" Text="AaBbCcDd中日한" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas" FontSize="17.0" />
+                </Border>
+            </StackPanel>
+            <Button Content="Reset to default font" Click="ResetFontClicked" Margin="0,7,0,0"/>
+        </StackPanel>
 
-            <!-- Root grid definition -->
-            <Grid.RowDefinitions>
-                <RowDefinition Height="80"/>
-                <RowDefinition Height="*" />
-            </Grid.RowDefinitions>
+        <!-- Content Section 3 -->
+        <StackPanel Style="{StaticResource SettingsFlyoutSectionStyle}">
+            <TextBlock Style="{StaticResource TitleTextBlockStyle}" Text="Theme Colors" Margin="0,0,0,15" />
 
-            <!-- Header area for panel -->
-            <Grid Background="{StaticResource AppColorBrush}" Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Orientation="Horizontal" Grid.Column="0" Margin="40,32,17,13">
-                    <Button Click="SettingsBackClicked" Margin="0,3,0,0" Style="{StaticResource SettingsBackButtonStyle}"/>
-                    <TextBlock Margin="10,0,0,0" FontFamily="Segoe UI" FontWeight="SemiLight" FontSize="24.6667" Text="Font and Colors" Foreground="White"/>
-                    <Image Source="Assets/StoreLogo.png" Stretch="None" Margin="400,-5,6,0"/>
+            <StackPanel>
+                <ListBox x:Name="ScreenColorListBox" SelectionChanged="ScreenColorListBox_SelectionChanged" Height="145">
+                    <ListBoxItem Content="Cursor Background"/>
+                    <ListBoxItem Content="Cursor Foreground"/>
+                    <ListBoxItem Content="Default Background"/>
+                    <ListBoxItem Content="Default Foreground"/>
+                    <ListBoxItem Content="Black"/>
+                    <ListBoxItem Content="Red"/>
+                    <ListBoxItem Content="Green"/>
+                    <ListBoxItem Content="Yellow"/>
+                    <ListBoxItem Content="Blue"/>
+                    <ListBoxItem Content="Magenta"/>
+                    <ListBoxItem Content="Cyan"/>
+                    <ListBoxItem Content="White"/>
+                </ListBox>
+                <StackPanel Margin="0,15,0,0">
+                    <TextBlock Text="Red" Style="{StaticResource BodyTextBlockStyle}"/>
+                    <Slider x:Name="RedSlider" Minimum="0" Maximum="255" ValueChanged="ColorSlider_ValueChanged"/>
+                    <TextBlock Text="Green" Style="{StaticResource BodyTextBlockStyle}"/>
+                    <Slider x:Name="GreenSlider" Minimum="0" Maximum="255" ValueChanged="ColorSlider_ValueChanged"/>
+                    <TextBlock Text="Blue" Style="{StaticResource BodyTextBlockStyle}"/>
+                    <Slider x:Name="BlueSlider" Minimum="0" Maximum="255" ValueChanged="ColorSlider_ValueChanged"/>
+                    <TextBlock Text="Preview" Style="{StaticResource BodyTextBlockStyle}"/>
+                    <Rectangle x:Name="ColorPreviewRectangle" Height="50" Fill="Black" Margin="0,10,0,0"/>
                 </StackPanel>
-            </Grid>
+            </StackPanel>
+            <Button Content="Reset to default colors" Click="ResetColorsClicked" Margin="0,7,0,0"/>
+        </StackPanel>
+        
+        <!-- Define more Content Sections below as necessary -->
 
-            <!-- Settings Panel Content -->
-            <ScrollViewer VerticalScrollBarVisibility="Auto" Grid.Row="1">
-                <Grid Margin="40,33,40,39" VerticalAlignment="Top" Grid.RowSpan="3">
-
-                    <StackPanel x:Name="FlyoutContent">
-                        <StackPanel Margin="0,0,0,0">
-                            <!--
-                            <TextBlock FontWeight="Bold" Text="Theme" Style="{StaticResource BasicTextStyle}"/>
-                            <TextBlock Text="You can create and switch between different color themes." Style="{StaticResource BasicTextStyle}"/>
-                            <TextBlock Margin="0,25,0,0" Text="Current theme:" Style="{StaticResource BasicTextStyle}"/>
-                            <ComboBox Margin="0,7,0,0" SelectedIndex="0" HorizontalAlignment="Left">
-                                <ComboBoxItem Content="Default"/>
-                            </ComboBox>
-                        </StackPanel>
-
-                        <StackPanel Margin="0,39,0,0">
-                            -->
-                            <TextBlock FontWeight="Bold" Text="Theme Font" Style="{StaticResource BasicTextStyle}"/>
-                            <Grid Margin="0,7,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="4*"/>
-                                    <ColumnDefinition Width="5*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <ListBox x:Name="FontFamilyListBox" SelectionChanged="FontFamilyListBox_SelectionChanged">
-                                    <ListBoxItem Content="Consolas"/>
-                                    <ListBoxItem Content="Courier New"/>
-                                    <ListBoxItem Content="KaiTi"/>
-                                    <ListBoxItem Content="SimSun"/>
-                                </ListBox>
-                                <StackPanel Grid.Column="1" Margin="30,0,0,0">
-                                    <TextBlock Text="Size" Style="{StaticResource BasicTextStyle}"/>
-                                    <Slider x:Name="FontSizeSlider" Minimum="-5" Maximum="5" ValueChanged="FontSizeSlider_ValueChanged"/>
-                                    <TextBlock Text="Preview" Style="{StaticResource BasicTextStyle}"/>
-                                    <Border Background="Black" Height="50">
-                                        <TextBlock x:Name="FontPreviewTextBlock" Text="AaBbCcDd中日한" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas" FontSize="17.0" />
-                                    </Border>
-                                </StackPanel>
-                            </Grid>
-
-                            <Button Content="Reset to default font" Click="ResetFontClicked" Margin="0,7,0,0"/>
-                        </StackPanel>
-
-                        <StackPanel Margin="0,20,0,0">
-                            <TextBlock FontWeight="Bold" Text="Theme Colors" Style="{StaticResource BasicTextStyle}"/>
-                            <Grid Margin="0,7,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="4*"/>
-                                    <ColumnDefinition Width="5*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <ListBox x:Name="ScreenColorListBox" SelectionChanged="ScreenColorListBox_SelectionChanged">
-                                    <ListBoxItem Content="Cursor Background"/>
-                                    <ListBoxItem Content="Cursor Foreground"/>
-                                    <ListBoxItem Content="Default Background"/>
-                                    <ListBoxItem Content="Default Foreground"/>
-                                    <ListBoxItem Content="Black"/>
-                                    <ListBoxItem Content="Red"/>
-                                    <ListBoxItem Content="Green"/>
-                                    <ListBoxItem Content="Yellow"/>
-                                    <ListBoxItem Content="Blue"/>
-                                    <ListBoxItem Content="Magenta"/>
-                                    <ListBoxItem Content="Cyan"/>
-                                    <ListBoxItem Content="White"/>
-                                </ListBox>
-                                <StackPanel Grid.Column="1" Margin="30,0,0,0">
-                                    <TextBlock Text="Red" Style="{StaticResource BasicTextStyle}"/>
-                                    <Slider x:Name="RedSlider" Minimum="0" Maximum="255" ValueChanged="ColorSlider_ValueChanged"/>
-                                    <TextBlock Text="Green" Style="{StaticResource BasicTextStyle}"/>
-                                    <Slider x:Name="GreenSlider" Minimum="0" Maximum="255" ValueChanged="ColorSlider_ValueChanged"/>
-                                    <TextBlock Text="Blue" Style="{StaticResource BasicTextStyle}"/>
-                                    <Slider x:Name="BlueSlider" Minimum="0" Maximum="255" ValueChanged="ColorSlider_ValueChanged"/>
-                                    <TextBlock Text="Preview" Style="{StaticResource BasicTextStyle}"/>
-                                    <Rectangle x:Name="ColorPreviewRectangle" Height="50" Fill="Black"/>
-                                </StackPanel>
-                            </Grid>
-                            <Button Content="Reset to default colors" Click="ResetColorsClicked" Margin="0,7,0,0"/>
-                        </StackPanel>
-                    </StackPanel>
-                </Grid>
-            </ScrollViewer>
-        </Grid>
-
-    </Border>
-</Page>
+    </StackPanel>
+</SettingsFlyout>

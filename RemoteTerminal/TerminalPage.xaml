@@ -1,4 +1,4 @@
-﻿<common:LayoutAwarePage xmlns:Terminals="using:RemoteTerminal.Terminals" 
+﻿<Page xmlns:Terminals="using:RemoteTerminal.Terminals" 
     x:Name="pageRoot"
     x:Class="RemoteTerminal.TerminalPage"
     DataContext="{Binding Terminal, RelativeSource={RelativeSource Self}}"
@@ -23,7 +23,7 @@
         </DataTemplate>
     </Page.Resources>
 
-    <common:LayoutAwarePage.TopAppBar>
+    <Page.TopAppBar>
         <AppBar Style="{StaticResource SemiTransparentAppBarStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -31,7 +31,8 @@
                     <ColumnDefinition Width="1*"/>
                 </Grid.ColumnDefinitions>
 
-                <Button x:Name="backButton" Click="GoBack" IsEnabled="{Binding Frame.CanGoBack, ElementName=pageRoot}" Style="{StaticResource BackAppBarButtonStyle}" VerticalAlignment="Center"/>
+                <!-- Cannot use the Command property in this AppBarButton because data binding doesn't work correctly in AppBars (yet) -->
+                <AppBarButton Icon="Back" Label="Back" Click="backAppBarButton_Click" VerticalAlignment="Center"/>
                 <GridView x:Name="previewGrid" Grid.Column="1" ItemTemplate="{StaticResource TerminalPreviewItemTemplate}" Margin="15,15,15,15" ItemClick="PreviewGrid_ItemClick" SelectionMode="None" IsItemClickEnabled="True" IsSwipeEnabled="False">
                     <GridView.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -41,28 +42,17 @@
                 </GridView>
             </Grid>
         </AppBar>
-    </common:LayoutAwarePage.TopAppBar>
-    <common:LayoutAwarePage.BottomAppBar>
-        <AppBar>
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <!--<ColumnDefinition/>-->
-                </Grid.ColumnDefinitions>
-                <StackPanel Orientation="Horizontal">
-                    <Button Style="{StaticResource PasteAppBarButtonStyle}" Click="pasteAppBarButton_Click"/>
-                    <Button Style="{StaticResource CopyModeAppBarButtonStyle}" Click="copyModeAppBarButton_Click"/>
-                </StackPanel>
-            </Grid>
-        </AppBar>
-    </common:LayoutAwarePage.BottomAppBar>
+    </Page.TopAppBar>
+    <Page.BottomAppBar>
+        <CommandBar>
+            <CommandBar.SecondaryCommands>
+                <AppBarButton Icon="Paste" Label="Paste" Click="pasteAppBarButton_Click"/>
+                <AppBarButton Icon="Copy" Label="Copy/URL Mode" Click="copyModeAppBarButton_Click"/>
+            </CommandBar.SecondaryCommands>
+        </CommandBar>
+    </Page.BottomAppBar>
 
-    <!--
-        This grid acts as a root panel for the page that defines two rows:
-        * Row 0 contains the back button and page title
-        * Row 1 contains the rest of the page layout
-    -->
-    <Grid x:Name="ContentGrid" Style="{StaticResource LayoutRootStyle}" Background="Black">
+    <Grid x:Name="ContentGrid" Background="Black">
         <Border x:Name="terminalContainer">
             <Terminals:ScreenDisplay x:Name="screenDisplay" TabIndex="0" Margin="0,0,1,1" />
         </Border>
@@ -72,15 +62,5 @@
                 <RichEditBox x:Name="screenDisplayCopyBox" Style="{StaticResource RichEditBoxCopyModeStyle}" IsSpellCheckEnabled="false" IsTextPredictionEnabled="false" TextWrapping="NoWrap" Loaded="screenDisplayCopyBox_Loaded" />
             </ScrollViewer>
         </Border>
-
-        <VisualStateManager.VisualStateGroups>
-            <!-- Visual states reflect the application's view state -->
-            <VisualStateGroup x:Name="ApplicationViewStates">
-                <VisualState x:Name="FullScreenLandscape"/>
-                <VisualState x:Name="Filled"/>
-                <VisualState x:Name="FullScreenPortrait"/>
-                <VisualState x:Name="Snapped"/>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
     </Grid>
-</common:LayoutAwarePage>
+</Page>
