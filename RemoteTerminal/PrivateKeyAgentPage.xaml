@@ -51,6 +51,16 @@
                 </StackPanel>
             </Grid>
         </DataTemplate>
+        <Flyout x:Key="LoadKeyPasswordFlyout" Placement="Bottom">
+            <StackPanel>
+                <TextBlock x:Name="loadKeyPasswordErrorTextBlock" Style="{StaticResource BodyTextBlockStyle}" Foreground="Red" Margin="0,0,0,10"/>
+                <TextBlock Text="Password:" Style="{StaticResource BodyTextBlockStyle}"/>
+                <PasswordBox x:Name="loadKeyPasswordBox" Margin="0,10" Width="280" KeyDown="loadKeyPasswordBox_KeyDown"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Button Content="Load" Click="keyLoadButton_Click" x:Name="loadKeyLoadButton" />
+                </StackPanel>
+            </StackPanel>
+        </Flyout>
     </Page.Resources>
 
     <!--
@@ -105,6 +115,7 @@
                     Margin="0,0,0,20"
                     ItemsSource="{Binding Source={StaticResource keysViewSource}}"
                     ItemTemplate="{StaticResource KeyListItemTemplate}"
+                    FlyoutBase.AttachedFlyout="{StaticResource LoadKeyPasswordFlyout}"
                     SelectionMode="None"
                     IsSwipeEnabled="false"
                     IsItemClickEnabled="True"
@@ -162,22 +173,5 @@
             <TextBlock x:Name="pageTitle" Text="Private Key Agent" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
                         IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
         </Grid>
-
-        <Border x:Name="loadKeyPasswordContainer" Visibility="Collapsed" Background="Transparent" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Tapped="loadKeyPasswordContainer_Tapped">
-            <Border BorderBrush="{StaticResource ApplicationForegroundThemeBrush}" BorderThickness="2" Background="{StaticResource ApplicationPageBackgroundThemeBrush}" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10" Tapped="loadKeyPasswordContainerChild_Tapped">
-                <StackPanel>
-                    <TextBlock x:Name="loadKeyPasswordErrorTextBlock" Style="{StaticResource BaseTextBlockStyle}" Foreground="Red"/>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Private Key:" Margin="0,0,5,0"  Style="{StaticResource BaseTextBlockStyle}"/>
-                        <TextBlock x:Name="loadKeyFileName" Style="{StaticResource BaseTextBlockStyle}"/>
-                    </StackPanel>
-                    <TextBlock Text="Password:" Style="{StaticResource BaseTextBlockStyle}"/>
-                    <PasswordBox x:Name="loadKeyPasswordBox" Margin="0,10" Width="280" KeyDown="loadKeyPasswordBox_KeyDown"/>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="Load" Click="keyLoadButton_Click" x:Name="loadKeyLoadButton" />
-                    </StackPanel>
-                </StackPanel>
-            </Border>
-        </Border>
     </Grid>
 </Page>

@@ -119,16 +119,14 @@ namespace RemoteTerminal
                 {
                     dlg = new MessageDialog("This private key is already loaded into the agent.", "Error loading private key");
                 }
+                this.SetEmptyHintVisibilities();
             }
             catch (SshPassPhraseNullOrEmptyException)
             {
-                var coreWindow = Windows.UI.Core.CoreWindow.GetForCurrentThread();
-
                 var clickedItem = ((ListViewBase)sender).ContainerFromItem(e.ClickedItem);
                 this.loadKeyPasswordErrorTextBlock.Visibility = Visibility.Collapsed;
-                this.loadKeyFileName.Text = privateKeyData.FileName;
-                this.loadKeyPasswordContainer.Tag = e.ClickedItem;
-                this.loadKeyPasswordContainer.Visibility = Visibility.Visible;
+                this.loadKeyPasswordBox.Tag = e.ClickedItem;
+                Flyout.GetAttachedFlyout((ListViewBase)this.keysGridView).ShowAt((FrameworkElement)clickedItem);
                 this.loadKeyPasswordBox.Focus(FocusState.Programmatic);
             }
             catch (SshException ex)
@@ -144,7 +142,7 @@ namespace RemoteTerminal
 
         private async void keyLoadButton_Click(object sender, RoutedEventArgs e)
         {
-            PrivateKeyData privateKeyData = this.loadKeyPasswordContainer.Tag as PrivateKeyData;
+            PrivateKeyData privateKeyData = this.loadKeyPasswordBox.Tag as PrivateKeyData;
             if (privateKeyData == null)
             {
                 return;
@@ -169,32 +167,17 @@ namespace RemoteTerminal
                     await dlg.ShowAsync();
                 }
 
-                this.loadKeyPasswordContainer.Visibility = Visibility.Collapsed;
+                Flyout.GetAttachedFlyout(this.keysGridView).Hide();
                 this.SetEmptyHintVisibilities();
             }
             catch (Exception ex)
             {
                 this.loadKeyPasswordErrorTextBlock.Text = "Wrong password.";
                 this.loadKeyPasswordErrorTextBlock.Visibility = Visibility.Visible;
+                this.loadKeyPasswordBox.Focus(FocusState.Programmatic);
             }
 
             this.loadKeyPasswordBox.Password = string.Empty;
-        }
-
-        private bool loadKeyPasswordContainerClose = true;
-        private void loadKeyPasswordContainer_Tapped(object sender, RoutedEventArgs e)
-        {
-            if (this.loadKeyPasswordContainerClose == true)
-            {
-                this.loadKeyPasswordContainer.Visibility = Visibility.Collapsed;
-            }
-
-            this.loadKeyPasswordContainerClose = true;
-        }
-
-        private void loadKeyPasswordContainerChild_Tapped(object sender, RoutedEventArgs e)
-        {
-            this.loadKeyPasswordContainerClose=false;
         }
 
         private void AgentKeys_ItemClick(object sender, ItemClickEventArgs e)
