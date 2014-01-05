@@ -46,9 +46,9 @@ namespace CommonDX
             formatConverter.Initialize(
                 bitmapDecoder.GetFrame(0),
                 SharpDX.WIC.PixelFormat.Format32bppPRGBA,
-                SharpDX.WIC.BitmapDitherType.None, 
+                SharpDX.WIC.BitmapDitherType.None,
                 null,
-                0.0, 
+                0.0,
                 SharpDX.WIC.BitmapPaletteType.Custom);
 
             return formatConverter;

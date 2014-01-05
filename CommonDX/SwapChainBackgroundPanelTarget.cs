@@ -31,36 +31,34 @@ using Windows.UI.Xaml.Controls;
 namespace CommonDX
 {
     /// <summary>
-    /// Target to render to a <see cref="SwapChainBackgroundPanel"/>.
+    /// Target to render to a <see cref="SwapChainPanel"/>.
     /// </summary>
     /// <remarks>
     /// This class should be use when efficient DirectX-XAML interop is required.
     /// </remarks>
-    public class SwapChainBackgroundPanelTarget : SwapChainTargetBase
+    public class SwapChainPanelTarget : SwapChainTargetBase
     {
-        private SwapChainBackgroundPanel panel;
-        private ISwapChainBackgroundPanelNative nativePanel;
+        private SwapChainPanel panel;
+        private ISwapChainPanelNative nativePanel;
 
         /// <summary>
-        /// Initializes a new <see cref="SwapChainBackgroundPanelTarget"/> instance
+        /// Initializes a new <see cref="SwapChainPanelTarget"/> instance
         /// </summary>
-        /// <param name="panel">The <see cref="SwapChainBackgroundPanel"/> to render to</param>
-        public SwapChainBackgroundPanelTarget(SwapChainBackgroundPanel panel)
+        /// <param name="panel">The <see cref="SwapChainPanel"/> to render to</param>
+        public SwapChainPanelTarget(SwapChainPanel panel)
         {
             this.panel = panel;
 
             // Gets the native panel
-            nativePanel = ComObject.As<ISwapChainBackgroundPanelNative>(panel);
-
-            // Register event on Window Size Changed
-            // So that resources dependent size can be resized
-            Window.Current.CoreWindow.SizeChanged += CoreWindow_SizeChanged;
+            nativePanel = ComObject.As<ISwapChainPanelNative>(panel);
+            panel.SizeChanged += panel_SizeChanged;
         }
 
-        void CoreWindow_SizeChanged(CoreWindow sender, WindowSizeChangedEventArgs args)
+        void panel_SizeChanged(object sender, SizeChangedEventArgs e)
         {
             UpdateForSizeChange();
         }
+
 
         protected override Windows.Foundation.Rect CurrentControlBounds
         {
@@ -71,9 +69,8 @@ namespace CommonDX
         {
             get
             {
-                // Unlike CoreWindow, Width/Height of the SwapChain must be specified
-                var currentWindow = Window.Current.CoreWindow;
-                return (int)(currentWindow.Bounds.Width * DeviceManager.Dpi / 96.0); 
+                var width = Double.IsNaN(panel.Width) ? 1 : panel.Width;
+                return (int)(width * DeviceManager.Dpi / 96.0);
             }
         }
 
@@ -81,9 +78,8 @@ namespace CommonDX
         {
             get
             {
-                // Unlike CoreWindow, Width/Height of the SwapChain must be specified
-                var currentWindow = Window.Current.CoreWindow;
-                return (int)(currentWindow.Bounds.Height * DeviceManager.Dpi / 96.0); // Returns 0 to fill the CoreWindow 
+                var height = Double.IsNaN(panel.Height) ? 1 : panel.Height;
+                return (int)(height * DeviceManager.Dpi / 96.0);
             }
         }
 
@@ -102,9 +98,9 @@ namespace CommonDX
         protected override SharpDX.DXGI.SwapChain1 CreateSwapChain(SharpDX.DXGI.Factory2 factory, SharpDX.Direct3D11.Device1 device, SharpDX.DXGI.SwapChainDescription1 desc)
         {
             // Creates the swap chain for XAML composition
-            var swapChain = factory.CreateSwapChainForComposition(device, ref desc, null);
+            var swapChain = new SwapChain1(factory, device, ref desc);
 
-            // Associate the SwapChainBackgroundPanel with the swap chain
+            // Associate the SwapChainPanel with the swap chain
             nativePanel.SwapChain = swapChain;
 
             // Returns the new swap chain

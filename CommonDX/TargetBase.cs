@@ -86,7 +86,7 @@ namespace CommonDX
         public Windows.Foundation.Rect ControlBounds { get; protected set; }
 
 
-        
+
         /// <summary>
         /// Gets the current bounds of the control linked to this render target
         /// </summary>
@@ -116,7 +116,8 @@ namespace CommonDX
         /// Initializes this instance.
         /// </summary>
         /// <param name="deviceManager">The device manager</param>
-        public virtual void Initialize(DeviceManager deviceManager) {
+        public virtual void Initialize(DeviceManager deviceManager)
+        {
             this.DeviceManager = deviceManager;
 
             // If the DPI is changed, we need to perform a OnSizeChanged event

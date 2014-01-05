@@ -81,8 +81,9 @@ namespace CommonDX
         /// <inveritdoc/>
         protected override Windows.Foundation.Rect CurrentControlBounds
         {
-            get { 
-                return new Windows.Foundation.Rect(0, 0, pixelWidth, pixelHeight); 
+            get
+            {
+                return new Windows.Foundation.Rect(0, 0, pixelWidth, pixelHeight);
             }
         }
 

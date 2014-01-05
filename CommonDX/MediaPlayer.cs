@@ -69,7 +69,7 @@ namespace CommonDX
 
         private ByteStream byteStream;
         private ComObject streamCom;
-        
+
         public virtual void Initialize(DeviceManager deviceManager)
         {
             lock (lockObject)
@@ -87,13 +87,13 @@ namespace CommonDX
 
                 // Setup Media Engine attributes
                 var attributes = new MediaEngineAttributes
-                                     {
-                                         DxgiManager = dxgiDeviceManager,
-                                         VideoOutputFormat = (int) SharpDX.DXGI.Format.B8G8R8A8_UNorm
-                                     };
+                {
+                    DxgiManager = dxgiDeviceManager,
+                    VideoOutputFormat = (int)SharpDX.DXGI.Format.B8G8R8A8_UNorm
+                };
 
                 using (var factory = new MediaEngineClassFactory())
-                    mediaEngine = new MediaEngine(factory, attributes, MediaEngineCreateFlags.WaitForStableState, OnMediaEngineEvent);                
+                    mediaEngine = new MediaEngine(factory, attributes, MediaEngineCreateFlags.WaitForStableState, OnMediaEngineEvent);
                 mediaEngineEx = mediaEngine.QueryInterface<MediaEngineEx>();
             }
         }
@@ -169,7 +169,7 @@ namespace CommonDX
         /// Pauses the audio/video.
         /// </summary>
         public void Pause()
-        {    
+        {
             if (mediaEngineEx != null)
                 mediaEngineEx.Pause();
         }

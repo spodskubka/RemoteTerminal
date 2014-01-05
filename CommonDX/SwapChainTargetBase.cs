@@ -32,7 +32,7 @@ namespace CommonDX
     /// </summary>
     /// <remarks>
     /// This class is the base class for <see cref="CoreWindowTarget"/>
-    /// and <see cref="SwapChainBackgroundPanelTarget"/>.
+    /// and <see cref="SwapChainPanelTarget"/>.
     /// </remarks>
     public abstract class SwapChainTargetBase : TargetBase
     {
@@ -193,7 +193,7 @@ namespace CommonDX
             d2dContext.Target = BitmapTarget2D;
 
             // Set D2D text anti-alias mode to Grayscale to ensure proper rendering of text on intermediate surfaces.
-            d2dContext.TextAntialiasMode = SharpDX.Direct2D1.TextAntialiasMode.Grayscale;            
+            d2dContext.TextAntialiasMode = SharpDX.Direct2D1.TextAntialiasMode.Grayscale;
         }
 
         /// <summary>

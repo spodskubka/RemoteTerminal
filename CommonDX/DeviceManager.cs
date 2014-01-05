@@ -45,17 +45,17 @@ namespace CommonDX
     public class DeviceManager : Component
     {
         // Declare Direct2D Objects
-        protected SharpDX.Direct2D1.Factory1           d2dFactory;
-        protected SharpDX.Direct2D1.Device             d2dDevice;
-        protected SharpDX.Direct2D1.DeviceContext      d2dContext;
+        protected SharpDX.Direct2D1.Factory1 d2dFactory;
+        protected SharpDX.Direct2D1.Device d2dDevice;
+        protected SharpDX.Direct2D1.DeviceContext d2dContext;
 
         // Declare DirectWrite & Windows Imaging Component Objects
-        protected SharpDX.DirectWrite.Factory          dwriteFactory;
-        protected SharpDX.WIC.ImagingFactory2          wicFactory;
+        protected SharpDX.DirectWrite.Factory dwriteFactory;
+        protected SharpDX.WIC.ImagingFactory2 wicFactory;
 
         // Direct3D Objects
-        protected SharpDX.Direct3D11.Device1           d3dDevice;
-        protected SharpDX.Direct3D11.DeviceContext1    d3dContext;
+        protected SharpDX.Direct3D11.Device1 d3dDevice;
+        protected SharpDX.Direct3D11.DeviceContext1 d3dContext;
         protected FeatureLevel featureLevel;
         protected float dpi;
 
@@ -112,7 +112,7 @@ namespace CommonDX
         {
             CreateDeviceIndependentResources();
             CreateDeviceResources();
-            
+
             if (OnInitialize != null)
                 OnInitialize(this);
 
@@ -125,7 +125,8 @@ namespace CommonDX
         /// <remarks>
         /// This method is called at the initialization of this instance.
         /// </remarks>
-        protected virtual void CreateDeviceIndependentResources() {
+        protected virtual void CreateDeviceIndependentResources()
+        {
 #if DEBUG
             var debugLevel = SharpDX.Direct2D1.DebugLevel.Information;
 #else
@@ -169,7 +170,8 @@ namespace CommonDX
                 // Force to FeatureLevel.Level_9_1
                 using (var defaultDevice = new SharpDX.Direct3D11.Device(DriverType.Hardware, creationFlags))
                     d3dDevice = defaultDevice.QueryInterface<SharpDX.Direct3D11.Device1>();
-            } catch (Exception)
+            }
+            catch (Exception)
             {
                 creationFlags = SharpDX.Direct3D11.DeviceCreationFlags.BgraSupport;
                 using (var defaultDevice = new SharpDX.Direct3D11.Device(DriverType.Hardware, creationFlags))
