@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using RemoteTerminal.Common;
 using RemoteTerminal.Model;
 using RemoteTerminal.Screens;
 using RemoteTerminal.Terminals;
@@ -17,7 +17,6 @@ using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using RemoteTerminal.Common;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 
@@ -49,7 +48,6 @@ namespace RemoteTerminal
         }
 
         private ManualResetEventSlim screenDisplayCopyBoxLoaded = new ManualResetEventSlim();
-        private InputPaneHelper inputPaneHelper;
 
         private static Lazy<Regex> hyperlinkRegex = new Lazy<Regex>(CreateHyperlinkRegex);
 
@@ -107,12 +105,9 @@ namespace RemoteTerminal
             this.navigationHelper.LoadState += this.navigationHelper_LoadState;
             this.navigationHelper.SaveState += this.navigationHelper_SaveState;
 
-            // InputPaneHelper is a custom class that allows keyboard event listeners to
-            // be attached to individual elements
-            this.inputPaneHelper = new InputPaneHelper();
-            this.inputPaneHelper.SubscribeToKeyboard(true);
-            this.inputPaneHelper.AddShowingHandler(this.screenDisplay, new InputPaneShowingHandler(CustomKeyboardHandler));
-            this.inputPaneHelper.SetHidingHandler(new InputPaneHidingHandler(InputPaneHiding));
+            InputPane input = InputPane.GetForCurrentView();
+            input.Showing += InputPaneShowing;
+            input.Hiding += InputPaneHiding;
 
             this.copyContainer.Visibility = Visibility.Collapsed;
         }
@@ -175,12 +170,9 @@ namespace RemoteTerminal
         /// serializable state.</param>
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
-            if (this.inputPaneHelper != null)
-            {
-                inputPaneHelper.SubscribeToKeyboard(false);
-                inputPaneHelper.RemoveShowingHandler(this.screenDisplay);
-                inputPaneHelper.SetHidingHandler(null);
-            }
+            InputPane input = InputPane.GetForCurrentView();
+            input.Showing -= InputPaneShowing;
+            input.Hiding -= InputPaneHiding;
 
             if (this.screenDisplay != null)
             {
@@ -235,7 +227,7 @@ namespace RemoteTerminal
             TerminalManager.Remove(terminal);
         }
 
-        private void CustomKeyboardHandler(object sender, InputPaneVisibilityEventArgs e)
+        private void InputPaneShowing(object sender, InputPaneVisibilityEventArgs e)
         {
             this.ContentGrid.VerticalAlignment = VerticalAlignment.Top;
             this.ContentGrid.Height = e.OccludedRect.Y;
