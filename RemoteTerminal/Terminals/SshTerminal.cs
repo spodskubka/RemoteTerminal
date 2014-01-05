@@ -181,7 +181,7 @@ namespace RemoteTerminal.Terminals
             string input;
 
             // handle Alt key combinations
-            if (keyModifiers == KeyModifiers.Alt)
+            if (keyModifiers.HasFlag(KeyModifiers.Alt))
             {
                 if (key >= VirtualKey.Number0 && key <= VirtualKey.Number9)
                 {
@@ -190,7 +190,7 @@ namespace RemoteTerminal.Terminals
                 else if (key >= VirtualKey.A && key <= VirtualKey.Z)
                 {
                     // the "+ 32" produces lower case characters
-                    input = "\x1b" + (char)(key + 32);
+                    input = "\x1b" + (char)(key + (keyModifiers.HasFlag(KeyModifiers.Shift) ? 0 : 32));
                 }
                 else if (key == VirtualKey.Shift || key == VirtualKey.Menu || key == VirtualKey.Control)
                 {
