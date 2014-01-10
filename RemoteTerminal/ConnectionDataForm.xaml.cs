@@ -158,7 +158,8 @@ namespace RemoteTerminal
         {
             var connectionData = this.CreateConnectionDataFromForm();
 
-            this.Frame.Navigate(typeof(TerminalPage), connectionData);
+            Guid guid = TerminalManager.Create(connectionData);
+            this.Frame.Navigate(typeof(TerminalPage), guid);
         }
 
         private ConnectionData CreateConnectionDataFromForm()

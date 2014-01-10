@@ -130,32 +130,21 @@ namespace RemoteTerminal
                 this.Frame.GoBack();
             }
 
-            ConnectionData connectionData;
-            if (e.NavigationParameter is string)
-            {
-                connectionData = FavoritesDataSource.GetFavorite((string)e.NavigationParameter);
-                if (connectionData == null)
-                {
-                    this.Frame.GoBack();
-                    return;
-                }
-
-                this.Terminal = TerminalManager.Create(connectionData);
-            }
-            else if (e.NavigationParameter is ConnectionData)
-            {
-                connectionData = e.NavigationParameter as ConnectionData;
-                this.Terminal = TerminalManager.Create(connectionData);
-            }
-            else if (e.NavigationParameter is ITerminal)
-            {
-                this.Terminal = e.NavigationParameter as ITerminal;
-            }
-            else
+            if (!(e.NavigationParameter is Guid))
             {
                 this.Frame.GoBack();
                 return;
             }
+
+            Guid guid = (Guid)e.NavigationParameter;
+            ITerminal terminal = TerminalManager.GetTerminal(guid);
+            if (terminal == null)
+            {
+                this.Frame.GoBack();
+                return;
+            }
+
+            this.Terminal = terminal;
 
             this.previewGrid.ItemsSource = TerminalManager.Terminals;
         }

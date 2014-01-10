@@ -12,10 +12,11 @@ namespace RemoteTerminal
 {
     public static class TerminalManager
     {
-        private static ObservableCollection<ITerminal> terminals = new ObservableCollection<ITerminal>();
+        private static IDictionary<Guid, ITerminal> terminals = new Dictionary<Guid, ITerminal>();
 
-        public static ITerminal Create(ConnectionData connectionData)
+        public static Guid Create(ConnectionData connectionData)
         {
+            Guid guid = Guid.NewGuid();
             ITerminal terminal;
 
             switch (connectionData.Type)
@@ -31,28 +32,38 @@ namespace RemoteTerminal
             }
 
             terminal.PowerOn();
-            terminals.Add(terminal);
-            return terminal;
+            terminals.Add(guid, terminal);
+            return guid;
+        }
+
+        public static ITerminal GetTerminal(Guid guid)
+        {
+            return terminals.Where(t => t.Key == guid).Select(t => t.Value).SingleOrDefault();
+        }
+
+        public static Guid? GetGuid(ITerminal terminal)
+        {
+            return terminals.Where(t => t.Value == terminal).Select(t => t.Key).SingleOrDefault();
         }
 
         public static bool Remove(ITerminal terminal)
         {
-            if (!terminals.Contains(terminal))
+            if (!terminals.Any(t => t.Value == terminal))
             {
                 return false;
             }
 
-            terminals.Remove(terminal);
+            terminals.Remove(terminals.Where(t => t.Value == terminal).Single());
             terminal.PowerOff();
             terminal.Dispose();
             return true;
         }
 
-        public static ObservableCollection<ITerminal> Terminals
+        public static ICollection<ITerminal> Terminals
         {
             get
             {
-                return terminals;
+                return terminals.Values;
             }
         }
     }

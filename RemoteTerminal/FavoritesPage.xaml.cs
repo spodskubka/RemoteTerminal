@@ -189,11 +189,21 @@ namespace RemoteTerminal
 
         private void ItemView_ItemClick(object sender, ItemClickEventArgs e)
         {
-            if (e.ClickedItem != null)
+            if (e.ClickedItem == null)
             {
-                string id = ((ConnectionData)e.ClickedItem).Id;
-                this.Frame.Navigate(typeof(TerminalPage), id);
+                return;
             }
+
+            string id = ((ConnectionData)e.ClickedItem).Id;
+
+            var connectionData = FavoritesDataSource.GetFavorite(id);
+            if (connectionData == null)
+            {
+                return;
+            }
+
+            Guid guid = TerminalManager.Create(connectionData);
+            this.Frame.Navigate(typeof(TerminalPage), guid);
         }
 
         private void ItemView_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -216,7 +226,7 @@ namespace RemoteTerminal
                 return;
             }
 
-            this.Frame.Navigate(typeof(TerminalPage), terminal);
+            this.Frame.Navigate(typeof(TerminalPage), TerminalManager.GetGuid(terminal));
         }
 
         private void PreviewGrid_ItemCloseButtonClick(object sender, RoutedEventArgs e)
