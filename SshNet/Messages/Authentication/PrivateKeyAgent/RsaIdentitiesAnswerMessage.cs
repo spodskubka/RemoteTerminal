@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using Renci.SshNet.Common;
 using Renci.SshNet.Security;
 
 namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent

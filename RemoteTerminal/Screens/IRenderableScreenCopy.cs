@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Text;
-using Windows.UI;
-using Windows.UI.Xaml.Controls;
-
-namespace RemoteTerminal.Screens
+﻿namespace RemoteTerminal.Screens
 {
     public interface IRenderableScreenCopy
     {

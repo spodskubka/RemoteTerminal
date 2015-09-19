@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Runtime.Serialization.Json;
-using System.Text;
+using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
-using Windows.Data.Json;
 using Windows.Storage;
 using Windows.Storage.Search;
-using Windows.UI.Popups;
-using System.Runtime.InteropServices.WindowsRuntime;
 
 namespace RemoteTerminal.Model
 {

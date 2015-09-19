@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using RemoteTerminal.Screens;
 using RemoteTerminal.Terminals;
 using Windows.UI;

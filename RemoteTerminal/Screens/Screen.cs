@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 using System.Linq;
-using Windows.UI;
-using Windows.UI.Xaml.Controls;
 using System.Threading;
 
 namespace RemoteTerminal.Screens

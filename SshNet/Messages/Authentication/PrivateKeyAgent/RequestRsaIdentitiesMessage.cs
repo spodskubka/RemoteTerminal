@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
+﻿namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
 {
     /// <summary>
     /// Represents SSH_AGENTC_REQUEST_RSA_IDENTITIES message.

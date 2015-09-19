@@ -2,15 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using RemoteTerminal.Model;
 using RemoteTerminal.Terminals;
 using Renci.SshNet;
 using Renci.SshNet.Common;
-using Windows.Storage;
-using Windows.Storage.AccessCache;
 
 namespace RemoteTerminal.Connections
 {

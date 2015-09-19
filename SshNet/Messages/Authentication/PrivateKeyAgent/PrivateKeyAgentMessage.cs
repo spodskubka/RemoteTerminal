@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Renci.SshNet.Common;
-using Renci.SshNet.Messages;
 
 namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
 {

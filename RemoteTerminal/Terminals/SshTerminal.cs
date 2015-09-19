@@ -1,19 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using CommonDX;
-using RemoteTerminal.Connections;
 using RemoteTerminal.Model;
 using RemoteTerminal.Screens;
-using Windows.Foundation;
 using Windows.System;
-using Windows.UI;
-using Windows.UI.Core;
-using Windows.UI.Xaml;
-using Windows.UI.Xaml.Media;
 
 namespace RemoteTerminal.Terminals
 {

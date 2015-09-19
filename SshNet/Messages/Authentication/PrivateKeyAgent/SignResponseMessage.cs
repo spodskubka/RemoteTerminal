@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
+﻿namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
 {
     /// <summary>
     /// Represents SSH2_AGENT_SIGN_RESPONSE message.
