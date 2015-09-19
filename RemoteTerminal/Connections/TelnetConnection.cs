@@ -9,15 +9,39 @@ using Windows.Networking.Sockets;
 
 namespace RemoteTerminal.Connections
 {
+    /// <summary>
+    /// Represents a connection (more specific: a shell connection) to a Telnet server.
+    /// </summary>
     internal class TelnetConnection : IConnection
     {
+        /// <summary>
+        /// The connection data for the connection.
+        /// </summary>
         private ConnectionData connectionData;
+
+        /// <summary>
+        /// The TCP connection to the Telnet server.
+        /// </summary>
         private StreamSocket socket;
+
+        /// <summary>
+        /// The reader for the TCP connection input stream.
+        /// </summary>
         private StreamReader reader;
+
+        /// <summary>
+        /// The writer for the TCP connection output stream.
+        /// </summary>
         private StreamWriter writer;
 
+        /// <summary>
+        /// A value indicating whether the current object has been disposed.
+        /// </summary>
         private bool isDisposed = false;
 
+        /// <summary>
+        /// Gets a value indicating whether the connection object is actually connected to a server.
+        /// </summary>
         public bool IsConnected
         {
             get
@@ -26,6 +50,14 @@ namespace RemoteTerminal.Connections
             }
         }
 
+        /// <summary>
+        /// Initializes the connection object with the specified connection data.
+        /// </summary>
+        /// <param name="connectionData">The connection data for the connection.</param>
+        /// <exception cref="ObjectDisposedException">The connection object is already disposed.</exception>
+        /// <exception cref="InvalidOperationException">The connection object is currently connected.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="connectionData"/> object contains a connection type that is not supported by the connection object.</exception>
+        /// <exception cref="Exception">Some other error occured.</exception>
         public void Initialize(ConnectionData connectionData)
         {
             this.CheckDisposed();
@@ -39,6 +71,13 @@ namespace RemoteTerminal.Connections
             this.connectionData = connectionData;
         }
 
+        /// <summary>
+        /// Establishes the connection to the server, using the specified <paramref name="terminal"/> for connection initialization (authentication, etc.).
+        /// </summary>
+        /// <param name="terminal">The terminal to use for connection initialization.</param>
+        /// <returns>A value indicating whether the connection was successfully established.</returns>
+        /// <exception cref="ObjectDisposedException">The connection object is already disposed.</exception>
+        /// <exception cref="InvalidOperationException">The connection object is currently connected.</exception>
         public async Task<bool> ConnectAsync(IConnectionInitializingTerminal terminal)
         {
             this.CheckDisposed();
@@ -70,6 +109,12 @@ namespace RemoteTerminal.Connections
         private const char DONT = (char)254;
         private const char IAC = (char)255;
 
+        /// <summary>
+        /// Reads a string from the server.
+        /// </summary>
+        /// <returns>The read string.</returns>
+        /// <exception cref="ObjectDisposedException">The connection object is already disposed.</exception>
+        /// <exception cref="InvalidOperationException">The connection object is currently not connected.</exception>
         public async Task<string> ReadAsync()
         {
             this.CheckDisposed();
@@ -148,6 +193,12 @@ namespace RemoteTerminal.Connections
             return input.ToString();
         }
 
+        /// <summary>
+        /// Writes a string to the server.
+        /// </summary>
+        /// <param name="str">The string to write.</param>
+        /// <exception cref="ObjectDisposedException">The connection object is already disposed.</exception>
+        /// <exception cref="InvalidOperationException">The connection object is currently not connected.</exception>
         public void Write(string str)
         {
             this.CheckDisposed();
@@ -157,16 +208,28 @@ namespace RemoteTerminal.Connections
             this.writer.Flush();
         }
 
+        /// <summary>
+        /// Indicates to the server that the terminal size has changed to the specified dimensions.
+        /// </summary>
+        /// <param name="rows">The new amount of rows.</param>
+        /// <param name="columns">The new amount of columns.</param>
+        /// <exception cref="InvalidOperationException">The connection object is currently not connected.</exception>
         public void ResizeTerminal(int rows, int columns)
         {
             // A telnet connection is unaffected by a terminal resize.
         }
 
+        /// <summary>
+        /// Closes the connection to the server.
+        /// </summary>
         public void Disconnect()
         {
             this.Dispose();
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             if (this.isDisposed)
@@ -197,6 +260,9 @@ namespace RemoteTerminal.Connections
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Checks whether the current object is disposed, in which case an <see cref="ObjectDisposedException"/> is thrown.
+        /// </summary>
         private void CheckDisposed()
         {
             if (this.isDisposed)
@@ -205,6 +271,10 @@ namespace RemoteTerminal.Connections
             }
         }
 
+        /// <summary>
+        /// Checks whether a specific connection state is not satisfied, in which case an <see cref="InvalidOperationException"/> is thrown.
+        /// </summary>
+        /// <param name="connected"><see cref="true"/> if the connection should be connected to prevent an exception, <see cref="false"/> otherwise.</param>
         private void MustBeConnected(bool connected)
         {
             if (connected != this.IsConnected)

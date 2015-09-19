@@ -5,9 +5,10 @@ namespace RemoteTerminal.Terminals
     /// <summary>
     /// This class contains methods ported from the wcwidth() and wcswidth() implementations found here:
     /// http://www.cl.cam.ac.uk/~mgk25/ucs/wcwidth.c
+    /// It is used to determine the width of characters before writing them to the virtual terminal-screen.
     /// </summary>
     /// <remarks>
-    /// This is the original comment text of w:
+    /// This is the original comment text of wcwidth.c:
     /// /*
     ///  * This is an implementation of wcwidth() and wcswidth() (defined in
     ///  * IEEE Std 1002.1-2001) for Unicode.

@@ -5,10 +5,26 @@ using Windows.System;
 
 namespace RemoteTerminal.Terminals
 {
+    /// <summary>
+    /// This is a concrete terminal implementation of an "xterm" terminal, which is able to process ANSI control sequences.
+    /// </summary>
+    /// <remarks>
+    /// The class is called SshTerminal just because it was used with the <see cref="SshConnection"/> class in the beginning.
+    /// However, it is used for all connections now.
+    /// </remarks>
     public class SshTerminal : AbstractTerminal, ITerminal, IConnectionInitializingTerminal
     {
+        /// <summary>
+        /// Data for a saved cursor.
+        /// </summary>
         private class SavedCursor
         {
+            /// <summary>
+            /// Initializes a new instance of the <see cref="SavedCursor"/> class.
+            /// </summary>
+            /// <param name="cursorRow">The cursor row to save.</param>
+            /// <param name="cursorColumn">The cursor column to save.</param>
+            /// <param name="currentFormat">The current format to save.</param>
             public SavedCursor(int cursorRow, int cursorColumn, ScreenCellFormat currentFormat)
             {
                 this.CursorRow = cursorRow;
@@ -16,28 +32,83 @@ namespace RemoteTerminal.Terminals
                 this.Format = currentFormat.Clone();
             }
 
+            /// <summary>
+            /// Gets the saved cursor row.
+            /// </summary>
             public int CursorRow { get; private set; }
+
+            /// <summary>
+            /// Gets the saved cursor column.
+            /// </summary>
             public int CursorColumn { get; private set; }
+
+            /// <summary>
+            /// Gets the saved format.
+            /// </summary>
             public ScreenCellFormat Format { get; private set; }
         }
 
-        // Escape sequence processing
+        /// <summary>
+        /// Received escape sequence characters (null when no escape sequence is currently received).
+        /// </summary>
         private string escapeChars = null;
+
+        /// <summary>
+        /// Received escape sequence arguments (null when no escape sequence is currently received).
+        /// </summary>
         private string escapeArgs = null;
+
+        /// <summary>
+        /// A value indicating whether the escape sequence processor has to wait for a string terminator.
+        /// </summary>
         private bool escapeCharsWaitForStringTerminator = false;
 
-        // Fields used by escape sequences
+        /// <summary>
+        /// The top row of the current scroll area (null if no scroll area is active).
+        /// </summary>
         private int? scrollTop = null;
+
+        /// <summary>
+        /// The bottom row of the current scroll area (null if no scroll area is active).
+        /// </summary>
         private int? scrollBottom = null;
+
+        /// <summary>
+        /// The saved cursor (null if no cursor is saved).
+        /// </summary>
         private SavedCursor savedCursor = null;
+
+        /// <summary>
+        /// A value indicating whether to send "application cursor keys".
+        /// </summary>
         private bool applicationCursorKeys = false;
+
+        /// <summary>
+        /// A value indicating whether insert mode is active.
+        /// </summary>
         private bool insertMode = false;
 
+        /// <summary>
+        /// A value indicating whether auto-wrap mode is active.
+        /// </summary>
         private bool autoWrapMode = true;
+
+        /// <summary>
+        /// A value indicating whether the next character should be wrapped in auto-wrap mode.
+        /// </summary>
         private bool wrapNextChar = false;
 
+        /// <summary>
+        /// A value indicating whether the <see cref="ProcessUserInput(string)"/> method should ignore the next string it receives.
+        /// </summary>
+        /// <remarks>
+        /// This is set by the <see cref="ProcessUserInput(VirtualKey, KeyModifiers)"/> method after processing a key that also triggers the <see cref="ProcessUserInput(string)"/> key.
+        /// </remarks>
         private bool ignoreStringUserInput = false;
 
+        /// <summary>
+        /// The current format.
+        /// </summary>
         private ScreenCellFormat currentFormat = new ScreenCellFormat();
 
         //public static double TerminalCellFontSize { get { return 17d; } }
@@ -49,16 +120,31 @@ namespace RemoteTerminal.Terminals
         /// </summary>
         private const int DefaultTabStopWidth = 8;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SshTerminal"/> class with the specified connection data and local echo setting.
+        /// </summary>
+        /// <param name="connectionData">The connection data.</param>
+        /// <param name="localEcho">A value indicating whether all user input should be echoed on the terminal screen (when the server doesn't return the input to the terminal).</param>
         public SshTerminal(ConnectionData connectionData, bool localEcho)
             : base(connectionData, localEcho, writtenNewLine: "\r")
         {
         }
 
+        /// <summary>
+        /// Gets the name of the terminal implementation (e.g. dumb, vt100, xterm).
+        /// </summary>
+        /// <remarks>
+        /// In case of an SSH connection this may be sent to the SSH server
+        /// </remarks>
         public override string TerminalName
         {
             get { return "xterm"; }
         }
 
+        /// <summary>
+        /// Processes input from the connection (sent by the server) in a way that is specific to the terminal implementation.
+        /// </summary>
+        /// <param name="ch">The received character.</param>
         protected override void ProcessConnectionInput(char ch)
         {
             if (this.escapeChars != null)
@@ -145,11 +231,16 @@ namespace RemoteTerminal.Terminals
             }
         }
 
+        /// <summary>
+        /// Processes user input in a way that is specific to the terminal implementation.
+        /// </summary>
+        /// <param name="str">The input string.</param>
+        /// <remarks>
+        /// This method receives all input that represents "characters".
+        /// It does not receive: Return, Cursor keys (Up, Down, Left, Right), Tabulator, Function keys (F1 - F12), Alt/Ctrl key combinations
+        /// </remarks>
         protected override void ProcessUserInput(string str)
         {
-            // This method receives all input that represents "characters".
-            // It does not receive: Return, Cursor keys (Up, Down, Left, Right), Tabulator, Function keys (F1 - F12), Alt/Ctrl key combinations
-
             // This field is set to true if the other ProcessUserInput method has already processed something that also reaches this method.
             if (this.ignoreStringUserInput)
             {
@@ -161,9 +252,14 @@ namespace RemoteTerminal.Terminals
         }
 
         /// <summary>
-        /// Processes key presses of non-character keys (e.g. Up, Down, Left, Right, Function keys F1-F12, Alt/Ctrl key combinations, ...).
+        /// Processes user input in a way that is specific to the terminal implementation.
         /// </summary>
-        /// <param name="key">The pressed key.</param>
+        /// <param name="key">The input key.</param>
+        /// <param name="keyModifiers">The key modifiers.</param>
+        /// <returns>A value indicating whether the key press was processed by the terminal implementation.</returns>
+        /// <remarks>
+        /// This method receives key presses of non-character keys (e.g. Up, Down, Left, Right, Function keys F1-F12, Alt/Ctrl key combinations, ...).
+        /// </remarks>
         protected override bool ProcessUserInput(VirtualKey key, KeyModifiers keyModifiers)
         {
             string input;
@@ -303,8 +399,14 @@ namespace RemoteTerminal.Terminals
             return true;
         }
 
+        /// <summary>
+        /// Gets an ANSI function key modifier string representing the pressed <see cref="KeyModifiers"/>.
+        /// </summary>
+        /// <param name="keyModifiers">The pressed key modifiers.</param>
+        /// <returns>The ANSI function key modifier string.</returns>
         private static string GetFunctionKeyModifier(KeyModifiers keyModifiers)
         {
+            // This method is disabled at the moment...
             return string.Empty;
 
             bool isShiftKeyDown = keyModifiers.HasFlag(KeyModifiers.Shift);
@@ -343,6 +445,10 @@ namespace RemoteTerminal.Terminals
             return string.Empty;
         }
 
+        /// <summary>
+        /// Processes a received character when an escape sequence is currently being received.
+        /// </summary>
+        /// <param name="ch">The received character.</param>
         private void ProcessEscapeSequenceChar(char ch)
         {
             // From http://en.wikipedia.org/wiki/ANSI_escape_code#Sequence_elements:
@@ -439,6 +545,9 @@ namespace RemoteTerminal.Terminals
             this.escapeCharsWaitForStringTerminator = false;
         }
 
+        /// <summary>
+        /// Processes an escape sequence after it was fully received.
+        /// </summary>
         private void ProcessEscapeSequence()
         {
             //if (this.escapeChars.StartsWith("Y"))
@@ -836,6 +945,12 @@ namespace RemoteTerminal.Terminals
             }
         }
 
+        /// <summary>
+        /// Saves or restores the cursor.
+        /// </summary>
+        /// <param name="cursorRow">When <paramref name="save"/> is true: the cursor row to save; else it is set to the restored cursor row.</param>
+        /// <param name="cursorColumn">When <paramref name="save"/> is true: the cursor column to save; else it is set to the restored cursor row.</param>
+        /// <param name="save">A value indicating whether to save the cursor (true), or restore it (false).</param>
         private void SaveOrRestoreCursor(ref int cursorRow, ref int cursorColumn, bool save)
         {
             if (save)
@@ -892,6 +1007,10 @@ namespace RemoteTerminal.Terminals
         ////    return null;
         ////}
 
+        /// <summary>
+        /// Jumps the cursor to the next (default) horizontal tab stop.
+        /// </summary>
+        /// <param name="modifier">The screen modifier.</param>
         private void JumpToNextHorizontalTabStop(IScreenModifier modifier)
         {
             var previousTabStop = ((modifier.CursorColumn / DefaultTabStopWidth) * DefaultTabStopWidth);

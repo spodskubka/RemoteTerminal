@@ -16,18 +16,27 @@ using Windows.UI.Xaml.Navigation;
 namespace RemoteTerminal
 {
     /// <summary>
-    /// A page that displays a collection of item previews.  In the Split Application this page
-    /// is used to display and select one of the available groups.
+    /// The start page displaying all favorites.
     /// </summary>
     public sealed partial class FavoritesPage : Page
     {
+        /// <summary>
+        /// The <see cref="NavigationHelper"/> for this page.
+        /// </summary>
         private NavigationHelper navigationHelper;
+
+        /// <summary>
+        /// The default view model.
+        /// </summary>
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
 
+        /// <summary>
+        /// The current license information.
+        /// </summary>
         private LicenseInformation licenseInformation;
 
         /// <summary>
-        /// This can be changed to a strongly typed view model.
+        /// Gets the default view model.
         /// </summary>
         public ObservableDictionary DefaultViewModel
         {
@@ -35,14 +44,16 @@ namespace RemoteTerminal
         }
 
         /// <summary>
-        /// NavigationHelper is used on each page to aid in navigation and 
-        /// process lifetime management
+        /// Gets the <see cref="NavigationHelper"/> for this page.
         /// </summary>
         public NavigationHelper NavigationHelper
         {
             get { return this.navigationHelper; }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="FavoritesPage"/> class.
+        /// </summary>
         public FavoritesPage()
         {
             this.InitializeComponent();
@@ -108,6 +119,12 @@ namespace RemoteTerminal
             this.licenseInformation.LicenseChanged -= RefreshTrialHint;
         }
 
+        /// <summary>
+        /// Refreshes the display of the remaining days in trial mode at the bottom of the screen.
+        /// </summary>
+        /// <remarks>
+        /// TODO: this is not needed anymore, the app is now free of charge.
+        /// </remarks>
         private void RefreshTrialHint()
         {
             if (this.licenseInformation.IsTrial)
@@ -129,11 +146,21 @@ namespace RemoteTerminal
             }
         }
 
+        /// <summary>
+        /// Occurs when the add button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void addButton_Click(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(ConnectionDataForm), string.Empty);
         }
 
+        /// <summary>
+        /// Occurs when the remove button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void removeButton_Click(object sender, RoutedEventArgs e)
         {
             FavoritesDataSource favoritesDataSource = (FavoritesDataSource)App.Current.Resources["favoritesDataSource"];
@@ -150,6 +177,11 @@ namespace RemoteTerminal
             }
         }
 
+        /// <summary>
+        /// Occurs when the edit button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void editButton_Click(object sender, RoutedEventArgs e)
         {
             FavoritesDataSource favoritesDataSource = (FavoritesDataSource)App.Current.Resources["favoritesDataSource"];
@@ -160,21 +192,41 @@ namespace RemoteTerminal
             }
         }
 
+        /// <summary>
+        /// Occurs when the quick connect button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void quickConnectButton_Click(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(ConnectionDataForm), null);
         }
 
+        /// <summary>
+        /// Occurs when the private keys button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void privateKeysButton_Click(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(PrivateKeysPage), null);
         }
 
+        /// <summary>
+        /// Occurs when the private key agent button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void privateKeyAgentButton_Click(object sender, RoutedEventArgs e)
         {
             this.Frame.Navigate(typeof(PrivateKeyAgentPage), null);
         }
 
+        /// <summary>
+        /// Occurs when an item in the favorites list view is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void ItemView_ItemClick(object sender, ItemClickEventArgs e)
         {
             if (e.ClickedItem == null)
@@ -194,11 +246,19 @@ namespace RemoteTerminal
             this.Frame.Navigate(typeof(TerminalPage), guid);
         }
 
+        /// <summary>
+        /// Occurs when the currently selected item in the favorites list view changes.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void ItemView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SetupAppBar();
         }
 
+        /// <summary>
+        /// Sets up the <see cref="AppBar"/>(s).
+        /// </summary>
         private void SetupAppBar()
         {
             this.BottomAppBar.IsOpen = this.itemGridView.SelectedItems.Count > 0 || this.itemGridView.Items.Count == 0;
@@ -206,6 +266,11 @@ namespace RemoteTerminal
             this.editButton.IsEnabled = this.itemGridView.SelectedItems.Count == 1;
         }
 
+        /// <summary>
+        /// Occurs when an item in the preview grid view is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void PreviewGrid_ItemClick(object sender, ItemClickEventArgs e)
         {
             ITerminal terminal = e.ClickedItem as ITerminal;
@@ -217,12 +282,25 @@ namespace RemoteTerminal
             this.Frame.Navigate(typeof(TerminalPage), TerminalManager.GetGuid(terminal));
         }
 
+        /// <summary>
+        /// Occurs when the close button of an item in the preview grid view is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void PreviewGrid_ItemCloseButtonClick(object sender, RoutedEventArgs e)
         {
             ITerminal terminal = ((Button)sender).Tag as ITerminal;
             TerminalManager.Remove(terminal);
         }
 
+        /// <summary>
+        /// Occurs when the purchase button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
+        /// <remarks>
+        /// TODO: this is not needed anymore, the app is now free of charge.
+        /// </remarks>
         private async void purchaseButton_Click(object sender, RoutedEventArgs e)
         {
             bool failed = false;

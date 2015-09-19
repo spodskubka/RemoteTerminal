@@ -21,19 +21,56 @@ using Windows.UI.Xaml.Shapes;
 
 namespace RemoteTerminal.Terminals
 {
+    /// <summary>
+    /// This is a XAML user control for displaying a terminal screen.
+    /// It does not only display a terminal screen but it also forwards user input and screen size changes to the terminal.
+    /// </summary>
+    /// <remarks>
+    /// The terminal screen is drawn via a <see cref="ScreenDisplayRenderer"/>, which uses DirectX (DirectWrite).
+    /// </remarks>
     public sealed class ScreenDisplay : UserControl, IDisposable
     {
+        /// <summary>
+        /// The terminal associated with this control.
+        /// </summary>
         private ITerminal terminal = null;
 
+        /// <summary>
+        /// A rectangle shape that is part of this control's content.
+        /// </summary>
         private readonly Rectangle rectangle;
+
+        /// <summary>
+        /// A border that is part of this control's content.
+        /// </summary>
         private readonly Border border;
 
-        // DirectX stuff
+        /// <summary>
+        /// The DirectX device manager.
+        /// </summary>
         private readonly DeviceManager deviceManager;
+
+        /// <summary>
+        /// The renderer that draws the terminal screen onto this control.
+        /// </summary>
         private ScreenDisplayRenderer terminalRenderer = null;
+
+        /// <summary>
+        /// The Direct2D drawing target.
+        /// </summary>
         private SurfaceImageSourceTarget d2dTarget = null;
+
+        /// <summary>
+        /// A value indicating whether the screen should be rendered regardless of whether it has changed or not.
+        /// </summary>
+        /// <remarks>
+        /// This is used to force rendering after font or theme changes.
+        /// </remarks>
         private bool forceRender = true;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ScreenDisplay"/> class.
+        /// </summary>
         public ScreenDisplay()
         {
             this.rectangle = new Rectangle();
@@ -58,7 +95,14 @@ namespace RemoteTerminal.Terminals
             this.deviceManager = new DeviceManager();
         }
 
+        /// <summary>
+        /// The theme to use for drawing the screen.
+        /// </summary>
         private ColorThemeData colorTheme;
+
+        /// <summary>
+        /// Gets or sets the theme to use for drawing the screen.
+        /// </summary>
         public ColorThemeData ColorTheme
         {
             get
@@ -71,8 +115,14 @@ namespace RemoteTerminal.Terminals
             }
         }
 
+        /// <summary>
+        /// The scaling factor that is used when the font size is changed in a theme.
+        /// </summary>
         public const float FontSizeScalingFactor = 0.1f;
 
+        /// <summary>
+        /// The logical base font metrics for all supported fonts.
+        /// </summary>
         public static readonly IReadOnlyDictionary<string, ScreenFontMetrics> BaseLogicalFontMetrics = new Dictionary<string, ScreenFontMetrics>()
         {
           { "Consolas", new ScreenFontMetrics(fontSize: 17.0f, cellWidth: 9.35f, cellHeight: 20.0f) },
@@ -85,15 +135,28 @@ namespace RemoteTerminal.Terminals
           //{ "Terminal", new ScreenFontMetrics(fontSize: 17.0f, cellWidth: 9.35f, cellHeight: 20.0f) },
         };
 
+        /// <summary>
+        /// Gets the logical font metrics to use for drawing the screen.
+        /// </summary>
         public ScreenFontMetrics FontMetrics { get; private set; }
 
+        /// <summary>
+        /// Recalculates the current logical font metrics based on the selected font family and size.
+        /// </summary>
         private void RecalculateFontMetrics()
         {
             this.FontMetrics = BaseLogicalFontMetrics[this.ColorTheme.FontFamily] * (1 + (FontSizeScalingFactor * (float)this.ColorTheme.FontSize));
         }
 
+        /// <summary>
+        /// Holds the amount of scrolled pixels during scrolling via keyboard, mouse wheel or touch.
+        /// </summary>
         private double scroller = 0d;
 
+        /// <summary>
+        /// Assigns a terminal to this screen display.
+        /// </summary>
+        /// <param name="terminal">The terminal.</param>
         public void AssignTerminal(ITerminal terminal)
         {
             if (this.terminal != null)
@@ -118,6 +181,11 @@ namespace RemoteTerminal.Terminals
             this.InvalidateArrange();
         }
 
+        /// <summary>
+        /// Occurs when the terminal's connection is disconnected.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">An object that contains no event data.</param>
         async void terminal_Disconnected(object sender, EventArgs e)
         {
             await this.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
@@ -126,6 +194,11 @@ namespace RemoteTerminal.Terminals
             });
         }
 
+        /// <summary>
+        /// Provides the behavior for the Arrange pass of layout.
+        /// </summary>
+        /// <param name="finalSize">The final area within the parent that this element should use to arrange itself and its children.</param>
+        /// <returns>The actual size used.</returns>
         protected override Size ArrangeOverride(Size finalSize)
         {
             if (this.terminal == null)
@@ -157,6 +230,11 @@ namespace RemoteTerminal.Terminals
             return base.ArrangeOverride(finalSize);
         }
 
+        /// <summary>
+        /// Occurs when the core rendering process renders a frame.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">The event data.</param>
         void CompositionTarget_Rendering(object sender, object e)
         {
             if (!this.terminal.RenderableScreen.Changed && !this.forceRender)
@@ -176,6 +254,10 @@ namespace RemoteTerminal.Terminals
             }
         }
 
+        /// <summary>
+        /// Forces rendering of the terminal screen.
+        /// </summary>
+        /// <param name="fontChanged">A value indicating whether the font family or size has changed (results in font metric recalculation).</param>
         public void ForceRender(bool fontChanged)
         {
             if (fontChanged)
@@ -246,10 +328,10 @@ namespace RemoteTerminal.Terminals
         }
 
         /// <summary>
-        /// Override the default event handler for KeyDown.  
-        /// Displays the text "A key is pressed" and the approximate time when the key is pressed.
+        /// Receives user input from the system.
         /// </summary>
-        /// <param name="e">State information and event data associated with KeyDown event.</param>
+        /// <param name="sender">The event source.</param>
+        /// <param name="args">The event data.</param>
         void Terminal_CharacterReceived(CoreWindow sender, CharacterReceivedEventArgs args)
         {
             if (!this.terminal.IsConnected)
@@ -263,6 +345,14 @@ namespace RemoteTerminal.Terminals
             args.Handled = true;
         }
 
+        /// <summary>
+        /// Override the default event handler for KeyDown.
+        /// </summary>
+        /// <param name="e">State information and event data associated with KeyDown event.</param>
+        /// <remarks>
+        /// Handles Scrolling via Shift-PageUp or Shift-PageDown as well as paste functionality via Shift-Insert.
+        /// Everything else is sent to the terminal.
+        /// </remarks>
         protected override void OnKeyDown(KeyRoutedEventArgs e)
         {
             var keyModifiers = KeyModifiers.None;
@@ -310,11 +400,25 @@ namespace RemoteTerminal.Terminals
             e.Handled = this.terminal.ProcessKeyPress(e.Key, keyModifiers);
         }
 
+        /// <summary>
+        /// Called before the ManipulationStarting event occurs.
+        /// </summary>
+        /// <param name="e">Event data for the event.</param>
+        /// <remarks>
+        /// This is used for touch scrolling.
+        /// </remarks>
         protected override void OnManipulationStarting(ManipulationStartingRoutedEventArgs e)
         {
             base.OnManipulationStarting(e);
         }
 
+        /// <summary>
+        /// Called before the ManipulationStarted event occurs.
+        /// </summary>
+        /// <param name="e">Event data for the event.</param>
+        /// <remarks>
+        /// This is used for touch scrolling.
+        /// </remarks>
         protected override void OnManipulationStarted(ManipulationStartedRoutedEventArgs e)
         {
             this.scroller = 0d;
@@ -323,6 +427,13 @@ namespace RemoteTerminal.Terminals
             base.OnManipulationStarted(e);
         }
 
+        /// <summary>
+        /// Called before the ManipulationInertiaStarting event occurs.
+        /// </summary>
+        /// <param name="e">Event data for the event.</param>
+        /// <remarks>
+        /// This is used for touch scrolling.
+        /// </remarks>
         protected override void OnManipulationInertiaStarting(ManipulationInertiaStartingRoutedEventArgs e)
         {
             this.scroller += e.Delta.Translation.Y;
@@ -332,6 +443,13 @@ namespace RemoteTerminal.Terminals
             base.OnManipulationInertiaStarting(e);
         }
 
+        /// <summary>
+        /// Called before the ManipulationDelta event occurs.
+        /// </summary>
+        /// <param name="e">Event data for the event.</param>
+        /// <remarks>
+        /// This is used for touch scrolling.
+        /// </remarks>
         protected override void OnManipulationDelta(ManipulationDeltaRoutedEventArgs e)
         {
             this.scroller += e.Delta.Translation.Y;
@@ -344,6 +462,13 @@ namespace RemoteTerminal.Terminals
             base.OnManipulationDelta(e);
         }
 
+        /// <summary>
+        /// Called before the ManipulationCompleted event occurs.
+        /// </summary>
+        /// <param name="e">Event data for the event.</param>
+        /// <remarks>
+        /// This is used for touch scrolling.
+        /// </remarks>
         protected override void OnManipulationCompleted(ManipulationCompletedRoutedEventArgs e)
         {
             this.scroller = 0d;
@@ -351,6 +476,13 @@ namespace RemoteTerminal.Terminals
             base.OnManipulationCompleted(e);
         }
 
+        /// <summary>
+        /// Called before the PointerWheelChanged event occurs.
+        /// </summary>
+        /// <param name="e">Event data for the event.</param>
+        /// <remarks>
+        /// This is used for mouse wheel scrolling.
+        /// </remarks>
         protected override void OnPointerWheelChanged(PointerRoutedEventArgs e)
         {
             var mouseProperties = e.GetCurrentPoint(null).Properties;
@@ -365,7 +497,10 @@ namespace RemoteTerminal.Terminals
             base.OnPointerWheelChanged(e);
         }
 
-        // returns true if a scrolling boundary was reached.
+        /// <summary>
+        /// Processes scrolling.
+        /// </summary>
+        /// <returns>true if a scrolling boundary was reached.</returns>
         private bool ProcessScroller()
         {
             if (Math.Abs(this.scroller) > this.FontMetrics.CellHeight)
@@ -385,6 +520,12 @@ namespace RemoteTerminal.Terminals
             return false;
         }
 
+        /// <summary>
+        /// Attaches a renderer.
+        /// </summary>
+        /// <param name="pixelWidth">The width of the display area in pixels.</param>
+        /// <param name="pixelHeight">The height of the display area in pixels.</param>
+        /// <exception cref="InvalidOperationException">A renderer is already attached.</exception>
         private void AttachRenderer(int pixelWidth, int pixelHeight)
         {
             lock (this.deviceManager)
@@ -408,6 +549,9 @@ namespace RemoteTerminal.Terminals
             }
         }
 
+        /// <summary>
+        /// Detaches the renderer.
+        /// </summary>
         private void DetachRenderer()
         {
             lock (this.deviceManager)
@@ -432,6 +576,9 @@ namespace RemoteTerminal.Terminals
             }
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             this.DetachRenderer();
@@ -452,15 +599,26 @@ namespace RemoteTerminal.Terminals
     /// Note: This implements Text Pattern (ITextProvider) and Value Pattern (IValuePattern) interfaces.
     /// So Touch keyboard shows automatically when user taps on the control with Touch or Pen.
     /// </summary>
+    /// <remarks>
+    /// This was taken from a Windows Store apps sample code from Microsoft:
+    /// https://code.msdn.microsoft.com/windowsapps/Touch-keyboard-sample-43532fda
+    /// </remarks>
     public class ScreenDisplayAutomationPeer : FrameworkElementAutomationPeer, ITextProvider, IValueProvider
     {
+        /// <summary>
+        /// The screen display control that owns this automation peer.
+        /// </summary>
         private ScreenDisplay screenDisplay;
+
+        /// <summary>
+        /// The name of the control class.
+        /// </summary>
         private string accClass = "ScreenDisplayClass";
 
         /// <summary>
-        /// 
+        /// Initializes a new instance of the <see cref="ScreenDisplayAutomationPeer"/> class.
         /// </summary>
-        /// <param name="owner"></param>
+        /// <param name="owner">The screen display control that owns this automation peer.</param>
         public ScreenDisplayAutomationPeer(ScreenDisplay owner)
             : base(owner)
         {
@@ -585,6 +743,10 @@ namespace RemoteTerminal.Terminals
     /// A minimal implementation of ITextRangeProvider, used by ScreenDisplayAutomationPeer
     /// A real implementation is beyond the scope of this sample
     /// </summary>
+    /// <remarks>
+    /// This was taken from a Windows Store apps sample code from Microsoft:
+    /// https://code.msdn.microsoft.com/windowsapps/Touch-keyboard-sample-43532fda
+    /// </remarks>
     public sealed class ScreenDisplayRangeProvider : ITextRangeProvider
     {
         private String _text;

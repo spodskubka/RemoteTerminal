@@ -1,5 +1,8 @@
 ﻿namespace RemoteTerminal.Screens
 {
+    /// <summary>
+    /// Interface for the copy of a renderable screen.
+    /// </summary>
     public interface IRenderableScreenCopy
     {
         /// <summary>

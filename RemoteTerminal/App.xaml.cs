@@ -30,12 +30,20 @@ namespace RemoteTerminal
             this.Suspending += OnSuspending;
         }
 
+        /// <summary>
+        /// Invoked when the application creates a window.
+        /// </summary>
+        /// <param name="args">Event data for the event.</param>
         protected override void OnWindowCreated(WindowCreatedEventArgs args)
         {
             base.OnWindowCreated(args);
             SettingsPane.GetForCurrentView().CommandsRequested += App_CommandsRequested;
         }
 
+        /// <summary>
+        /// The event handler that is called when the user selects the "Font and Colors" command in the settings pane.
+        /// </summary>
+        /// <param name="command">Represents the invoked command.</param>
         void OnColorsCommand(IUICommand command)
         {
             ColorSettingsFlyout mypane = new ColorSettingsFlyout();
@@ -43,6 +51,11 @@ namespace RemoteTerminal
             mypane.Show();
         }
 
+        /// <summary>
+        /// Occurs when the user opens the settings pane. Initializes the setting commands.
+        /// </summary>
+        /// <param name="sender">The event source.</param>
+        /// <param name="args">The event data.</param>
         void App_CommandsRequested(SettingsPane sender, SettingsPaneCommandsRequestedEventArgs args)
         {
             SettingsCommand colorsCommand = new SettingsCommand("colors", "Font and Colors", OnColorsCommand);
@@ -63,7 +76,7 @@ namespace RemoteTerminal
         }
 
         /// <summary>
-        /// Invoked when the application is launched normally by the end user.  Other entry points
+        /// Invoked when the application is launched normally by the end user. Other entry points
         /// will be used such as when the application is launched to open a specific file.
         /// </summary>
         /// <param name="e">Details about the launch request and process.</param>
@@ -85,7 +98,7 @@ namespace RemoteTerminal
             {
                 // Create a Frame to act as the navigation context and navigate to the first page
                 rootFrame = new Frame();
-                //Associate the frame with a SuspensionManager key                                
+                //Associate the frame with a SuspensionManager key
                 SuspensionManager.RegisterFrame(rootFrame, "AppFrame");
                 // Set the default language
                 rootFrame.Language = Windows.Globalization.ApplicationLanguages.Languages[0];
@@ -174,6 +187,13 @@ namespace RemoteTerminal
             deferral.Complete();
         }
 
+        /// <summary>
+        /// Handles the request to set the version of the application data in the application data store.
+        /// </summary>
+        /// <param name="request">The set version request.</param>
+        /// <remarks>
+        /// Application data migration should be done here.
+        /// </remarks>
         void SetVersionHandler(SetVersionRequest request)
         {
             SetVersionDeferral deferral = request.GetDeferral();

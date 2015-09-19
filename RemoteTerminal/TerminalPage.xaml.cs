@@ -23,15 +23,22 @@ using Windows.UI.Xaml.Navigation;
 namespace RemoteTerminal
 {
     /// <summary>
-    /// A basic page that provides characteristics common to most applications.
+    /// The page displaying the screen of a terminal.
     /// </summary>
     public sealed partial class TerminalPage : Page
     {
+        /// <summary>
+        /// The <see cref="NavigationHelper"/> for this page.
+        /// </summary>
         private NavigationHelper navigationHelper;
+
+        /// <summary>
+        /// The default view model.
+        /// </summary>
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
 
         /// <summary>
-        /// This can be changed to a strongly typed view model.
+        /// Gets the default view model.
         /// </summary>
         public ObservableDictionary DefaultViewModel
         {
@@ -39,19 +46,35 @@ namespace RemoteTerminal
         }
 
         /// <summary>
-        /// NavigationHelper is used on each page to aid in navigation and 
-        /// process lifetime management
+        /// Gets the <see cref="NavigationHelper"/> for this page.
         /// </summary>
         public NavigationHelper NavigationHelper
         {
             get { return this.navigationHelper; }
         }
 
+        /// <summary>
+        /// An event indicating that the <see cref="RichEditBox"/> for the "Copy/URL Mode" has finished loading.
+        /// </summary>
+        /// <remarks>
+        /// The content of the <see cref="RichEditBox"/> must be loaded into it after it has finished loading,
+        /// otherwise any formatting is lost.
+        /// </remarks>
         private ManualResetEventSlim screenDisplayCopyBoxLoaded = new ManualResetEventSlim();
 
+        /// <summary>
+        /// A regular expression for parsing hyperlinks for the "Copy/URL Mode".
+        /// </summary>
         private static Lazy<Regex> hyperlinkRegex = new Lazy<Regex>(CreateHyperlinkRegex);
 
+        /// <summary>
+        /// A dependency property for the <see cref="Terminal"/> property, so that it supports data binding.
+        /// </summary>
         public static readonly DependencyProperty TerminalProperty = DependencyProperty.Register("Terminal", typeof(ITerminal), typeof(TerminalPage), null);
+
+        /// <summary>
+        /// Gets or sets the terminal that is currently displayed on the page.
+        /// </summary>
         public ITerminal Terminal
         {
             get { return (ITerminal)this.GetValue(TerminalProperty); }
@@ -66,6 +89,9 @@ namespace RemoteTerminal
             }
         }
 
+        /// <summary>
+        /// Creates the regular expression for parsing hyperlinks for the "Copy/URL Mode".
+        /// </summary>
         public static Regex CreateHyperlinkRegex()
         {
             // based on http://www.ietf.org/rfc/rfc2396.txt
@@ -98,6 +124,9 @@ namespace RemoteTerminal
             return new Regex(uriRegex);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TerminalPage"/> class.
+        /// </summary>
         public TerminalPage()
         {
             this.InitializeComponent();
@@ -178,11 +207,21 @@ namespace RemoteTerminal
             }
         }
 
+        /// <summary>
+        /// Occurs when the back button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void backAppBarButton_Click(object sender, RoutedEventArgs e)
         {
             this.navigationHelper.GoBack();
         }
 
+        /// <summary>
+        /// Occurs when an item in the preview grid view is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void PreviewGrid_ItemClick(object sender, ItemClickEventArgs e)
         {
             ITerminal terminal = e.ClickedItem as ITerminal;
@@ -197,6 +236,11 @@ namespace RemoteTerminal
             this.BottomAppBar.IsOpen = false;
         }
 
+        /// <summary>
+        /// Occurs when the close button of an item in the preview grid view is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void PreviewGrid_ItemCloseButtonClick(object sender, RoutedEventArgs e)
         {
             ITerminal terminal = ((Button)sender).Tag as ITerminal;
@@ -216,6 +260,11 @@ namespace RemoteTerminal
             TerminalManager.Remove(terminal);
         }
 
+        /// <summary>
+        /// Occurs when the input pane (on-screen keyboard) is about to be displayed by sliding into view.
+        /// </summary>
+        /// <param name="sender">The event source.</param>
+        /// <param name="e">The event data.</param>
         private void InputPaneShowing(object sender, InputPaneVisibilityEventArgs e)
         {
             this.ContentGrid.VerticalAlignment = VerticalAlignment.Top;
@@ -226,6 +275,11 @@ namespace RemoteTerminal
             e.EnsuredFocusedElementInView = true;
         }
 
+        /// <summary>
+        /// Occurs when the input pane (on-screen keyboard) is about to be hidden by sliding out of view.
+        /// </summary>
+        /// <param name="sender">The event source.</param>
+        /// <param name="e">The event data.</param>
         private void InputPaneHiding(InputPane sender, InputPaneVisibilityEventArgs e)
         {
             this.ContentGrid.VerticalAlignment = VerticalAlignment.Stretch;
@@ -236,6 +290,11 @@ namespace RemoteTerminal
             e.EnsuredFocusedElementInView = true;
         }
 
+        /// <summary>
+        /// Occurs when the paste button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private async void pasteAppBarButton_Click(object sender, RoutedEventArgs e)
         {
             if (!this.Terminal.IsConnected)
@@ -256,6 +315,11 @@ namespace RemoteTerminal
             this.BottomAppBar.IsOpen = false;
         }
 
+        /// <summary>
+        /// Occurs when the Copy/URL mode button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private async void copyModeAppBarButton_Click(object sender, RoutedEventArgs e)
         {
             if (this.copyContainer.Visibility == Visibility.Visible)
@@ -267,6 +331,14 @@ namespace RemoteTerminal
             await this.ShowCopyMode();
         }
 
+        /// <summary>
+        /// Occurs when either the ActualHeight or the ActualWidth property of the page changes value.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
+        /// <remarks>
+        /// This automatically hides the Copy/URL mode when the page's size becomes too small for it.
+        /// </remarks>
         private void ChangeCopyModeSize(object sender, SizeChangedEventArgs e)
         {
             if (this.screenDisplayCopyBoxScroll.Width > e.NewSize.Width || this.screenDisplayCopyBoxScroll.Height > e.NewSize.Height)
@@ -275,6 +347,9 @@ namespace RemoteTerminal
             }
         }
 
+        /// <summary>
+        /// Hides the Copy/URL mode.
+        /// </summary>
         private void HideCopyMode()
         {
             this.SizeChanged -= ChangeCopyModeSize;
@@ -290,6 +365,10 @@ namespace RemoteTerminal
             }
         }
 
+        /// <summary>
+        /// Shows the Copy/URL mode.
+        /// </summary>
+        /// <returns>The show copy mode async operation.</returns>
         private async Task ShowCopyMode()
         {
             this.screenDisplayCopyBox.IsReadOnly = false;
@@ -339,6 +418,11 @@ namespace RemoteTerminal
             this.TopAppBar.IsOpen = false;
         }
 
+        /// <summary>
+        /// Generates the RTF for the currently displayed terminal screen content.
+        /// </summary>
+        /// <param name="screenCopy">The currently displayed terminal screen content.</param>
+        /// <returns>The generate RTF async operation.</returns>
         private async Task<Tuple<InMemoryRandomAccessStream, float>> GenerateRtf(IRenderableScreenCopy screenCopy)
         {
             int rightmostNonSpace = -1;
@@ -483,6 +567,11 @@ namespace RemoteTerminal
             return new Tuple<InMemoryRandomAccessStream, float>(rtfStream, widthRatio);
         }
 
+        /// <summary>
+        /// Escapes a specified string for RTF output.
+        /// </summary>
+        /// <param name="str">The string to escape.</param>
+        /// <returns>The escaped string.</returns>
         private static string RtfEscape(string str)
         {
             str = str.Replace(@"\", @"\\");
@@ -491,6 +580,10 @@ namespace RemoteTerminal
             return str;
         }
 
+        /// <summary>
+        /// Forces a redraw of the terminal screen.
+        /// </summary>
+        /// <param name="fontChanged">A value indicating whether the font has changed (to recalculate the screen size).</param>
         public void ForceRender(bool fontChanged)
         {
             if (this.screenDisplay != null)
@@ -499,11 +592,21 @@ namespace RemoteTerminal
             }
         }
 
+        /// <summary>
+        /// Occurs when the <see cref="RichEditBox"/> of the Copy/URL mode is ready for interaction.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void screenDisplayCopyBox_Loaded(object sender, RoutedEventArgs e)
         {
             this.screenDisplayCopyBoxLoaded.Set();
         }
 
+        /// <summary>
+        /// Occurs when the dimmed area around the terminal screen copy of the Copy/URL mode is tapped.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void copyContainer_Tapped(object sender, TappedRoutedEventArgs e)
         {
             this.HideCopyMode();

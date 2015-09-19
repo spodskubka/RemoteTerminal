@@ -12,24 +12,44 @@ using Matrix = SharpDX.Matrix;
 namespace RemoteTerminal.Terminals
 {
     /// <summary>
-    /// Display an overlay text with FPS and ms/frame counters.
+    /// Draws a screen display using DirectX (SharpDX).
     /// </summary>
     class ScreenDisplayRenderer : IDisposable
     {
+        /// <summary>
+        /// A cache of brushes (brush creation is expensive so they are cached).
+        /// </summary>
         private readonly Dictionary<Color, Brush> brushes = new Dictionary<Color, Brush>();
 
+        /// <summary>
+        /// The screen display to draw on.
+        /// </summary>
         private readonly ScreenDisplay screenDisplay;
+
+        /// <summary>
+        /// The renderable screen that should be drawn.
+        /// </summary>
         private readonly IRenderableScreen screen;
 
+        /// <summary>
+        /// The text format for normal text.
+        /// </summary>
         TextFormat textFormatNormal;
+
+        /// <summary>
+        /// The text format for bold text.
+        /// </summary>
         TextFormat textFormatBold;
 
+        /// <summary>
+        /// The physical font metrics for this renderer (take DPI scaling into account).
+        /// </summary>
         private ScreenFontMetrics physicalFontMetrics;
 
         //TextFormat textFormat;
 
         /// <summary>
-        /// Initializes a new instance of <see cref="FpsRenderer"/> class.
+        /// Initializes a new instance of <see cref="ScreenDisplayRenderer"/> class.
         /// </summary>
         public ScreenDisplayRenderer(ScreenDisplay screenDisplay, IRenderableScreen screen)
         {
@@ -37,6 +57,10 @@ namespace RemoteTerminal.Terminals
             this.screen = screen;
         }
 
+        /// <summary>
+        /// Initializes the renderer.
+        /// </summary>
+        /// <param name="deviceManager">The DirectX device manager.</param>
         public virtual void Initialize(DeviceManager deviceManager)
         {
             this.physicalFontMetrics = this.screenDisplay.FontMetrics * (DisplayInformation.GetForCurrentView().LogicalDpi / 96.0f);
@@ -47,6 +71,10 @@ namespace RemoteTerminal.Terminals
             this.textFormatBold = new TextFormat(deviceManager.FactoryDirectWrite, this.screenDisplay.ColorTheme.FontFamily, FontWeight.Bold, FontStyle.Normal, this.physicalFontMetrics.FontSize) { TextAlignment = TextAlignment.Leading, ParagraphAlignment = ParagraphAlignment.Near, WordWrapping = WordWrapping.NoWrap };
         }
 
+        /// <summary>
+        /// Renders the screen.
+        /// </summary>
+        /// <param name="target">The Direct2D drawing target.</param>
         public virtual void Render(TargetBase target)
         {
             Point drawingPosition = new Point(0, 0);
@@ -168,12 +196,26 @@ namespace RemoteTerminal.Terminals
             context2D.EndDraw();
         }
 
+        /// <summary>
+        /// Transforms a <see cref="ScreenColor"/> to the actual <see cref="Color"/> through the theme.
+        /// </summary>
+        /// <param name="screenColor">The screen color.</param>
+        /// <returns>The actual <see cref="Color"/> to use.</returns>
         private Color GetColor(ScreenColor screenColor)
         {
             var color = this.screenDisplay.ColorTheme.ColorTable[screenColor];
             return new Color(color.R, color.G, color.B, color.A);
         }
 
+        /// <summary>
+        /// Gets a brush for the specified render target and color.
+        /// </summary>
+        /// <param name="renderTarget">The render target.</param>
+        /// <param name="color">The color.</param>
+        /// <returns>The brush (either from the cache or newly created).</returns>
+        /// <remarks>
+        /// Brushes are cached because their creation is expensive.
+        /// </remarks>
         private Brush GetBrush(RenderTarget renderTarget, Color color)
         {
             Brush brush;
@@ -190,6 +232,9 @@ namespace RemoteTerminal.Terminals
             return brush;
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             foreach (var brush in this.brushes.Values)

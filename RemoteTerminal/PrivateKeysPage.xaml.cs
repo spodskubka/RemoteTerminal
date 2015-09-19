@@ -17,16 +17,25 @@ using Windows.UI.Xaml.Navigation;
 namespace RemoteTerminal
 {
     /// <summary>
-    /// A page that displays a collection of item previews.  In the Split Application this page
-    /// is used to display and select one of the available groups.
+    /// The page to import/delete SSH private keys into the app.
     /// </summary>
+    /// <remarks>
+    /// SSH private keys are stored in the local app data store (managed through the <see cref="PrivateKeysDataSource"/> class).
+    /// </remarks>
     public sealed partial class PrivateKeysPage : Page
     {
+        /// <summary>
+        /// The <see cref="NavigationHelper"/> for this page.
+        /// </summary>
         private NavigationHelper navigationHelper;
+
+        /// <summary>
+        /// The default view model.
+        /// </summary>
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
 
         /// <summary>
-        /// This can be changed to a strongly typed view model.
+        /// Gets the default view model.
         /// </summary>
         public ObservableDictionary DefaultViewModel
         {
@@ -34,14 +43,16 @@ namespace RemoteTerminal
         }
 
         /// <summary>
-        /// NavigationHelper is used on each page to aid in navigation and 
-        /// process lifetime management
+        /// Gets the <see cref="NavigationHelper"/> for this page.
         /// </summary>
         public NavigationHelper NavigationHelper
         {
             get { return this.navigationHelper; }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PrivateKeysPage"/> class.
+        /// </summary>
         public PrivateKeysPage()
         {
             this.InitializeComponent();
@@ -73,6 +84,11 @@ namespace RemoteTerminal
             }
         }
 
+        /// <summary>
+        /// Occurs when the import button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private async void importButton_Click(object sender, RoutedEventArgs e)
         {
             FileOpenPicker openPicker = new FileOpenPicker();
@@ -128,6 +144,11 @@ namespace RemoteTerminal
             this.emptyHint.Visibility = this.itemGridView.Items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         }
 
+        /// <summary>
+        /// Occurs when the delete button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private async void deleteButton_Click(object sender, RoutedEventArgs e)
         {
             PrivateKeysDataSource privateKeysDataSource = (PrivateKeysDataSource)App.Current.Resources["privateKeysDataSource"];
@@ -144,11 +165,19 @@ namespace RemoteTerminal
             }
         }
 
+        /// <summary>
+        /// Occurs when the currently selected item in the private key list view changes.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void ItemView_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             SetupAppBar();
         }
 
+        /// <summary>
+        /// Sets up the <see cref="AppBar"/>(s).
+        /// </summary>
         private void SetupAppBar()
         {
             this.BottomAppBar.IsOpen = this.itemGridView.SelectedItems.Count > 0 || this.itemGridView.Items.Count == 0;

@@ -10,6 +10,14 @@ using Windows.UI.Xaml.Shapes;
 
 namespace RemoteTerminal.Terminals
 {
+    /// <summary>
+    /// This is a XAML user control for displaying a small terminal preview (in the terminal switcher AppBar).
+    /// </summary>
+    /// <remarks>
+    /// This class is meant to be similar to the <see cref="ScreenDisplay"/> class.
+    /// It should display a small representation of a terminal screen.
+    /// However, due to a non-working implementation it isn't used at the moment.
+    /// </remarks>
     public sealed class ScreenPreview : UserControl, IDisposable
     {
         private ITerminal terminal = null;
@@ -64,7 +72,7 @@ namespace RemoteTerminal.Terminals
                     this.terminal.Disconnected -= terminal_Disconnected;
                     this.terminal = null;
                 }
-                
+
                 this.terminal = value;
 
                 if (this.terminal == null)

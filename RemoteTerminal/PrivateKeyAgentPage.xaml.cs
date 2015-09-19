@@ -18,16 +18,25 @@ using Windows.UI.Xaml.Navigation;
 namespace RemoteTerminal
 {
     /// <summary>
-    /// A page that displays a collection of item previews.  In the Split Application this page
-    /// is used to display and select one of the available groups.
+    /// The page to load/unload the keys in the <see cref="PrivateKeyAgent"/> singleton.
     /// </summary>
+    /// <remarks>
+    /// The <see cref="PrivateKeyAgent"/> singleton is accessed through the <see cref="PrivateKeyAgentManager"/> class.
+    /// </remarks>
     public sealed partial class PrivateKeyAgentPage : Page
     {
+        /// <summary>
+        /// The <see cref="NavigationHelper"/> for this page.
+        /// </summary>
         private NavigationHelper navigationHelper;
+
+        /// <summary>
+        /// The default view model.
+        /// </summary>
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
 
         /// <summary>
-        /// This can be changed to a strongly typed view model.
+        /// Gets the default view model.
         /// </summary>
         public ObservableDictionary DefaultViewModel
         {
@@ -35,14 +44,16 @@ namespace RemoteTerminal
         }
 
         /// <summary>
-        /// NavigationHelper is used on each page to aid in navigation and 
-        /// process lifetime management
+        /// Gets the <see cref="NavigationHelper"/> for this page.
         /// </summary>
         public NavigationHelper NavigationHelper
         {
             get { return this.navigationHelper; }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PrivateKeyAgentPage"/> class.
+        /// </summary>
         public PrivateKeyAgentPage()
         {
             this.InitializeComponent();
@@ -50,6 +61,9 @@ namespace RemoteTerminal
             this.navigationHelper.LoadState += this.navigationHelper_LoadState;
         }
 
+        /// <summary>
+        /// Gets or sets an observable collection of keys in the <see cref="PrivateKeyAgent"/>.
+        /// </summary>
         private ObservableCollection<PrivateKeyAgentKey> AgentKeys { get; set; }
 
         /// <summary>
@@ -79,6 +93,9 @@ namespace RemoteTerminal
             this.SetEmptyHintVisibilities();
         }
 
+        /// <summary>
+        /// Shows/hides the "empty hints" of the available and loaded key lists.
+        /// </summary>
         private void SetEmptyHintVisibilities()
         {
             Visibility keysEmptyVisibility = this.keysGridView.Items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -88,6 +105,11 @@ namespace RemoteTerminal
             this.agentKeysGridEmptyHint.Visibility = agentKeysEmptyVisibility;
         }
 
+        /// <summary>
+        /// Occurs when an item in the list of available keys is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private async void Keys_ItemClick(object sender, ItemClickEventArgs e)
         {
             PrivateKeyData privateKeyData = e.ClickedItem as PrivateKeyData;
@@ -135,6 +157,11 @@ namespace RemoteTerminal
             }
         }
 
+        /// <summary>
+        /// Occurs when the load key button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private async void keyLoadButton_Click(object sender, RoutedEventArgs e)
         {
             PrivateKeyData privateKeyData = this.loadKeyPasswordBox.Tag as PrivateKeyData;
@@ -175,6 +202,11 @@ namespace RemoteTerminal
             this.loadKeyPasswordBox.Password = string.Empty;
         }
 
+        /// <summary>
+        /// Occurs when an item in the list of loaded keys is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void AgentKeys_ItemClick(object sender, ItemClickEventArgs e)
         {
             PrivateKeyAgentKey agentKey = e.ClickedItem as PrivateKeyAgentKey;
@@ -250,6 +282,11 @@ namespace RemoteTerminal
             //}
         }
 
+        /// <summary>
+        /// Occurs when a keyboard key is pressed while the load key password box has focus.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void loadKeyPasswordBox_KeyDown(object sender, KeyRoutedEventArgs e)
         {
             if (e.Key == Windows.System.VirtualKey.Enter)

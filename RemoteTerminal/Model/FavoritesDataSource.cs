@@ -7,9 +7,19 @@ using Windows.Storage;
 
 namespace RemoteTerminal.Model
 {
+    /// <summary>
+    /// The data source for favorites.
+    /// </summary>
     internal class FavoritesDataSource
     {
+        /// <summary>
+        /// An observable collection containing the favorites.
+        /// </summary>
         private ObservableCollection<ConnectionData> favorites = new ObservableCollection<ConnectionData>();
+
+        /// <summary>
+        /// Gets the observable connection containing the favorites.
+        /// </summary>
         public ObservableCollection<ConnectionData> Favorites
         {
             get
@@ -18,6 +28,9 @@ namespace RemoteTerminal.Model
             }
         }
 
+        /// <summary>
+        /// Reads all favorites from the local app settings.
+        /// </summary>
         public void GetFavorites()
         {
             var favorites = GetFavoritesSettings();
@@ -55,12 +68,20 @@ namespace RemoteTerminal.Model
             }
         }
 
+        /// <summary>
+        /// Reads the local "Favorites" app settings container.
+        /// </summary>
+        /// <returns>The values from the local "Favorites" app settings container.</returns>
         private static IPropertySet GetFavoritesSettings()
         {
             var favoritesContainer = ApplicationData.Current.LocalSettings.CreateContainer("Favorites", ApplicationDataCreateDisposition.Always);
             return favoritesContainer.Values;
         }
 
+        /// <summary>
+        /// Adds or updates a favorite.
+        /// </summary>
+        /// <param name="connectionData">The connection data of the favorite to add/update.</param>
         public void AddOrUpdate(ConnectionData connectionData)
         {
             var favorites = GetFavoritesSettings();
@@ -87,7 +108,11 @@ namespace RemoteTerminal.Model
             this.favorites.Add(connectionData);
         }
 
-        // Returns the favorite that has the specified id.
+        /// <summary>
+        /// Returns the favorite with the specified id.
+        /// </summary>
+        /// <param name="id">The id of the favorite to return.</param>
+        /// <returns>The found favorite or null if there is none with the specified id.</returns>
         public static ConnectionData GetFavorite(string id)
         {
             // Simple linear search is acceptable for small data sets
@@ -98,6 +123,10 @@ namespace RemoteTerminal.Model
             return null;
         }
 
+        /// <summary>
+        /// Removes a favorite.
+        /// </summary>
+        /// <param name="connectionData">The connection data of the favorite to remove.</param>
         internal void Remove(ConnectionData connectionData)
         {
             var favorites = GetFavoritesSettings();

@@ -11,15 +11,25 @@ using Windows.UI.Xaml.Navigation;
 namespace RemoteTerminal
 {
     /// <summary>
-    /// A basic page that provides characteristics common to most applications.
+    /// The page where connection data can be edited.
     /// </summary>
     public sealed partial class ConnectionDataForm : Page
     {
+        /// <summary>
+        /// The <see cref="NavigationHelper"/> for this page.
+        /// </summary>
         private NavigationHelper navigationHelper;
+
+        /// <summary>
+        /// The default view model.
+        /// </summary>
+        /// <remarks>
+        /// TODO: Is this used or can it be removed?
+        /// </remarks>
         private ObservableDictionary defaultViewModel = new ObservableDictionary();
 
         /// <summary>
-        /// This can be changed to a strongly typed view model.
+        /// Gets the default view model.
         /// </summary>
         public ObservableDictionary DefaultViewModel
         {
@@ -27,27 +37,57 @@ namespace RemoteTerminal
         }
 
         /// <summary>
-        /// NavigationHelper is used on each page to aid in navigation and 
-        /// process lifetime management
+        /// Gets the <see cref="NavigationHelper"/> for this page.
         /// </summary>
         public NavigationHelper NavigationHelper
         {
             get { return this.navigationHelper; }
         }
 
+        /// <summary>
+        /// The default SSH port.
+        /// </summary>
         private const int DefaultSshPort = 22;
+
+        /// <summary>
+        /// The default Telnet port.
+        /// </summary>
         private const int DefaultTelnetPort = 23;
 
+        /// <summary>
+        /// The different modes for opening this page.
+        /// </summary>
         enum ConnectionDataMode
         {
+            /// <summary>
+            /// The page was called to establish a quick connection.
+            /// </summary>
             QuickConnect,
+
+            /// <summary>
+            /// The page was called to create a new favorite.
+            /// </summary>
             New,
+
+            /// <summary>
+            /// The page was called to edit an existing favorite.
+            /// </summary>
             Edit,
         }
 
+        /// <summary>
+        /// The id of the connection data.
+        /// </summary>
         private string id;
+
+        /// <summary>
+        /// The mode for opening this page.
+        /// </summary>
         private ConnectionDataMode mode;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ConnectionDataForm"/> class.
+        /// </summary>
         public ConnectionDataForm()
         {
             this.InitializeComponent();
@@ -126,6 +166,11 @@ namespace RemoteTerminal
             this.SetupAppBar();
         }
 
+        /// <summary>
+        /// Occurs when the save button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void saveButton_Click(object sender, RoutedEventArgs e)
         {
             FavoritesDataSource favoritesDataSource = (FavoritesDataSource)App.Current.Resources["favoritesDataSource"];
@@ -139,6 +184,11 @@ namespace RemoteTerminal
             this.Frame.GoBack();
         }
 
+        /// <summary>
+        /// Occurs when the connect button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void connectButton_Click(object sender, RoutedEventArgs e)
         {
             var connectionData = this.CreateConnectionDataFromForm();
@@ -147,6 +197,10 @@ namespace RemoteTerminal
             this.Frame.Navigate(typeof(TerminalPage), guid);
         }
 
+        /// <summary>
+        /// Creates a new <see cref="ConnectionData"/> object from the input fields.
+        /// </summary>
+        /// <returns>The created <see cref="ConnectionData"/> object.</returns>
         private ConnectionData CreateConnectionDataFromForm()
         {
             string name = string.Empty;
@@ -178,6 +232,9 @@ namespace RemoteTerminal
             };
         }
 
+        /// <summary>
+        /// Sets up the <see cref="AppBar"/>(s).
+        /// </summary>
         private void SetupAppBar()
         {
             this.connectButton.Visibility = this.mode == ConnectionDataMode.QuickConnect ? Visibility.Visible : Visibility.Collapsed;
@@ -210,6 +267,9 @@ namespace RemoteTerminal
             this.saveButton.IsEnabled = validated;
         }
 
+        /// <summary>
+        /// Sets up the page title.
+        /// </summary>
         private void SetupPageTitle()
         {
             switch (this.mode)
@@ -229,11 +289,21 @@ namespace RemoteTerminal
             }
         }
 
+        /// <summary>
+        /// Occurs when one of the required fields changes.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void requiredField_Changed(object sender, TextChangedEventArgs e)
         {
             this.SetupAppBar();
         }
 
+        /// <summary>
+        /// Occurs when the SSH radio button is checked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void sshRadioButton_Checked(object sender, RoutedEventArgs e)
         {
             this.sshOptions.Visibility = Visibility.Visible;
@@ -245,11 +315,21 @@ namespace RemoteTerminal
             }
         }
 
+        /// <summary>
+        /// Occurs when the SSH radio button is unchecked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void sshRadioButton_Unchecked(object sender, RoutedEventArgs e)
         {
             this.sshOptions.Visibility = Visibility.Collapsed;
         }
 
+        /// <summary>
+        /// Occurs when the Telnet radio button is checked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void telnetRadioButton_Checked(object sender, RoutedEventArgs e)
         {
             int port = 0;
@@ -259,6 +339,11 @@ namespace RemoteTerminal
             }
         }
 
+        /// <summary>
+        /// Occurs when the currently selected item in the authentication method ComboBox changes.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void authenticationMethodComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             var authenticationMethod = (AuthenticationType)this.authenticationMethodComboBox.SelectedIndex;
@@ -283,11 +368,21 @@ namespace RemoteTerminal
             this.SetupAppBar();
         }
 
+        /// <summary>
+        /// Occurs when the currently selected item in the private key ComboBox changes.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void privateKeyComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this.SetupAppBar();
         }
 
+        /// <summary>
+        /// Occurs when the cancel button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void cancelAppBarButton_Click(object sender, RoutedEventArgs e)
         {
             this.navigationHelper.GoBack();

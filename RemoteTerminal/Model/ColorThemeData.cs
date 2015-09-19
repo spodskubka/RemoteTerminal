@@ -6,13 +6,32 @@ using Windows.UI;
 
 namespace RemoteTerminal.Model
 {
+    /// <summary>
+    /// Data model class for storing theme data.
+    /// </summary>
+    /// <remarks>
+    /// Contrary to the name of this class it not only stores colors but also font family/size.
+    /// </remarks>
     public class ColorThemeData
     {
+        /// <summary>
+        /// Gets or sets the font family associated with this theme.
+        /// </summary>
         public string FontFamily { get; set; }
+
+        /// <summary>
+        /// Gets or sets the font size associated with this theme.
+        /// </summary>
         public int FontSize { get; set; }
-        
+
+        /// <summary>
+        /// Gets the color table associated with this theme.
+        /// </summary>
         public Dictionary<ScreenColor, Color> ColorTable { get; private set; }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ColorThemeData"/> class.
+        /// </summary>
         private ColorThemeData()
         {
             this.FontFamily = ScreenDisplay.BaseLogicalFontMetrics.Keys.First();
@@ -43,7 +62,7 @@ namespace RemoteTerminal.Model
             this.ColorTable[ScreenColor.MagentaBright] = Color.FromArgb(255, 255, 85, 255);
             this.ColorTable[ScreenColor.CyanBright] = Color.FromArgb(255, 127, 255, 255);
             this.ColorTable[ScreenColor.WhiteBright] = Color.FromArgb(255, 255, 255, 255);
-            
+
             // colors 16 to 231 are a 6x6x6 color cube
             for (int r = 0; r < 6; r++)
             {
@@ -69,6 +88,10 @@ namespace RemoteTerminal.Model
             }
         }
 
+        /// <summary>
+        /// Creates the default theme.
+        /// </summary>
+        /// <returns>A new <see cref="ColorThemeData"/> instance representing the default theme.</returns>
         public static ColorThemeData CreateDefault()
         {
             return new ColorThemeData();

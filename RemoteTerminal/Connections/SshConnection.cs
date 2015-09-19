@@ -10,18 +10,49 @@ using Renci.SshNet.Common;
 
 namespace RemoteTerminal.Connections
 {
+    /// <summary>
+    /// Represents a connection (more specific: a shell connection) to an SSH server.
+    /// </summary>
     internal class SshConnection : IConnection
     {
+        /// <summary>
+        /// The connection data for the connection.
+        /// </summary>
         private ConnectionData connectionData;
+
+        /// <summary>
+        /// The private key to use when <see cref="AuthenticationType.PrivateKey"/> authentication is used.
+        /// </summary>
         private PrivateKeyData privateKeyData;
 
+        /// <summary>
+        /// The SSH connection to the SSH server.
+        /// </summary>
         private SshClient client;
+
+        /// <summary>
+        /// The stream to the shell on the SSH server.
+        /// </summary>
         private ShellStream stream;
+
+        /// <summary>
+        /// The reader for the shell stream.
+        /// </summary>
         private StreamReader reader;
+
+        /// <summary>
+        /// The writer for the shell stream.
+        /// </summary>
         private StreamWriter writer;
 
+        /// <summary>
+        /// A value indicating whether the current object has been disposed.
+        /// </summary>
         private bool isDisposed = false;
 
+        /// <summary>
+        /// Gets a value indicating whether the connection object is actually connected to a server.
+        /// </summary>
         public bool IsConnected
         {
             get
@@ -30,6 +61,14 @@ namespace RemoteTerminal.Connections
             }
         }
 
+        /// <summary>
+        /// Initializes the connection object with the specified connection data.
+        /// </summary>
+        /// <param name="connectionData">The connection data for the connection.</param>
+        /// <exception cref="ObjectDisposedException">The connection object is already disposed.</exception>
+        /// <exception cref="InvalidOperationException">The connection object is currently connected.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="connectionData"/> object contains a connection type that is not supported by the connection object.</exception>
+        /// <exception cref="Exception">Some other error occured (here: the private key for the SSH authentication could not be found).</exception>
         public void Initialize(ConnectionData connectionData)
         {
             this.CheckDisposed();
@@ -53,6 +92,13 @@ namespace RemoteTerminal.Connections
             }
         }
 
+        /// <summary>
+        /// Establishes the connection to the server, using the specified <paramref name="terminal"/> for connection initialization (authentication, etc.).
+        /// </summary>
+        /// <param name="terminal">The terminal to use for connection initialization.</param>
+        /// <returns>A value indicating whether the connection was successfully established.</returns>
+        /// <exception cref="ObjectDisposedException">The connection object is already disposed.</exception>
+        /// <exception cref="InvalidOperationException">The connection object is currently connected.</exception>
         public async Task<bool> ConnectAsync(IConnectionInitializingTerminal terminal)
         {
             this.CheckDisposed();
@@ -308,6 +354,12 @@ namespace RemoteTerminal.Connections
             while (true);
         }
 
+        /// <summary>
+        /// Performs a yes/no prompt on the specified terminal (yes being the default answer).
+        /// </summary>
+        /// <param name="terminal">The terminal on which to perform the prompt.</param>
+        /// <param name="prompt">The prompt text to display (the string "[Y/n]" is automatically appended).</param>
+        /// <returns><see cref="true"/> if the user answered "yes", <see cref="false"/> otherwise.</returns>
         private static bool QueryYesNo(IConnectionInitializingTerminal terminal, string prompt)
         {
             do
@@ -330,6 +382,12 @@ namespace RemoteTerminal.Connections
             while (true);
         }
 
+        /// <summary>
+        /// Reads a string from the server.
+        /// </summary>
+        /// <returns>The read string.</returns>
+        /// <exception cref="ObjectDisposedException">The connection object is already disposed.</exception>
+        /// <exception cref="InvalidOperationException">The connection object is currently not connected.</exception>
         public async Task<string> ReadAsync()
         {
             this.CheckDisposed();
@@ -341,6 +399,12 @@ namespace RemoteTerminal.Connections
             return input;
         }
 
+        /// <summary>
+        /// Writes a string to the server.
+        /// </summary>
+        /// <param name="str">The string to write.</param>
+        /// <exception cref="ObjectDisposedException">The connection object is already disposed.</exception>
+        /// <exception cref="InvalidOperationException">The connection object is currently not connected.</exception>
         public void Write(string str)
         {
             this.CheckDisposed();
@@ -350,6 +414,12 @@ namespace RemoteTerminal.Connections
             this.writer.Flush();
         }
 
+        /// <summary>
+        /// Indicates to the server that the terminal size has changed to the specified dimensions.
+        /// </summary>
+        /// <param name="rows">The new amount of rows.</param>
+        /// <param name="columns">The new amount of columns.</param>
+        /// <exception cref="InvalidOperationException">The connection object is currently not connected.</exception>
         public void ResizeTerminal(int rows, int columns)
         {
             this.MustBeConnected(true);
@@ -365,11 +435,17 @@ namespace RemoteTerminal.Connections
             }
         }
 
+        /// <summary>
+        /// Closes the connection to the server.
+        /// </summary>
         public void Disconnect()
         {
             this.Dispose();
         }
 
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
         public void Dispose()
         {
             if (this.isDisposed)
@@ -414,6 +490,9 @@ namespace RemoteTerminal.Connections
             GC.SuppressFinalize(this);
         }
 
+        /// <summary>
+        /// Checks whether the current object is disposed, in which case an <see cref="ObjectDisposedException"/> is thrown.
+        /// </summary>
         private void CheckDisposed()
         {
             if (this.isDisposed)
@@ -422,6 +501,10 @@ namespace RemoteTerminal.Connections
             }
         }
 
+        /// <summary>
+        /// Checks whether a specific connection state is not satisfied, in which case an <see cref="InvalidOperationException"/> is thrown.
+        /// </summary>
+        /// <param name="connected"><see cref="true"/> if the connection should be connected to prevent an exception, <see cref="false"/> otherwise.</param>
         private void MustBeConnected(bool connected)
         {
             if (connected != this.IsConnected)

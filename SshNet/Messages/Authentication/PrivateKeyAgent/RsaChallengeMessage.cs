@@ -22,17 +22,17 @@ namespace Renci.SshNet.Messages.Authentication.PrivateKeyAgent
         /// <summary>
         /// Gets the encrypted challenge.
         /// </summary>
-        public BigInteger EncryptedChallenge{get;private set;}
+        public BigInteger EncryptedChallenge { get; private set; }
 
         /// <summary>
         /// Gets the session id.
         /// </summary>
-        public byte[] SessionId{get;private set;}
+        public byte[] SessionId { get; private set; }
 
         /// <summary>
         /// Gets the response type (must be 1).
         /// </summary>
-        public uint ResponseType{get;private set;}
+        public uint ResponseType { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SignRequestMessage"/> class.

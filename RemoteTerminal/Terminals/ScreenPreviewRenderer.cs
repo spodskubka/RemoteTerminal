@@ -11,8 +11,13 @@ using Matrix = SharpDX.Matrix;
 namespace RemoteTerminal.Terminals
 {
     /// <summary>
-    /// Display an overlay text with FPS and ms/frame counters.
+    /// Draws a screen preview using DirectX (SharpDX).
     /// </summary>
+    /// <remarks>
+    /// This class is meant to be similar to the <see cref="ScreenDisplayRenderer"/> class.
+    /// It should draw a small representation of a terminal screen to the <see cref="ScreenPreview"/> class.
+    /// However, due to a non-working implementation it isn't used at the moment.
+    /// </remarks>
     class ScreenPreviewRenderer : IDisposable
     {
         private readonly Dictionary<Color, Brush> brushes = new Dictionary<Color, Brush>();

@@ -5,13 +5,39 @@ using System.Runtime.CompilerServices;
 
 namespace RemoteTerminal.Screens
 {
+    /// <summary>
+    /// The virtual in-memory representation of a screen cell.
+    /// </summary>
+    /// <remarks>
+    /// This class contains a static "cell recycler". Its purpose is to reduce the performance
+    /// impact associated with the continuous creation and GC collection of ScreenCell instances.
+    /// </remarks>
     public class ScreenCell : IRenderableScreenCell
     {
+        /// <summary>
+        /// The maximum size of the cell recycler.
+        /// </summary>
         private const int RecyclerSize = 10000;
 
+        /// <summary>
+        /// The lock for accessing the cell recycler.
+        /// </summary>
         private static readonly object RecyclableCellsLock = new object();
+
+        /// <summary>
+        /// The content of the cell recycler (a list of cells that can be reused later).
+        /// </summary>
         private static readonly List<ScreenCell> RecyclableCells = new List<ScreenCell>(RecyclerSize);
 
+        /// <summary>
+        /// Gets a specified number of cells that are preferably from the recycler.
+        /// </summary>
+        /// <param name="count">The number of cells to return.</param>
+        /// <returns>The specified number of cells.</returns>
+        /// <remarks>
+        /// As many cells as possible are taken from the recycler and reset to a clean state. If the number of cells
+        /// in the recycler is not enough the missing cells are newly created.
+        /// </remarks>
         public static IEnumerable<ScreenCell> GetFreshCells(int count)
         {
             List<ScreenCell> cellsRecycled;
@@ -31,6 +57,10 @@ namespace RemoteTerminal.Screens
             return cellsRecycled.Concat(cellsNonRecycled);
         }
 
+        /// <summary>
+        /// Inserts the specified cells into the recycler.
+        /// </summary>
+        /// <param name="cells">The cells to insert into the recycler.</param>
         public static void RecycleCells(IEnumerable<ScreenCell> cells)
         {
             lock (RecyclableCellsLock)
@@ -44,12 +74,20 @@ namespace RemoteTerminal.Screens
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ScreenCell"/> class.
+        /// </summary>
+        // TODO: remove this attribute (at least from the release compile)? (I think I added it to get better performance statistics)
         [MethodImpl(MethodImplOptions.NoInlining)]
         private ScreenCell()
         {
             this.Reset();
         }
 
+        /// <summary>
+        /// Resets the state of this object to a newly created one.
+        /// </summary>
+        // TODO: remove this attribute (at least from the release compile)? (I think I added it to get better performance statistics)
         [MethodImpl(MethodImplOptions.NoInlining)]
         public void Reset()
         {
@@ -59,11 +97,19 @@ namespace RemoteTerminal.Screens
             this.BackgroundColor = ScreenColor.DefaultBackground;
         }
 
+        /// <summary>
+        /// Converts the value of this instance to its equivalent string representation.
+        /// </summary>
+        /// <returns>The string representation of the value of this instance.</returns>
         public override string ToString()
         {
             return this.Character.ToString();
         }
 
+        /// <summary>
+        /// Applies the specified format to this screen cell.
+        /// </summary>
+        /// <param name="format">The format to apply.</param>
         public void ApplyFormat(ScreenCellFormat format)
         {
             if (format == null)
@@ -94,8 +140,13 @@ namespace RemoteTerminal.Screens
             }
         }
 
+        /// <summary>
+        /// Clones the screen cell.
+        /// </summary>
+        /// <returns>The cloned screen cell.</returns>
         public ScreenCell Clone()
         {
+            // TODO: use the cell recycler here?
             return new ScreenCell()
             {
                 Character = this.Character,

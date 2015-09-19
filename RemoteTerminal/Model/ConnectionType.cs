@@ -1,5 +1,8 @@
 ﻿namespace RemoteTerminal.Model
 {
+    /// <summary>
+    /// The connection type.
+    /// </summary>
     public enum ConnectionType
     {
         /// <summary>

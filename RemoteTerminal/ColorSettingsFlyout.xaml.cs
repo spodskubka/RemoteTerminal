@@ -11,11 +11,27 @@ using Windows.UI.Xaml.Media;
 
 namespace RemoteTerminal
 {
+    /// <summary>
+    /// A settings flyout for color settings.
+    /// </summary>
     public sealed partial class ColorSettingsFlyout : SettingsFlyout
     {
+        /// <summary>
+        /// The theme that is displayed.
+        /// </summary>
         private ColorThemeData customTheme;
+
+        /// <summary>
+        /// A value indicating whether selection changes in the <see cref="ScreenColorListBox"/> should be ignored.
+        /// </summary>
+        /// <remarks>
+        /// The purpose of this field is to prevent race conditions.
+        /// </remarks>
         private bool ignoreScreenColorListBoxSelectionChanging = false;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ColorSettingsFlyout"/> class.
+        /// </summary>
         public ColorSettingsFlyout()
         {
             this.InitializeComponent();
@@ -38,6 +54,11 @@ namespace RemoteTerminal
             this.FontSizeSlider.Value = this.customTheme.FontSize;
         }
 
+        /// <summary>
+        /// Occurs when the reset font button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void ResetFontClicked(object sender, RoutedEventArgs e)
         {
             var defaultTheme = ColorThemeData.CreateDefault();
@@ -53,6 +74,11 @@ namespace RemoteTerminal
             TerminalPageForceRender(fontChanged: true);
         }
 
+        /// <summary>
+        /// Occurs when the reset colors button is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void ResetColorsClicked(object sender, RoutedEventArgs e)
         {
             var defaultTheme = ColorThemeData.CreateDefault();
@@ -69,6 +95,11 @@ namespace RemoteTerminal
             TerminalPageForceRender(fontChanged: false);
         }
 
+        /// <summary>
+        /// Occurs when the currently selected item in the <see cref="FontFamilyListBox"/> changes.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void FontFamilyListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             this.FontPreviewTextBlock.FontFamily = new FontFamily((string)this.FontFamilyListBox.SelectedItem);
@@ -83,6 +114,11 @@ namespace RemoteTerminal
             TerminalPageForceRender(fontChanged: true);
         }
 
+        /// <summary>
+        /// Occurs when the currently selected item in the <see cref="ScreenColorListBox"/> changes.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void ScreenColorListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             int screenColor = this.ScreenColorListBox.SelectedIndex - 4;
@@ -96,6 +132,11 @@ namespace RemoteTerminal
             this.ColorSlider_ValueChanged(sender, null);
         }
 
+        /// <summary>
+        /// Occurs when the range value of the <see cref="FontSizeSlider"/> changes.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void FontSizeSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
         {
             this.FontPreviewTextBlock.FontSize = ScreenDisplay.BaseLogicalFontMetrics[this.customTheme.FontFamily].FontSize * (1 + (ScreenDisplay.FontSizeScalingFactor * (float)this.FontSizeSlider.Value));
@@ -110,6 +151,11 @@ namespace RemoteTerminal
             TerminalPageForceRender(fontChanged: true);
         }
 
+        /// <summary>
+        /// Occurs when the range value of one of the color sliders changes.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void ColorSlider_ValueChanged(object sender, RangeBaseValueChangedEventArgs e)
         {
             if (this.ignoreScreenColorListBoxSelectionChanging)
@@ -140,6 +186,10 @@ namespace RemoteTerminal
             TerminalPageForceRender(fontChanged: false);
         }
 
+        /// <summary>
+        /// Forces a redraw of the terminal screen, when the TerminalPage is currently active.
+        /// </summary>
+        /// <param name="fontChanged">A value indicating whether the font has changed (to recalculate the screen size).</param>
         private static void TerminalPageForceRender(bool fontChanged)
         {
             var frame = Window.Current.Content as Frame;
@@ -153,6 +203,11 @@ namespace RemoteTerminal
             }
         }
 
+        /// <summary>
+        /// Occurs when the <see cref="ColorSettingsFlyout"/> loses focus.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
         private void SettingsFlyout_LostFocus(object sender, RoutedEventArgs e)
         {
             // Save the color theme settings

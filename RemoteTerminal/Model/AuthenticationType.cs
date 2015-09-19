@@ -1,5 +1,8 @@
 ﻿namespace RemoteTerminal.Model
 {
+    /// <summary>
+    /// The authentication type (used for SSH connections).
+    /// </summary>
     public enum AuthenticationType
     {
         /// <summary>

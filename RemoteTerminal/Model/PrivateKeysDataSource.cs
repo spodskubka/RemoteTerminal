@@ -8,9 +8,19 @@ using Windows.Storage.Search;
 
 namespace RemoteTerminal.Model
 {
+    /// <summary>
+    /// The data source for private keys.
+    /// </summary>
     internal class PrivateKeysDataSource
     {
+        /// <summary>
+        /// An observable collection containing the private keys.
+        /// </summary>
         private ObservableCollection<PrivateKeyData> privateKeys = new ObservableCollection<PrivateKeyData>();
+
+        /// <summary>
+        /// Gets the observable collection containing the private keys.
+        /// </summary>
         public ObservableCollection<PrivateKeyData> PrivateKeys
         {
             get
@@ -19,6 +29,10 @@ namespace RemoteTerminal.Model
             }
         }
 
+        /// <summary>
+        /// Reads all private keys from the local app data store.
+        /// </summary>
+        /// <returns>No object or value is returned by this method when it completes.</returns>
         public async Task GetPrivateKeys()
         {
             var privateKeysFolder = await GetPrivateKeysFolder();
@@ -34,11 +48,20 @@ namespace RemoteTerminal.Model
             }
         }
 
+        /// <summary>
+        /// Reads the local "PrivateKeys" app data folder.
+        /// </summary>
+        /// <returns>The local "PrivateKeys" app data folder.</returns>
         public static async Task<StorageFolder> GetPrivateKeysFolder()
         {
             return await ApplicationData.Current.LocalFolder.CreateFolderAsync("PrivateKeys", CreationCollisionOption.OpenIfExists);
         }
 
+        /// <summary>
+        /// Adds or updates a private key.
+        /// </summary>
+        /// <param name="privateKeyData">The data of the private key to add/update.</param>
+        /// <returns>No object or value is returned by this method when it completes.</returns>
         public async Task AddOrUpdate(PrivateKeyData privateKeyData)
         {
             var privateKeysFolder = await GetPrivateKeysFolder();
@@ -49,7 +72,11 @@ namespace RemoteTerminal.Model
             this.privateKeys.Add(privateKeyData);
         }
 
-        // Returns the privateKey that has the specified id.
+        /// <summary>
+        /// Returns the private key that has the specified file name.
+        /// </summary>
+        /// <param name="fileName">The file name of the private key to return.</param>
+        /// <returns>The found private key or null if there is none with the specified file name.</returns>
         public static PrivateKeyData GetPrivateKey(string fileName)
         {
             // Simple linear search is acceptable for small data sets
@@ -60,6 +87,11 @@ namespace RemoteTerminal.Model
             return null;
         }
 
+        /// <summary>
+        /// Removes a private key.
+        /// </summary>
+        /// <param name="privateKeyData">The data of the private key to remove.</param>
+        /// <returns>No object or value is returned by this method when it completes.</returns>
         internal async Task Remove(PrivateKeyData privateKeyData)
         {
             var privateKeysFolder = await GetPrivateKeysFolder();
