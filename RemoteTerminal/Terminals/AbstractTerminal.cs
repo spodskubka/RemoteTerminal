@@ -327,7 +327,7 @@ namespace RemoteTerminal.Terminals
                         }
                         while (str.Length > 0);
                     }
-                    catch (Exception ex)
+                    catch (Exception)
                     {
                     }
                 }

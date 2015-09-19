@@ -428,7 +428,7 @@ namespace RemoteTerminal.Connections
             {
                 this.stream.ResizeTerminal((uint)columns, (uint)rows, 0, 0);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // The connection was probably disconnected.
                 // Ignore it for now, it will be detected somewhere else.

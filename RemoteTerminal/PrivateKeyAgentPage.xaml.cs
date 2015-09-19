@@ -192,7 +192,7 @@ namespace RemoteTerminal
                 Flyout.GetAttachedFlyout(this.keysGridView).Hide();
                 this.SetEmptyHintVisibilities();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 this.loadKeyPasswordErrorTextBlock.Text = "Wrong password.";
                 this.loadKeyPasswordErrorTextBlock.Visibility = Visibility.Visible;

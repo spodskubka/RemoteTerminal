@@ -312,7 +312,7 @@ namespace RemoteTerminal
                 var s = await CurrentApp.RequestAppPurchaseAsync(false);
 #endif
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 failed = true;
             }

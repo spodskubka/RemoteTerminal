@@ -150,7 +150,7 @@ namespace RemoteTerminal.Connections
                             input.Append(buffer[i]);
                             nvtNegotiation = null;
                         }
-                        else if (buffer[i] == WILL  || buffer[i]==WONT || buffer[i] == DO || buffer[i] == DONT)
+                        else if (buffer[i] == WILL || buffer[i] == WONT || buffer[i] == DO || buffer[i] == DONT)
                         {
                             nvtNegotiation += buffer[i];
                         }
