@@ -1,37 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Windows 8
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RemoteTerminal", "RemoteTerminal\RemoteTerminal.csproj", "{E30EB27C-E5ED-4231-B898-FEB40BEFF65C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SshNet", "SshNet\SshNet.csproj", "{41D333C7-6288-4335-B0C0-20CF028413B1}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Performance Reports", "Performance Reports", "{95CFEAFC-2FB5-434C-B837-22A0951A1348}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommonDX", "CommonDX\CommonDX.csproj", "{45CD76A3-E21E-47A3-8BFD-9A1241AADB9D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{728DE36A-C251-4B08-AA21-AC60B90441F5}"
-	ProjectSection(SolutionItems) = preProject
-		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.exe = .nuget\NuGet.exe
-		.nuget\NuGet.targets = .nuget\NuGet.targets
-	EndProjectSection
-EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 4
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://stefanpodskubka.visualstudio.com/defaultcollection
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = CommonDX\\CommonDX.csproj
-		SccProjectName1 = CommonDX
-		SccLocalPath1 = CommonDX
-		SccProjectUniqueName2 = RemoteTerminal\\RemoteTerminal.csproj
-		SccProjectName2 = RemoteTerminal
-		SccLocalPath2 = RemoteTerminal
-		SccProjectUniqueName3 = SshNet\\SshNet.csproj
-		SccProjectName3 = SshNet
-		SccLocalPath3 = SshNet
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Debug|ARM = Debug|ARM
