@@ -107,6 +107,7 @@
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
+    <None Include="README.txt" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthenticationMethod.cs" />
