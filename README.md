@@ -19,6 +19,16 @@ Download
 You can download and install Remote Terminal from the [Windows Store](https://www.microsoft.com/en-us/store/apps/remote-terminal/9wzdncrdn8b3).
 The most recent version requires at least Windows 8.1, an older version is available for Windows 8.
 
+Contributing
+============
+
+Since switching to Git (with other projects), I am trying to follow the following guides which I find very useful.
+
+If you want to contribute to the development of Remote Terminal, it would be great if you could familiarize yourself with them.
+
+* [How to Write a Git Commit Message](http://chris.beams.io/posts/git-commit/) by [Chris Beams](http://chris.beams.io/)
+* [A successful Git branching model](http://nvie.com/posts/a-successful-git-branching-model/) by [Vincent Driessen](http://nvie.com/about/)
+
 License
 =======
 
