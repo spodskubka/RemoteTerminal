@@ -116,6 +116,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ChangelogManager.cs" />
     <Compile Include="ColorSettingsFlyout.xaml.cs">
       <DependentUpon>ColorSettingsFlyout.xaml</DependentUpon>
     </Compile>
@@ -190,6 +191,9 @@
     <Content Include="Assets\SmallLogo.png" />
     <Content Include="Assets\SplashScreen.png" />
     <Content Include="Assets\StoreLogo.png" />
+    <EmbeddedResource Include="Changelogs\head.htm" />
+    <EmbeddedResource Include="Changelogs\1.8.2.htm" />
+    <EmbeddedResource Include="Changelogs\tail.htm" />
     <Content Include="LICENSE.txt" />
     <Page Include="ColorSettingsFlyout.xaml">
       <SubType>Designer</SubType>

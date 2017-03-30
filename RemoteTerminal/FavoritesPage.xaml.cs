@@ -25,6 +25,7 @@ using Windows.ApplicationModel.Store;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 
 // The Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234233
@@ -119,6 +120,14 @@ namespace RemoteTerminal
             else
             {
                 this.TopAppBar = null;
+            }
+
+            this.changelogContainer.Visibility = Visibility.Collapsed;
+            string changelog = ChangelogManager.DetermineChangelog();
+            if (changelog != null)
+            {
+                this.webViewChangelog.NavigateToString(changelog);
+                this.changelogContainer.Visibility = Visibility.Visible;
             }
         }
 
@@ -307,6 +316,28 @@ namespace RemoteTerminal
         {
             ITerminal terminal = ((Button)sender).Tag as ITerminal;
             TerminalManager.Remove(terminal);
+        }
+
+        /// <summary>
+        /// Occurs when the dimmed area around the changelog is tapped.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
+        private void changelogContainer_Tapped(object sender, TappedRoutedEventArgs e)
+        {
+            this.changelogContainer.Visibility = Visibility.Collapsed;
+            ChangelogManager.ConfirmRead();
+        }
+
+        /// <summary>
+        /// Occurs when the close button of the changelog is clicked.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
+        private void changelogCloseButton_Click(object sender, RoutedEventArgs e)
+        {
+            this.changelogContainer.Visibility = Visibility.Collapsed;
+            ChangelogManager.ConfirmRead();
         }
 
         /// <summary>
