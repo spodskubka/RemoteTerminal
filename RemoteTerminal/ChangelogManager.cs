@@ -36,9 +36,10 @@ namespace RemoteTerminal
         /// <summary>
         /// This array contains, in reverse order, all versions of the app for which a changelog is available.
         /// </summary>
+        /// <remarks>The first entry should always be <see cref="CurrentVersion"/>.</remarks>
         private static readonly string[] Versions = new[]
         {
-            "1.8.2",
+            CurrentVersion,
         };
 
         /// <summary>
