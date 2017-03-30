@@ -25,7 +25,6 @@ using Windows.ApplicationModel.Store;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Navigation;
 
 // The Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234233
@@ -77,6 +76,7 @@ namespace RemoteTerminal
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.navigationHelper_LoadState;
             this.navigationHelper.SaveState += this.navigationHelper_SaveState;
+            this.Loaded += this.FavoritesPage_Loaded;
         }
 
         /// <summary>
@@ -121,14 +121,6 @@ namespace RemoteTerminal
             {
                 this.TopAppBar = null;
             }
-
-            this.changelogContainer.Visibility = Visibility.Collapsed;
-            string changelog = ChangelogManager.DetermineChangelog();
-            if (changelog != null)
-            {
-                this.webViewChangelog.NavigateToString(changelog);
-                this.changelogContainer.Visibility = Visibility.Visible;
-            }
         }
 
         /// <summary>
@@ -142,6 +134,19 @@ namespace RemoteTerminal
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
             this.licenseInformation.LicenseChanged -= RefreshTrialHint;
+        }
+
+        /// <summary>
+        /// Occurs when the page has been constructed and added to the object tree, and is ready for interaction.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
+        private void FavoritesPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (ChangelogManager.ShouldDisplayChangelog())
+            {
+                this.Frame.Navigate(typeof(ChangelogPage));
+            }
         }
 
         /// <summary>
@@ -316,28 +321,6 @@ namespace RemoteTerminal
         {
             ITerminal terminal = ((Button)sender).Tag as ITerminal;
             TerminalManager.Remove(terminal);
-        }
-
-        /// <summary>
-        /// Occurs when the dimmed area around the changelog is tapped.
-        /// </summary>
-        /// <param name="sender">The object where the event handler is attached.</param>
-        /// <param name="e">The event data.</param>
-        private void changelogContainer_Tapped(object sender, TappedRoutedEventArgs e)
-        {
-            this.changelogContainer.Visibility = Visibility.Collapsed;
-            ChangelogManager.ConfirmRead();
-        }
-
-        /// <summary>
-        /// Occurs when the close button of the changelog is clicked.
-        /// </summary>
-        /// <param name="sender">The object where the event handler is attached.</param>
-        /// <param name="e">The event data.</param>
-        private void changelogCloseButton_Click(object sender, RoutedEventArgs e)
-        {
-            this.changelogContainer.Visibility = Visibility.Collapsed;
-            ChangelogManager.ConfirmRead();
         }
 
         /// <summary>

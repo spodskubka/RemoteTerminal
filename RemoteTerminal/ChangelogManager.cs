@@ -43,16 +43,26 @@ namespace RemoteTerminal
         };
 
         /// <summary>
-        /// Determines the changelog that should be displayed at application start.
+        /// Determines whether a changelog should be displayed at application start.
         /// </summary>
-        /// <returns>The changelog to display; null if none should be displayed.</returns>
-        public static string DetermineChangelog()
+        /// <returns>A value indicating whether a changelog should be displayed at application start.</returns>
+        public static bool ShouldDisplayChangelog()
         {
             string lastReadChangelog = ApplicationData.Current.LocalSettings.Values[LastReadChangelogSettingName] as string;
-            if (lastReadChangelog == CurrentVersion)
-            {
-                return null;
-            }
+            return lastReadChangelog != CurrentVersion;
+        }
+
+        /// <summary>
+        /// Produces a HTML changelog.
+        /// </summary>
+        /// <returns>The changelog in HTML format.</returns>
+        /// <remarks>
+        /// The return value contains the changelogs from all versions between the last read changelog and the changelog of the current version.
+        /// If all changelogs have already been read the changelog of the current version is returned.
+        /// </remarks>
+        public static string ProduceChangelog()
+        {
+            string lastReadChangelog = ApplicationData.Current.LocalSettings.Values[LastReadChangelogSettingName] as string;
 
             StringBuilder changelog = new StringBuilder();
 
@@ -61,12 +71,11 @@ namespace RemoteTerminal
 
             foreach (string version in Versions)
             {
+                changelog.Append(ReadHtmlFile(version));
                 if (version == lastReadChangelog)
                 {
                     break;
                 }
-
-                changelog.Append(ReadHtmlFile(version));
             }
 
             changelog.Append(ReadHtmlFile("tail"));

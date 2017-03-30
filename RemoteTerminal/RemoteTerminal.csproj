@@ -117,6 +117,9 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="ChangelogManager.cs" />
+    <Compile Include="ChangelogPage.xaml.cs">
+      <DependentUpon>ChangelogPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ColorSettingsFlyout.xaml.cs">
       <DependentUpon>ColorSettingsFlyout.xaml</DependentUpon>
     </Compile>
@@ -195,6 +198,10 @@
     <EmbeddedResource Include="Changelogs\1.8.2.htm" />
     <EmbeddedResource Include="Changelogs\tail.htm" />
     <Content Include="LICENSE.txt" />
+    <Page Include="ChangelogPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ColorSettingsFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
