@@ -12,8 +12,8 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <PackageCertificateKeyFile>RemoteTerminal_StoreKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>D9BB77949E037EC04835AEAB54A92723E0A83D62</PackageCertificateThumbprint>
+    <PackageCertificateKeyFile>RemoteTerminal_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateThumbprint>D4B6F8199822C2D9F06D5D052CDA071BDCFD473E</PackageCertificateThumbprint>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
