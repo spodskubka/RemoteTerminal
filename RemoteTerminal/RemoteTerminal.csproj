@@ -12,8 +12,8 @@
     <DefaultLanguage>en-US</DefaultLanguage>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <PackageCertificateKeyFile>RemoteTerminal_StoreKey.pfx</PackageCertificateKeyFile>
-    <PackageCertificateThumbprint>D9BB77949E037EC04835AEAB54A92723E0A83D62</PackageCertificateThumbprint>
+    <PackageCertificateKeyFile>RemoteTerminal_TemporaryKey.pfx</PackageCertificateKeyFile>
+    <PackageCertificateThumbprint>D4B6F8199822C2D9F06D5D052CDA071BDCFD473E</PackageCertificateThumbprint>
     <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
@@ -116,6 +116,10 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ChangelogManager.cs" />
+    <Compile Include="ChangelogPage.xaml.cs">
+      <DependentUpon>ChangelogPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="ColorSettingsFlyout.xaml.cs">
       <DependentUpon>ColorSettingsFlyout.xaml</DependentUpon>
     </Compile>
@@ -190,7 +194,14 @@
     <Content Include="Assets\SmallLogo.png" />
     <Content Include="Assets\SplashScreen.png" />
     <Content Include="Assets\StoreLogo.png" />
+    <EmbeddedResource Include="Changelogs\head.htm" />
+    <EmbeddedResource Include="Changelogs\1.8.2.htm" />
+    <EmbeddedResource Include="Changelogs\tail.htm" />
     <Content Include="LICENSE.txt" />
+    <Page Include="ChangelogPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ColorSettingsFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

@@ -86,9 +86,19 @@ namespace RemoteTerminal
                 await Launcher.LaunchUriAsync(new Uri("http://stefanpodskubkadev.blogspot.co.at/p/contact.html"));
             });
 
+            SettingsCommand changelogCommand = new SettingsCommand("changelog", "Changelog", (x) =>
+            {
+                Frame rootFrame = Window.Current.Content as Frame;
+                if (rootFrame != null)
+                {
+                    rootFrame.Navigate(typeof(ChangelogPage));
+                }
+            });
+
             args.Request.ApplicationCommands.Add(colorsCommand);
             args.Request.ApplicationCommands.Add(privacyPolicyCommand);
             args.Request.ApplicationCommands.Add(helpCommand);
+            args.Request.ApplicationCommands.Add(changelogCommand);
         }
 
         /// <summary>

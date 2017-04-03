@@ -76,6 +76,7 @@ namespace RemoteTerminal
             this.navigationHelper = new NavigationHelper(this);
             this.navigationHelper.LoadState += this.navigationHelper_LoadState;
             this.navigationHelper.SaveState += this.navigationHelper_SaveState;
+            this.Loaded += this.FavoritesPage_Loaded;
         }
 
         /// <summary>
@@ -133,6 +134,19 @@ namespace RemoteTerminal
         private void navigationHelper_SaveState(object sender, SaveStateEventArgs e)
         {
             this.licenseInformation.LicenseChanged -= RefreshTrialHint;
+        }
+
+        /// <summary>
+        /// Occurs when the page has been constructed and added to the object tree, and is ready for interaction.
+        /// </summary>
+        /// <param name="sender">The object where the event handler is attached.</param>
+        /// <param name="e">The event data.</param>
+        private void FavoritesPage_Loaded(object sender, RoutedEventArgs e)
+        {
+            if (ChangelogManager.ShouldDisplayChangelog())
+            {
+                this.Frame.Navigate(typeof(ChangelogPage));
+            }
         }
 
         /// <summary>
