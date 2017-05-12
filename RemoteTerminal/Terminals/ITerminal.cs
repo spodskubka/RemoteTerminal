@@ -80,6 +80,11 @@ namespace RemoteTerminal.Terminals
         bool IsConnected { get; }
 
         /// <summary>
+        /// Occurs when the terminal's connection is connected.
+        /// </summary>
+        event EventHandler Connected;
+
+        /// <summary>
         /// Occurs when the terminal's connection is disconnected.
         /// </summary>
         event EventHandler Disconnected;

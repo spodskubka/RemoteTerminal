@@ -332,10 +332,17 @@ namespace RemoteTerminal.Terminals
 
                 this.connection.Initialize(connectionData);
                 this.IsConnected = true;
+                this.ScreenHasFocus = true;
+
+                var connected = this.Connected;
+                if (connected != null)
+                {
+                    connected.Invoke(this, new EventArgs());
+                }
 
                 this.screenInitWaiter.Wait();
-                bool connected = await this.connection.ConnectAsync(this);
-                if (connected)
+                bool successful = await this.connection.ConnectAsync(this);
+                if (successful)
                 {
                     this.connected = true;
 
@@ -638,6 +645,11 @@ namespace RemoteTerminal.Terminals
         /// Gets a value indicating whether the terminal is connected.
         /// </summary>
         public bool IsConnected { get; private set; }
+
+        /// <summary>
+        /// Occurs when the terminal's connection is connected.
+        /// </summary>
+        public event EventHandler Connected;
 
         /// <summary>
         /// Occurs when the terminal's connection is disconnected.
