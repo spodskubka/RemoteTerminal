@@ -39,7 +39,8 @@ namespace RemoteTerminal.Terminals
         /// <summary>
         /// Disconnects the connection and turns off the terminal.
         /// </summary>
-        void PowerOff();
+        /// <param name="exception">The exception that is the reason for the power of, if any.</param>
+        void PowerOff(Exception exception = null);
 
         /// <summary>
         /// Resizes the screen of the terminal to the specified screen size.
@@ -77,6 +78,11 @@ namespace RemoteTerminal.Terminals
         /// Gets a value indicating whether the terminal is connected.
         /// </summary>
         bool IsConnected { get; }
+
+        /// <summary>
+        /// Occurs when the terminal's connection is connected.
+        /// </summary>
+        event EventHandler Connected;
 
         /// <summary>
         /// Occurs when the terminal's connection is disconnected.

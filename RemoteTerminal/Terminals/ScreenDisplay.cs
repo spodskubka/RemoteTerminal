@@ -178,6 +178,7 @@ namespace RemoteTerminal.Terminals
             if (this.terminal != null)
             {
                 this.DetachRenderer();
+                this.terminal.Connected -= terminal_Connected;
                 this.terminal.Disconnected -= terminal_Disconnected;
                 this.terminal = null;
             }
@@ -189,12 +190,26 @@ namespace RemoteTerminal.Terminals
                 return;
             }
 
+            this.terminal.Connected += terminal_Connected;
             this.terminal.Disconnected += terminal_Disconnected;
 
             this.border.BorderBrush = new SolidColorBrush(this.terminal.IsConnected ? Colors.Black : Colors.Red);
 
             // This will result in ArrangeOverride being called, where the new renderer is attached.
             this.InvalidateArrange();
+        }
+
+        /// <summary>
+        /// Occurs when the terminal's connection is connected.
+        /// </summary>
+        /// <param name="sender">The source of the event.</param>
+        /// <param name="e">An object that contains no event data.</param>
+        async void terminal_Connected(object sender, EventArgs e)
+        {
+            await this.Dispatcher.RunAsync(CoreDispatcherPriority.Low, () =>
+            {
+                this.border.BorderBrush = new SolidColorBrush(Colors.Black);
+            });
         }
 
         /// <summary>
@@ -408,11 +423,6 @@ namespace RemoteTerminal.Terminals
                 }
             }
 
-            if (!this.terminal.IsConnected)
-            {
-                return;
-            }
-
             e.Handled = this.terminal.ProcessKeyPress(e.Key, keyModifiers);
         }
 
@@ -600,6 +610,7 @@ namespace RemoteTerminal.Terminals
             this.DetachRenderer();
             if (this.terminal != null)
             {
+                this.terminal.Connected -= terminal_Connected;
                 this.terminal.Disconnected -= terminal_Disconnected;
             }
 
