@@ -375,6 +375,11 @@ namespace RemoteTerminal.Terminals
             this.ScreenHasFocus = false;
             this.connected = false;
 
+            if (this.connection == null)
+            {
+                return;
+            }
+
             lock (this.disconnectLock)
             {
                 this.connection.Disconnect();
