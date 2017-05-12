@@ -49,14 +49,19 @@ namespace RemoteTerminal.Terminals
         private SynchronizationContext synchronizationContext;
 
         /// <summary>
-        /// The active connection of this terminal.
+        /// The connection data of this terminal.
         /// </summary>
-        private readonly IConnection connection = null;
+        private readonly ConnectionData connectionData;
 
         /// <summary>
         /// The new-line characters that are written to the connection when the user presses Return/Enter.
         /// </summary>
         private readonly string writtenNewLine;
+
+        /// <summary>
+        /// The active connection of this terminal.
+        /// </summary>
+        private IConnection connection = null;
 
         /// <summary>
         /// The active screen of this terminal (null if none is assigned).
@@ -116,19 +121,7 @@ namespace RemoteTerminal.Terminals
         /// <param name="writtenNewLine">The new-line characters that are written to the connection when the user presses Return/Enter.</param>
         public AbstractTerminal(ConnectionData connectionData, bool localEcho, string writtenNewLine)
         {
-            switch (connectionData.Type)
-            {
-                case ConnectionType.Telnet:
-                    this.connection = new TelnetConnection();
-                    break;
-                case ConnectionType.Ssh:
-                    this.connection = new SshConnection();
-                    break;
-                default:
-                    break;
-            }
-
-            this.connection.Initialize(connectionData);
+            this.connectionData = connectionData;
             this.LocalEcho = localEcho;
             this.writtenNewLine = writtenNewLine;
 
@@ -136,7 +129,11 @@ namespace RemoteTerminal.Terminals
             this.Title = string.Empty;
             this.synchronizationContext = SynchronizationContext.Current;
 
-            this.IsConnected = true;
+            this.Disconnected += (sender, e) =>
+            {
+                this.WriteLine(string.Empty);
+                this.WriteLine("Press Ctrl+R to reconnect.");
+            };
         }
 
         /// <summary>
@@ -327,6 +324,21 @@ namespace RemoteTerminal.Terminals
         {
             Task.Factory.StartNew(async () =>
             {
+                switch (connectionData.Type)
+                {
+                    case ConnectionType.Telnet:
+                        this.connection = new TelnetConnection();
+                        break;
+                    case ConnectionType.Ssh:
+                        this.connection = new SshConnection();
+                        break;
+                    default:
+                        break;
+                }
+
+                this.connection.Initialize(connectionData);
+                this.IsConnected = true;
+
                 this.screenInitWaiter.Wait();
                 bool connected = await this.connection.ConnectAsync(this);
                 if (connected)
@@ -351,9 +363,12 @@ namespace RemoteTerminal.Terminals
                 lock (this.disconnectLock)
                 {
                     this.connection.Disconnect();
+                    this.connection.Dispose();
+                    this.connection = null;
                 }
                 this.IsConnected = false;
                 this.ScreenHasFocus = false;
+                this.connected = false;
                 var disconnected = this.Disconnected;
                 if (disconnected != null)
                 {
@@ -372,6 +387,8 @@ namespace RemoteTerminal.Terminals
             lock (this.disconnectLock)
             {
                 this.connection.Disconnect();
+                this.connection.Dispose();
+                this.connection = null;
             }
 
             if (this.localReadSync != null)
@@ -420,9 +437,10 @@ namespace RemoteTerminal.Terminals
                     }
                 }
 
-                if (this.connection.IsConnected)
+                IConnection connection = this.connection;
+                if (connection != null && connection.IsConnected)
                 {
-                    this.connection.ResizeTerminal(rows, columns);
+                    connection.ResizeTerminal(rows, columns);
                 }
             }
         }
@@ -551,6 +569,14 @@ namespace RemoteTerminal.Terminals
                 }
                 else
                 {
+                    if (key == VirtualKey.R && keyModifiers == KeyModifiers.Ctrl)
+                    {
+                        this.WriteLine("Reconnecting...");
+                        this.WriteLine(string.Empty);
+
+                        this.PowerOn();
+                    }
+
                     Debug.WriteLine("Input key '" + key + "' with modifier(s) '" + keyModifiers + "' ignored, not yet connected.");
                     return true;
                 }
@@ -666,7 +692,11 @@ namespace RemoteTerminal.Terminals
 
             try
             {
-                this.connection.Write(str == Environment.NewLine ? this.writtenNewLine : str);
+                IConnection connection = this.connection;
+                if (connection != null)
+                {
+                    connection.Write(str == Environment.NewLine ? this.writtenNewLine : str);
+                }
             }
             catch (Exception ex)
             {

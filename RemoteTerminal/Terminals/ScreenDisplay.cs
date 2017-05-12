@@ -408,11 +408,6 @@ namespace RemoteTerminal.Terminals
                 }
             }
 
-            if (!this.terminal.IsConnected)
-            {
-                return;
-            }
-
             e.Handled = this.terminal.ProcessKeyPress(e.Key, keyModifiers);
         }
 
