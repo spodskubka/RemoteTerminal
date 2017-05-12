@@ -116,6 +116,7 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="IsConnectedToPreviewBorderBrushConverter.cs" />
     <Compile Include="ChangelogManager.cs" />
     <Compile Include="ChangelogPage.xaml.cs">
       <DependentUpon>ChangelogPage.xaml</DependentUpon>

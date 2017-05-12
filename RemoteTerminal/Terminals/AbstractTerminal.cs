@@ -647,9 +647,29 @@ namespace RemoteTerminal.Terminals
         protected abstract bool ProcessUserInput(VirtualKey key, KeyModifiers keyModifiers);
 
         /// <summary>
+        /// A value indicating whether the terminal is connected.
+        /// </summary>
+        private bool isConnected;
+
+        /// <summary>
         /// Gets a value indicating whether the terminal is connected.
         /// </summary>
-        public bool IsConnected { get; private set; }
+        public bool IsConnected
+        {
+            get
+            {
+                return this.isConnected;
+            }
+
+            protected set
+            {
+                if (value != this.isConnected)
+                {
+                    this.isConnected = value;
+                    this.NotifyPropertyChanged();
+                }
+            }
+        }
 
         /// <summary>
         /// Occurs when the terminal's connection is connected.
