@@ -39,7 +39,8 @@ namespace RemoteTerminal.Terminals
         /// <summary>
         /// Disconnects the connection and turns off the terminal.
         /// </summary>
-        void PowerOff();
+        /// <param name="exception">The exception that is the reason for the power of, if any.</param>
+        void PowerOff(Exception exception = null);
 
         /// <summary>
         /// Resizes the screen of the terminal to the specified screen size.

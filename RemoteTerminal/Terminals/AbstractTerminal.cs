@@ -128,12 +128,6 @@ namespace RemoteTerminal.Terminals
             this.Name = connectionData.Name;
             this.Title = string.Empty;
             this.synchronizationContext = SynchronizationContext.Current;
-
-            this.Disconnected += (sender, e) =>
-            {
-                this.WriteLine(string.Empty);
-                this.WriteLine("Press Ctrl+R to reconnect.");
-            };
         }
 
         /// <summary>
@@ -360,28 +354,18 @@ namespace RemoteTerminal.Terminals
                     }
                 }
 
-                lock (this.disconnectLock)
-                {
-                    this.connection.Disconnect();
-                    this.connection.Dispose();
-                    this.connection = null;
-                }
-                this.IsConnected = false;
-                this.ScreenHasFocus = false;
-                this.connected = false;
-                var disconnected = this.Disconnected;
-                if (disconnected != null)
-                {
-                    disconnected.Invoke(this, new EventArgs());
-                }
+                this.PowerOff();
             });
         }
 
         /// <summary>
         /// Disconnects the connection and turns off the terminal.
         /// </summary>
-        public void PowerOff()
+        /// <param name="ex">The exception that is the reason for the power of, if any.</param>
+        public void PowerOff(Exception ex = null)
         {
+            this.IsConnected = false;
+            this.ScreenHasFocus = false;
             this.connected = false;
 
             lock (this.disconnectLock)
@@ -396,6 +380,21 @@ namespace RemoteTerminal.Terminals
                 this.localReadLine = null;
                 this.localReadSync.Set();
             }
+
+            var disconnected = this.Disconnected;
+            if (disconnected != null)
+            {
+                disconnected.Invoke(this, new EventArgs());
+            }
+
+            if (ex != null)
+            {
+                this.WriteLine(string.Empty);
+                this.WriteLine(ex.Message);
+            }
+
+            this.WriteLine(string.Empty);
+            this.WriteLine("Press Ctrl+R to reconnect.");
         }
 
         /// <summary>
@@ -698,11 +697,9 @@ namespace RemoteTerminal.Terminals
                     connection.Write(str == Environment.NewLine ? this.writtenNewLine : str);
                 }
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                this.PowerOff();
-                this.WriteLine(string.Empty);
-                this.WriteLine(ex.Message);
+                this.PowerOff(exception);
             }
         }
 
