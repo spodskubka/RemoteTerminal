@@ -213,14 +213,6 @@ namespace RemoteTerminal
                 this.screenDisplay.Dispose();
                 this.screenDisplay = null;
             }
-
-            if (this.Terminal != null)
-            {
-                if (!this.Terminal.IsConnected)
-                {
-                    TerminalManager.Remove(this.Terminal);
-                }
-            }
         }
 
         /// <summary>
