@@ -226,7 +226,7 @@ namespace RemoteTerminal.Terminals
         {
             if (this.connected)
             {
-                throw new InvalidOperationException("This method can only be called before the connection is established.");
+                throw new InvalidOperationException("This method can only be called when no connection is established.");
             }
 
             using (var modifier = this.screen.GetModifier())
