@@ -15,7 +15,7 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="RemoteTerminal.App">
-      <m2:VisualElements DisplayName="Remote Terminal" Description="Remote Terminal - SSH and Telnet client" BackgroundColor="#001E4E" ForegroundText="light" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png">
+      <m2:VisualElements DisplayName="Remote Terminal" Description="Remote Terminal - SSH and Telnet client for Windows 8 and Windows 10" BackgroundColor="#001E4E" ForegroundText="light" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png">
         <m2:DefaultTile>
           <m2:ShowNameOnTiles>
             <m2:ShowOn Tile="square150x150Logo" />
