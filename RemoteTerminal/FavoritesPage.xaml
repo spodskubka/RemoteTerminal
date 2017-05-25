@@ -38,7 +38,7 @@
                 <!--<Terminals:ScreenPreview TerminalGuid="{Binding}"/>-->
                 <!--<Terminals:ScreenPreview HorizontalAlignment="Center" VerticalAlignment="Center"/>-->
                 <Button Style="{StaticResource CloseTerminalButtonStyle}" Tag="{Binding}" Click="PreviewGrid_ItemCloseButtonClick"/>
-                <Border BorderBrush="Gray" BorderThickness="2"/>
+                <Border BorderBrush="{Binding IsConnected, Converter={StaticResource isConnectedToPreviewBorderBrushConverter}}" BorderThickness="2"/>
             </Grid>
         </DataTemplate>
     </Page.Resources>

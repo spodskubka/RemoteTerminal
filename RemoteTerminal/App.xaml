@@ -16,6 +16,7 @@
             <model:FavoritesDataSource x:Key="favoritesDataSource"/>
             <model:PrivateKeysDataSource x:Key="privateKeysDataSource"/>
             <model:ColorThemesDataSource x:Key="colorThemesDataSource"/>
+            <local:IsConnectedToPreviewBorderBrushConverter x:Key="isConnectedToPreviewBorderBrushConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>
