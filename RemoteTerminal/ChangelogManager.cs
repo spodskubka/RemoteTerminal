@@ -72,11 +72,12 @@ namespace RemoteTerminal
 
             foreach (string version in Versions)
             {
-                changelog.Append(ReadHtmlFile(version));
                 if (version == lastReadChangelog)
                 {
                     break;
                 }
+
+                changelog.Append(ReadHtmlFile(version));
             }
 
             changelog.Append(ReadHtmlFile("tail"));
