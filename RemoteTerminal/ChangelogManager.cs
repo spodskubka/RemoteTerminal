@@ -26,7 +26,7 @@ namespace RemoteTerminal
         /// <summary>
         /// The version of the most current changelog.
         /// </summary>
-        private const string CurrentVersion = "1.8.2";
+        private const string CurrentVersion = "1.9.0";
 
         /// <summary>
         /// The name of the setting containing the last read changelog version.
@@ -40,6 +40,7 @@ namespace RemoteTerminal
         private static readonly string[] Versions = new[]
         {
             CurrentVersion,
+            "1.8.2",
         };
 
         /// <summary>
@@ -71,11 +72,12 @@ namespace RemoteTerminal
 
             foreach (string version in Versions)
             {
-                changelog.Append(ReadHtmlFile(version));
                 if (version == lastReadChangelog)
                 {
                     break;
                 }
+
+                changelog.Append(ReadHtmlFile(version));
             }
 
             changelog.Append(ReadHtmlFile("tail"));

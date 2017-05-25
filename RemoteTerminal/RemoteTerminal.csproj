@@ -14,7 +14,7 @@
     <ProjectTypeGuids>{BC8A1FFA-BEE3-4634-8014-F334798102B3};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <PackageCertificateKeyFile>RemoteTerminal_TemporaryKey.pfx</PackageCertificateKeyFile>
     <PackageCertificateThumbprint>D4B6F8199822C2D9F06D5D052CDA071BDCFD473E</PackageCertificateThumbprint>
-    <AppxAutoIncrementPackageRevision>True</AppxAutoIncrementPackageRevision>
+    <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
     <SccProjectName>SAK</SccProjectName>
@@ -198,6 +198,7 @@
     <EmbeddedResource Include="Changelogs\head.htm" />
     <EmbeddedResource Include="Changelogs\1.8.2.htm" />
     <EmbeddedResource Include="Changelogs\tail.htm" />
+    <EmbeddedResource Include="Changelogs\1.9.0.htm" />
     <Content Include="LICENSE.txt" />
     <Page Include="ChangelogPage.xaml">
       <SubType>Designer</SubType>
