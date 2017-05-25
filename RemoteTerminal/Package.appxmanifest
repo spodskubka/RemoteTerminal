@@ -1,6 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="46436StefanPodskubka.RemoteTerminal" Publisher="CN=46536A2F-5D79-4B8A-8099-26E3FCC16743" Version="1.8.2.21" />
+  <Identity Name="46436StefanPodskubka.RemoteTerminal" Publisher="CN=46536A2F-5D79-4B8A-8099-26E3FCC16743" Version="1.9.0.22" />
   <Properties>
     <DisplayName>Remote Terminal</DisplayName>
     <PublisherDisplayName>Stefan Podskubka</PublisherDisplayName>
