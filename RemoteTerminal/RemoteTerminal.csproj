@@ -198,6 +198,7 @@
     <EmbeddedResource Include="Changelogs\head.htm" />
     <EmbeddedResource Include="Changelogs\1.8.2.htm" />
     <EmbeddedResource Include="Changelogs\tail.htm" />
+    <EmbeddedResource Include="Changelogs\1.9.0.htm" />
     <Content Include="LICENSE.txt" />
     <Page Include="ChangelogPage.xaml">
       <SubType>Designer</SubType>
