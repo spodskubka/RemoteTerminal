@@ -316,30 +316,30 @@ namespace RemoteTerminal.Terminals
         /// </summary>
         public void PowerOn()
         {
+            switch (connectionData.Type)
+            {
+                case ConnectionType.Telnet:
+                    this.connection = new TelnetConnection();
+                    break;
+                case ConnectionType.Ssh:
+                    this.connection = new SshConnection();
+                    break;
+                default:
+                    break;
+            }
+
+            this.connection.Initialize(connectionData);
+            this.IsConnected = true;
+            this.ScreenHasFocus = true;
+
+            var connected = this.Connected;
+            if (connected != null)
+            {
+                connected.Invoke(this, new EventArgs());
+            }
+
             Task.Factory.StartNew(async () =>
             {
-                switch (connectionData.Type)
-                {
-                    case ConnectionType.Telnet:
-                        this.connection = new TelnetConnection();
-                        break;
-                    case ConnectionType.Ssh:
-                        this.connection = new SshConnection();
-                        break;
-                    default:
-                        break;
-                }
-
-                this.connection.Initialize(connectionData);
-                this.IsConnected = true;
-                this.ScreenHasFocus = true;
-
-                var connected = this.Connected;
-                if (connected != null)
-                {
-                    connected.Invoke(this, new EventArgs());
-                }
-
                 this.screenInitWaiter.Wait();
                 bool successful = await this.connection.ConnectAsync(this);
                 if (successful)
