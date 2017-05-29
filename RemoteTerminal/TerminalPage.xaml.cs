@@ -252,6 +252,7 @@ namespace RemoteTerminal
         private void PreviewGrid_ItemCloseButtonClick(object sender, RoutedEventArgs e)
         {
             ITerminal terminal = ((Button)sender).Tag as ITerminal;
+            TerminalManager.Remove(terminal);
             if (this.Terminal == terminal)
             {
                 var switchToTerminal = TerminalManager.Terminals.Where(t => t != terminal).FirstOrDefault();
@@ -264,8 +265,6 @@ namespace RemoteTerminal
                     this.Terminal = switchToTerminal;
                 }
             }
-
-            TerminalManager.Remove(terminal);
         }
 
         /// <summary>
