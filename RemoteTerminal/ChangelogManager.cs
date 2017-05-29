@@ -34,12 +34,11 @@ namespace RemoteTerminal
         private const string LastReadChangelogSettingName = "LastReadChangelog";
 
         /// <summary>
-        /// This array contains, in reverse order, all versions of the app for which a changelog is available.
+        /// This array contains, in reverse order, all previous versions of the app for which a changelog is available.
         /// </summary>
-        /// <remarks>The first entry should always be <see cref="CurrentVersion"/>.</remarks>
-        private static readonly string[] Versions = new[]
+        /// <remarks><see cref="CurrentVersion"/> must not be included in this list.</remarks>
+        private static readonly string[] PreviousVersions = new[]
         {
-            CurrentVersion,
             "1.9.0",
             "1.8.2",
         };
@@ -71,14 +70,18 @@ namespace RemoteTerminal
             changelog.Append(ReadHtmlFile("head")
                 .Replace("{CurrentVersion}", CurrentVersion));
 
-            foreach (string version in Versions)
+            changelog.Append(ReadHtmlFile(CurrentVersion));
+            if (CurrentVersion != lastReadChangelog)
             {
-                if (version == lastReadChangelog)
+                foreach (string version in PreviousVersions)
                 {
-                    break;
-                }
+                    if (version == lastReadChangelog)
+                    {
+                        break;
+                    }
 
-                changelog.Append(ReadHtmlFile(version));
+                    changelog.Append(ReadHtmlFile(version));
+                }
             }
 
             changelog.Append(ReadHtmlFile("tail"));
