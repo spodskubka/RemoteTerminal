@@ -234,6 +234,8 @@ namespace Renci.SshNet
             {
                 {"hmac-md5", (key) => { return MacAlgorithmProvider.OpenAlgorithm(MacAlgorithmNames.HmacMd5).CreateKey(CryptographicBuffer.CreateFromByteArray(key.Take(16).ToArray()));}},
                 {"hmac-sha1", (key) => { return MacAlgorithmProvider.OpenAlgorithm(MacAlgorithmNames.HmacSha1).CreateKey(CryptographicBuffer.CreateFromByteArray(key.Take(20).ToArray()));}},
+                {"hmac-sha2-256", (key) => { return MacAlgorithmProvider.OpenAlgorithm(MacAlgorithmNames.HmacSha256).CreateKey(CryptographicBuffer.CreateFromByteArray(key.Take(32).ToArray()));}},
+                {"hmac-sha2-512", (key) => { return MacAlgorithmProvider.OpenAlgorithm(MacAlgorithmNames.HmacSha512).CreateKey(CryptographicBuffer.CreateFromByteArray(key.Take(64).ToArray()));}},
                 //{"umac-64@openssh.com", typeof(HMacSha1)},
                 //{"hmac-ripemd160", typeof(HMacSha1)},
                 //{"hmac-ripemd160@openssh.com", typeof(HMacSha1)},
