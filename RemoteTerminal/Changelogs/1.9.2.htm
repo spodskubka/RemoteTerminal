@@ -1,0 +1,9 @@
+﻿<h2>1.9.2 (2017-12-11)</h2>
+<p>
+    <b>Added support for more secure HMAC algorithms</b>
+</p>
+<p>
+    Until now only <b>hmac-md5</b> and <b>hmac-sha1</b> were supported.<br/>
+    This update adds support for <b>hmac-sha2-256</b> and <b>hmac-sha2-512</b> to support connections to servers that only accept SHA2 HMAC algorithms.<br/>
+    Additionally this may also increase security even when connecting to servers that still accept the less secure HMAC algorithms (if they also support and prefer the SHA2 HMAC algorithms).
+</p>
