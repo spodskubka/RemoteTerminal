@@ -111,7 +111,7 @@ namespace Renci.SshNet.Security
                                            select a).FirstOrDefault();
             if (string.IsNullOrEmpty(clientHmacAlgorithmName))
             {
-                throw new SshConnectionException("Server HMAC algorithm not found", DisconnectReason.KeyExchangeFailed);
+                throw new SshConnectionException("Client HMAC algorithm not found", DisconnectReason.KeyExchangeFailed);
             }
 
             session.ConnectionInfo.CurrentClientHmacAlgorithm = clientHmacAlgorithmName;
