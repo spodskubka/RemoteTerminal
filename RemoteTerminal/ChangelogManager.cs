@@ -26,7 +26,7 @@ namespace RemoteTerminal
         /// <summary>
         /// The version of the most current changelog.
         /// </summary>
-        private const string CurrentVersion = "1.9.1";
+        private const string CurrentVersion = "1.9.2";
 
         /// <summary>
         /// The name of the setting containing the last read changelog version.
@@ -39,6 +39,7 @@ namespace RemoteTerminal
         /// <remarks><see cref="CurrentVersion"/> must not be included in this list.</remarks>
         private static readonly string[] PreviousVersions = new[]
         {
+            "1.9.1",
             "1.9.0",
             "1.8.2",
         };
